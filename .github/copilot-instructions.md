@@ -122,6 +122,27 @@ To reuse data provider logic effectively in a Laravel and Inertia.js application
 - **Middleware:** Utilize Zustand middleware (e.g., `persist` for local storage, `devtools` for Redux DevTools integration, `immer` for immutable state updates) as needed.
 - **Actions:** Define actions as functions within your store that encapsulate state update logic.
 
+### Laravel Inertia Ziggy Navigation
+
+- **Use `route(routeName)` instead of hardcoded paths**
+- **Prefer named routes in Laravel**
+- **Ensure all navigable routes are named in Laravel**
+- **Type-safe route parameters with Ziggy + TypeScript**
+
+```tsx
+route('user.profile', { id: user.id });
+```
+
+- **Avoid dynamic string route names**
+
+* Don't do: `route('user.' + action)`
+* Instead, use enums or clear constants.
+
+- **Don’t mix Laravel redirects with Inertia navigation**
+-   - Use Inertia’s `<Link />` or `router.visit()` instead of `<a href>`.
+- **Leverage `route().current()` to highlight active links**
+- **Use `route().has()` to check if route exists before navigating**
+
 ### Ant Design
 
 - **Theme Customization:** Use Ant Design's theming capabilities (e.g., via `ConfigProvider` or by customizing Less variables if you've set up Less) to match your application's branding.

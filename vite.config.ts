@@ -17,6 +17,11 @@ export default defineConfig({
     esbuild: {
         jsx: 'automatic',
     },
+    define: {
+        // Make Laravel environment variables available to Vite
+        'import.meta.env.VITE_API_URL': JSON.stringify(process.env.APP_URL || 'http://localhost:8000'),
+        'import.meta.env.VITE_APP_ENV': JSON.stringify(process.env.APP_ENV || 'local'),
+    },
     resolve: {
         alias: {
             'ziggy-js': resolve(__dirname, 'vendor/tightenco/ziggy'),

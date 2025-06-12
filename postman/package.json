@@ -1,0 +1,36 @@
+{
+    "name": "turfhub-api-tests",
+    "version": "1.0.0",
+    "description": "Postman collection and Newman tests for TurfHub API",
+    "scripts": {
+        "test": "./run-tests.sh",
+        "test:basic": "./run-tests.sh basic",
+        "test:complete": "./run-tests.sh complete",
+        "test:health": "./run-tests.sh health",
+        "test:validate": "./run-tests.sh validate",
+        "install-newman": "npm install -g newman newman-reporter-htmlextra",
+        "clean-reports": "rm -rf reports/*",
+        "open-report": "open reports/basic-suite-report.html"
+    },
+    "keywords": [
+        "api",
+        "testing",
+        "postman",
+        "newman",
+        "laravel",
+        "turfhub"
+    ],
+    "devDependencies": {
+        "newman": "^5.3.2",
+        "newman-reporter-htmlextra": "^1.22.11"
+    },
+    "engines": {
+        "node": ">=14.0.0"
+    },
+    "repository": {
+        "type": "git",
+        "url": "your-repo-url"
+    },
+    "author": "TurfHub Team",
+    "license": "MIT"
+}

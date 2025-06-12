@@ -1,0 +1,1102 @@
+{
+    "info": {
+        "name": "TurfHub API Collection",
+        "description": "Comprehensive API collection for TurfHub - A modern turf management system with Laravel + Sanctum authentication",
+        "version": "1.0.0",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "auth": {
+        "type": "bearer",
+        "bearer": [
+            {
+                "key": "token",
+                "value": "{{auth_token}}",
+                "type": "string"
+            }
+        ]
+    },
+    "event": [
+        {
+            "listen": "prerequest",
+            "script": {
+                "type": "text/javascript",
+                "exec": [
+                    "// Global Pre-request Script",
+                    "// Set default headers",
+                    "pm.request.headers.add({",
+                    "    key: 'Accept',",
+                    "    value: 'application/json'",
+                    "});",
+                    "",
+                    "pm.request.headers.add({",
+                    "    key: 'Content-Type',",
+                    "    value: 'application/json'",
+                    "});",
+                    "",
+                    "// Add timestamp for requests",
+                    "pm.globals.set('timestamp', new Date().toISOString());"
+                ]
+            }
+        },
+        {
+            "listen": "test",
+            "script": {
+                "type": "text/javascript",
+                "exec": [
+                    "// Global Test Script",
+                    "// Log response time",
+                    "console.log('Response Time: ' + pm.response.responseTime + 'ms');",
+                    "",
+                    "// Check if response has proper Content-Type",
+                    "pm.test('Response has JSON Content-Type', function () {",
+                    "    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+                    "});",
+                    "",
+                    "// Check response structure for API responses",
+                    "if (pm.response.code >= 200 && pm.response.code < 300 && pm.response.json()) {",
+                    "    const jsonData = pm.response.json();",
+                    "    ",
+                    "    // Check for Laravel API Resource structure",
+                    "    if (jsonData.data !== undefined) {",
+                    "        pm.test('Response follows Laravel API Resource format', function () {",
+                    "            pm.expect(jsonData).to.have.property('data');",
+                    "        });",
+                    "    }",
+                    "}"
+                ]
+            }
+        }
+    ],
+    "variable": [
+        {
+            "key": "base_url",
+            "value": "{{base_url}}",
+            "type": "string"
+        },
+        {
+            "key": "api_version",
+            "value": "v1",
+            "type": "string"
+        }
+    ],
+    "item": [
+        {
+            "name": "Authentication",
+            "item": [
+                {
+                    "name": "Register User",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 201', function () {",
+                                    "    pm.response.to.have.status(201);",
+                                    "});",
+                                    "",
+                                    "pm.test('Response contains user data', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.have.property('data');",
+                                    "    pm.expect(jsonData.data).to.have.property('id');",
+                                    "    pm.expect(jsonData.data).to.have.property('email');",
+                                    "    pm.expect(jsonData.data).to.have.property('name');",
+                                    "});",
+                                    "",
+                                    "// Store user ID for future requests",
+                                    "if (pm.response.code === 201) {",
+                                    "    const user = pm.response.json().data;",
+                                    "    pm.environment.set('test_user_id', user.id);",
+                                    "    pm.environment.set('test_user_email', user.email);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"{{$randomFullName}}\",\n    \"email\": \"{{$randomEmail}}\",\n    \"password\": \"password123\",\n    \"password_confirmation\": \"password123\",\n    \"role\": \"player\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/users",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "users"
+                            ]
+                        },
+                        "description": "Register a new user account"
+                    }
+                },
+                {
+                    "name": "Login User (Web)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 302 (redirect)', function () {",
+                                    "    pm.response.to.have.status(302);",
+                                    "});",
+                                    "",
+                                    "// Extract CSRF token from cookies if available",
+                                    "const cookies = pm.cookies.all();",
+                                    "cookies.forEach(cookie => {",
+                                    "    if (cookie.name === 'laravel_session') {",
+                                    "        pm.environment.set('laravel_session', cookie.value);",
+                                    "    }",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "X-Requested-With",
+                                "value": "XMLHttpRequest"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"{{test_user_email}}\",\n    \"password\": \"password123\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/login",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "login"
+                            ]
+                        },
+                        "description": "Login via web authentication (session-based)"
+                    }
+                },
+                {
+                    "name": "Get Authenticated User",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test('Response contains user data', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.have.property('id');",
+                                    "    pm.expect(jsonData).to.have.property('email');",
+                                    "    pm.expect(jsonData).to.have.property('name');",
+                                    "    pm.expect(jsonData).to.have.property('role');",
+                                    "});",
+                                    "",
+                                    "pm.test('User has valid role', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(['admin', 'manager', 'player']).to.include(jsonData.role);",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{auth_token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/user",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "user"
+                            ]
+                        },
+                        "description": "Get the authenticated user's information (requires Sanctum token)"
+                    }
+                }
+            ],
+            "description": "Authentication endpoints for user registration, login, and user information"
+        },
+        {
+            "name": "Users",
+            "item": [
+                {
+                    "name": "List Users",
+                    "event": [
+                        {
+                            "listen": "prerequest",
+                            "script": {
+                                "exec": [
+                                    "// Set dynamic query parameters",
+                                    "const url = pm.request.url;",
+                                    "",
+                                    "// Example: Add pagination",
+                                    "if (pm.environment.get('per_page')) {",
+                                    "    url.query.add({key: 'per_page', value: pm.environment.get('per_page')});",
+                                    "}",
+                                    "",
+                                    "// Example: Add role filter",
+                                    "if (pm.environment.get('filter_role')) {",
+                                    "    url.query.add({key: 'role', value: pm.environment.get('filter_role')});",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        },
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test('Response has pagination structure', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.have.property('data');",
+                                    "    pm.expect(jsonData).to.have.property('links');",
+                                    "    pm.expect(jsonData).to.have.property('meta');",
+                                    "});",
+                                    "",
+                                    "pm.test('Users array contains valid user objects', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    if (jsonData.data.length > 0) {",
+                                    "        const firstUser = jsonData.data[0];",
+                                    "        pm.expect(firstUser).to.have.property('id');",
+                                    "        pm.expect(firstUser).to.have.property('name');",
+                                    "        pm.expect(firstUser).to.have.property('email');",
+                                    "        pm.expect(firstUser).to.have.property('role');",
+                                    "    }",
+                                    "});",
+                                    "",
+                                    "// Store first user ID for other tests",
+                                    "const jsonData = pm.response.json();",
+                                    "if (jsonData.data.length > 0) {",
+                                    "    pm.environment.set('sample_user_id', jsonData.data[0].id);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/users?per_page=15&include=ownedTurfs,players",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "users"
+                            ],
+                            "query": [
+                                {
+                                    "key": "per_page",
+                                    "value": "15",
+                                    "description": "Number of users per page"
+                                },
+                                {
+                                    "key": "include",
+                                    "value": "ownedTurfs,players",
+                                    "description": "Include relationships"
+                                },
+                                {
+                                    "key": "role",
+                                    "value": "player",
+                                    "description": "Filter by role",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "search",
+                                    "value": "john",
+                                    "description": "Search by name or email",
+                                    "disabled": true
+                                }
+                            ]
+                        },
+                        "description": "Retrieve a paginated list of users with optional filtering and relationship loading"
+                    }
+                },
+                {
+                    "name": "Get User by ID",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test('Response contains user data', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.have.property('data');",
+                                    "    pm.expect(jsonData.data).to.have.property('id');",
+                                    "    pm.expect(jsonData.data).to.have.property('name');",
+                                    "    pm.expect(jsonData.data).to.have.property('email');",
+                                    "});",
+                                    "",
+                                    "pm.test('User ID matches requested ID', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    const requestedId = pm.variables.get('sample_user_id');",
+                                    "    pm.expect(jsonData.data.id.toString()).to.equal(requestedId.toString());",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/users/{{sample_user_id}}?include=ownedTurfs,players",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "users",
+                                "{{sample_user_id}}"
+                            ],
+                            "query": [
+                                {
+                                    "key": "include",
+                                    "value": "ownedTurfs,players",
+                                    "description": "Include relationships"
+                                }
+                            ]
+                        },
+                        "description": "Get a specific user by ID with optional relationship loading"
+                    }
+                },
+                {
+                    "name": "Create User",
+                    "event": [
+                        {
+                            "listen": "prerequest",
+                            "script": {
+                                "exec": [
+                                    "// Generate test data",
+                                    "pm.globals.set('test_name', pm.variables.replaceIn('{{$randomFullName}}'));",
+                                    "pm.globals.set('test_email', pm.variables.replaceIn('{{$randomEmail}}'));",
+                                    "pm.globals.set('test_password', 'SecurePass123!');"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        },
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 201', function () {",
+                                    "    pm.response.to.have.status(201);",
+                                    "});",
+                                    "",
+                                    "pm.test('User was created successfully', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.have.property('data');",
+                                    "    pm.expect(jsonData.data).to.have.property('id');",
+                                    "    pm.expect(jsonData.data.name).to.equal(pm.globals.get('test_name'));",
+                                    "    pm.expect(jsonData.data.email).to.equal(pm.globals.get('test_email'));",
+                                    "});",
+                                    "",
+                                    "// Store created user ID for cleanup",
+                                    "if (pm.response.code === 201) {",
+                                    "    const user = pm.response.json().data;",
+                                    "    pm.environment.set('created_user_id', user.id);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"{{test_name}}\",\n    \"email\": \"{{test_email}}\",\n    \"password\": \"{{test_password}}\",\n    \"password_confirmation\": \"{{test_password}}\",\n    \"role\": \"player\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/users",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "users"
+                            ]
+                        },
+                        "description": "Create a new user"
+                    }
+                },
+                {
+                    "name": "Update User",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test('User was updated successfully', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.have.property('data');",
+                                    "    pm.expect(jsonData.data).to.have.property('id');",
+                                    "    pm.expect(jsonData.data.name).to.include('Updated');",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "PUT",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Updated {{$randomFirstName}}\",\n    \"role\": \"manager\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/users/{{created_user_id}}",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "users",
+                                "{{created_user_id}}"
+                            ]
+                        },
+                        "description": "Update an existing user"
+                    }
+                },
+                {
+                    "name": "Delete User",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 204', function () {",
+                                    "    pm.response.to.have.status(204);",
+                                    "});",
+                                    "",
+                                    "pm.test('Response body is empty', function () {",
+                                    "    pm.expect(pm.response.text()).to.be.empty;",
+                                    "});",
+                                    "",
+                                    "// Clean up environment variable",
+                                    "pm.environment.unset('created_user_id');"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "DELETE",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/users/{{created_user_id}}",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "users",
+                                "{{created_user_id}}"
+                            ]
+                        },
+                        "description": "Delete a user"
+                    }
+                }
+            ],
+            "description": "CRUD operations for user management"
+        },
+        {
+            "name": "Turfs",
+            "item": [
+                {
+                    "name": "List Turfs",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test('Response has pagination structure', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.have.property('data');",
+                                    "    pm.expect(jsonData).to.have.property('links');",
+                                    "    pm.expect(jsonData).to.have.property('meta');",
+                                    "});",
+                                    "",
+                                    "// Store first turf ID for other tests",
+                                    "const jsonData = pm.response.json();",
+                                    "if (jsonData.data.length > 0) {",
+                                    "    pm.environment.set('sample_turf_id', jsonData.data[0].id);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/turfs?per_page=10&include=owner,players,matchSessions",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "turfs"
+                            ],
+                            "query": [
+                                {
+                                    "key": "per_page",
+                                    "value": "10"
+                                },
+                                {
+                                    "key": "include",
+                                    "value": "owner,players,matchSessions"
+                                },
+                                {
+                                    "key": "is_active",
+                                    "value": "true",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "requires_membership",
+                                    "value": "false",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "search",
+                                    "value": "stadium",
+                                    "disabled": true
+                                }
+                            ]
+                        },
+                        "description": "List all turfs with filtering and relationship loading"
+                    }
+                },
+                {
+                    "name": "Create Turf",
+                    "event": [
+                        {
+                            "listen": "prerequest",
+                            "script": {
+                                "exec": [
+                                    "// Generate test data for turf",
+                                    "pm.globals.set('turf_name', pm.variables.replaceIn('{{$randomCompanyName}} Stadium'));",
+                                    "pm.globals.set('turf_location', pm.variables.replaceIn('{{$randomStreetAddress}}, {{$randomCity}}'));"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        },
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 201', function () {",
+                                    "    pm.response.to.have.status(201);",
+                                    "});",
+                                    "",
+                                    "pm.test('Turf was created successfully', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.have.property('data');",
+                                    "    pm.expect(jsonData.data).to.have.property('id');",
+                                    "    pm.expect(jsonData.data.name).to.equal(pm.globals.get('turf_name'));",
+                                    "});",
+                                    "",
+                                    "// Store created turf ID",
+                                    "if (pm.response.code === 201) {",
+                                    "    const turf = pm.response.json().data;",
+                                    "    pm.environment.set('created_turf_id', turf.id);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"{{turf_name}}\",\n    \"description\": \"A premium football turf with excellent facilities\",\n    \"location\": \"{{turf_location}}\",\n    \"owner_id\": {{sample_user_id}},\n    \"requires_membership\": false,\n    \"membership_fee\": null,\n    \"membership_type\": null,\n    \"hourly_rate\": 150.00,\n    \"is_active\": true\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/turfs",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "turfs"
+                            ]
+                        },
+                        "description": "Create a new turf"
+                    }
+                }
+            ],
+            "description": "CRUD operations for turf management"
+        },
+        {
+            "name": "Match Sessions",
+            "item": [
+                {
+                    "name": "List Match Sessions",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test('Response has pagination structure', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.have.property('data');",
+                                    "    pm.expect(jsonData).to.have.property('links');",
+                                    "    pm.expect(jsonData).to.have.property('meta');",
+                                    "});",
+                                    "",
+                                    "// Store sample match session ID",
+                                    "const jsonData = pm.response.json();",
+                                    "if (jsonData.data.length > 0) {",
+                                    "    pm.environment.set('sample_match_session_id', jsonData.data[0].id);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/match-sessions?include=turf,teams,gameMatches&is_active=true",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "match-sessions"
+                            ],
+                            "query": [
+                                {
+                                    "key": "include",
+                                    "value": "turf,teams,gameMatches"
+                                },
+                                {
+                                    "key": "is_active",
+                                    "value": "true"
+                                },
+                                {
+                                    "key": "time_slot",
+                                    "value": "evening",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "date_from",
+                                    "value": "2025-06-01",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "date_to",
+                                    "value": "2025-06-30",
+                                    "disabled": true
+                                }
+                            ]
+                        },
+                        "description": "List match sessions with filtering options"
+                    }
+                },
+                {
+                    "name": "Create Match Session",
+                    "event": [
+                        {
+                            "listen": "prerequest",
+                            "script": {
+                                "exec": [
+                                    "// Generate session data",
+                                    "const today = new Date();",
+                                    "const tomorrow = new Date(today);",
+                                    "tomorrow.setDate(tomorrow.getDate() + 1);",
+                                    "",
+                                    "pm.globals.set('session_date', tomorrow.toISOString().split('T')[0]);",
+                                    "pm.globals.set('session_name', 'Evening Match Session - ' + tomorrow.toDateString());"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        },
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 201', function () {",
+                                    "    pm.response.to.have.status(201);",
+                                    "});",
+                                    "",
+                                    "pm.test('Match session was created successfully', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.have.property('data');",
+                                    "    pm.expect(jsonData.data).to.have.property('id');",
+                                    "    pm.expect(jsonData.data.name).to.include('Evening Match Session');",
+                                    "});",
+                                    "",
+                                    "// Store created match session ID",
+                                    "if (pm.response.code === 201) {",
+                                    "    const session = pm.response.json().data;",
+                                    "    pm.environment.set('created_match_session_id', session.id);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"turf_id\": {{sample_turf_id}},\n    \"name\": \"{{session_name}}\",\n    \"session_date\": \"{{session_date}}\",\n    \"time_slot\": \"evening\",\n    \"start_time\": \"18:00\",\n    \"end_time\": \"22:00\",\n    \"max_teams\": 6,\n    \"status\": \"active\",\n    \"is_active\": true\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/match-sessions",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "match-sessions"
+                            ]
+                        },
+                        "description": "Create a new match session"
+                    }
+                }
+            ],
+            "description": "Match session management endpoints"
+        },
+        {
+            "name": "Teams",
+            "item": [
+                {
+                    "name": "List Teams",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/teams?include=matchSession,captain,teamPlayers",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "teams"
+                            ],
+                            "query": [
+                                {
+                                    "key": "include",
+                                    "value": "matchSession,captain,teamPlayers"
+                                },
+                                {
+                                    "key": "match_session_id",
+                                    "value": "{{sample_match_session_id}}",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "status",
+                                    "value": "active_in_match",
+                                    "disabled": true
+                                }
+                            ]
+                        }
+                    }
+                }
+            ],
+            "description": "Team management endpoints"
+        },
+        {
+            "name": "Nested Routes",
+            "item": [
+                {
+                    "name": "Turf Players",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/turfs/{{sample_turf_id}}/players?include=user",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "turfs",
+                                "{{sample_turf_id}}",
+                                "players"
+                            ],
+                            "query": [
+                                {
+                                    "key": "include",
+                                    "value": "user"
+                                }
+                            ]
+                        },
+                        "description": "Get all players for a specific turf"
+                    }
+                },
+                {
+                    "name": "Match Session Teams",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/match-sessions/{{sample_match_session_id}}/teams?include=captain,teamPlayers",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "match-sessions",
+                                "{{sample_match_session_id}}",
+                                "teams"
+                            ],
+                            "query": [
+                                {
+                                    "key": "include",
+                                    "value": "captain,teamPlayers"
+                                }
+                            ]
+                        },
+                        "description": "Get all teams for a specific match session"
+                    }
+                },
+                {
+                    "name": "User Owned Turfs",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/users/{{sample_user_id}}/turfs?include=players,matchSessions",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "users",
+                                "{{sample_user_id}}",
+                                "turfs"
+                            ],
+                            "query": [
+                                {
+                                    "key": "include",
+                                    "value": "players,matchSessions"
+                                }
+                            ]
+                        },
+                        "description": "Get all turfs owned by a specific user"
+                    }
+                }
+            ],
+            "description": "Nested resource endpoints for related data"
+        },
+        {
+            "name": "Error Scenarios",
+            "item": [
+                {
+                    "name": "404 - User Not Found",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 404', function () {",
+                                    "    pm.response.to.have.status(404);",
+                                    "});",
+                                    "",
+                                    "pm.test('Error response has proper structure', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.have.property('message');",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/users/99999",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "users",
+                                "99999"
+                            ]
+                        },
+                        "description": "Test 404 error handling for non-existent user"
+                    }
+                },
+                {
+                    "name": "422 - Validation Error",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 422', function () {",
+                                    "    pm.response.to.have.status(422);",
+                                    "});",
+                                    "",
+                                    "pm.test('Validation error response has proper structure', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.have.property('message');",
+                                    "    pm.expect(jsonData).to.have.property('errors');",
+                                    "});",
+                                    "",
+                                    "pm.test('Validation errors contain expected fields', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData.errors).to.have.property('email');",
+                                    "    pm.expect(jsonData.errors).to.have.property('password');",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Test User\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/users",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "users"
+                            ]
+                        },
+                        "description": "Test validation error handling with incomplete user data"
+                    }
+                },
+                {
+                    "name": "401 - Unauthorized Access",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 401', function () {",
+                                    "    pm.response.to.have.status(401);",
+                                    "});",
+                                    "",
+                                    "pm.test('Unauthorized response has proper message', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.have.property('message');",
+                                    "    pm.expect(jsonData.message).to.include('Unauthenticated');",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/user",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "user"
+                            ]
+                        },
+                        "description": "Test unauthorized access to protected endpoint"
+                    }
+                }
+            ],
+            "description": "Test various error scenarios and response handling"
+        }
+    ]
+}

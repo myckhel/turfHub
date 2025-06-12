@@ -1,0 +1,66 @@
+{
+  "collection": "TurfHub-Complete-Collection.json",
+  "environment": "TurfHub-Development.postman_environment.json",
+  "iterationCount": 1,
+  "timeoutRequest": 30000,
+  "timeoutScript": 10000,
+  "delayRequest": 100,
+  "ignoreRedirects": false,
+  "insecure": false,
+  "bail": false,
+  "suppressExitCode": false,
+  "reporters": [
+    "cli",
+    "htmlextra",
+    "json"
+  ],
+  "reporter": {
+    "htmlextra": {
+      "export": "./reports/comprehensive-test-report.html",
+      "template": "./templates/custom-template.hbs",
+      "logs": true,
+      "showOnlyFails": false,
+      "noSyntaxHighlighting": false,
+      "testPaging": true,
+      "browserTitle": "TurfHub API Test Report",
+      "title": "TurfHub API Comprehensive Test Report",
+      "titleSize": 2,
+      "omitHeaders": false,
+      "skipHeaders": "",
+      "omitRequestBodies": false,
+      "omitResponseBodies": false,
+      "hideRequestBody": [],
+      "hideResponseBody": [],
+      "showEnvironmentData": true,
+      "skipEnvironmentVars": [],
+      "showGlobalData": true,
+      "skipGlobalVars": [],
+      "skipSensitiveData": true,
+      "showMarkdownLinks": true,
+      "showFolderDescription": true,
+      "timezone": "UTC"
+    },
+    "json": {
+      "export": "./reports/test-results.json"
+    }
+  },
+  "verbose": true,
+  "color": true,
+  "sslClientCert": "",
+  "sslClientKey": "",
+  "sslClientPassphrase": "",
+  "sslClientCertList": [],
+  "sslExtraCaCerts": "",
+  "requestAgents": {},
+  "globalVar": [
+    {
+      "key": "test_run_id",
+      "value": "{{$timestamp}}"
+    },
+    {
+      "key": "test_environment",
+      "value": "development"
+    }
+  ],
+  "envVar": []
+}

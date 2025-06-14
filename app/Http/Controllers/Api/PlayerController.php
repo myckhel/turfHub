@@ -7,51 +7,26 @@ use App\Http\Requests\StorePlayerRequest;
 use App\Http\Requests\UpdatePlayerRequest;
 use App\Http\Resources\PlayerResource;
 use App\Models\Player;
+use App\Services\PlayerService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 
 class PlayerController extends Controller
 {
+    protected PlayerService $playerService;
+
+    public function __construct(PlayerService $playerService)
+    {
+        $this->playerService = $playerService;
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request): AnonymousResourceCollection
     {
-        $query = Player::query();
-
-        // Filter by user
-        if ($request->filled('user_id')) {
-            $query->where('user_id', $request->user_id);
-        }
-
-        // Filter by turf
-        if ($request->filled('turf_id')) {
-            $query->where('turf_id', $request->turf_id);
-        }
-
-        // Filter by membership status
-        if ($request->filled('is_member')) {
-            $query->where('is_member', $request->boolean('is_member'));
-        }
-
-        // Filter by status
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-
-        // Load relationships if requested
-        if ($request->filled('include')) {
-            $includes = explode(',', $request->include);
-            $allowedIncludes = ['user', 'turf', 'teamPlayers', 'matchEvents'];
-            $validIncludes = array_intersect($includes, $allowedIncludes);
-
-            if (!empty($validIncludes)) {
-                $query->with($validIncludes);
-            }
-        }
-
-        $players = $query->paginate($request->get('per_page', 15));
+        $players = $this->playerService->getPlayers($request);
 
         return PlayerResource::collection($players);
     }
@@ -61,7 +36,7 @@ class PlayerController extends Controller
      */
     public function store(StorePlayerRequest $request): PlayerResource
     {
-        $player = Player::create($request->validated());
+        $player = $this->playerService->createPlayer($request->validated());
 
         return new PlayerResource($player);
     }
@@ -71,16 +46,12 @@ class PlayerController extends Controller
      */
     public function show(Request $request, Player $player): PlayerResource
     {
-        // Load relationships if requested
+        $includes = [];
         if ($request->filled('include')) {
             $includes = explode(',', $request->include);
-            $allowedIncludes = ['user', 'turf', 'teamPlayers', 'matchEvents'];
-            $validIncludes = array_intersect($includes, $allowedIncludes);
-
-            if (!empty($validIncludes)) {
-                $player->load($validIncludes);
-            }
         }
+
+        $player = $this->playerService->getPlayerWithRelations($player, $includes);
 
         return new PlayerResource($player);
     }
@@ -90,7 +61,7 @@ class PlayerController extends Controller
      */
     public function update(UpdatePlayerRequest $request, Player $player): PlayerResource
     {
-        $player->update($request->validated());
+        $player = $this->playerService->updatePlayer($player, $request->validated());
 
         return new PlayerResource($player);
     }
@@ -100,7 +71,7 @@ class PlayerController extends Controller
      */
     public function destroy(Player $player): Response
     {
-        $player->delete();
+        $this->playerService->deletePlayer($player);
 
         return response()->noContent();
     }

@@ -7,46 +7,26 @@ use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
+    protected UserService $userService;
+
+    public function __construct(UserService $userService)
+    {
+        $this->userService = $userService;
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request): AnonymousResourceCollection
     {
-        $query = User::query();
-
-        // Filter by role if provided
-        if ($request->filled('role')) {
-            $query->where('role', $request->role);
-        }
-
-        // Search by name or email
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'LIKE', "%{$search}%")
-                  ->orWhere('email', 'LIKE', "%{$search}%");
-            });
-        }
-
-        // Load relationships if requested
-        if ($request->filled('include')) {
-            $includes = explode(',', $request->include);
-            $allowedIncludes = ['ownedTurfs', 'players'];
-            $validIncludes = array_intersect($includes, $allowedIncludes);
-
-            if (!empty($validIncludes)) {
-                $query->with($validIncludes);
-            }
-        }
-
-        $users = $query->paginate($request->get('per_page', 15));
+        $users = $this->userService->getUsers($request);
 
         return UserResource::collection($users);
     }
@@ -56,10 +36,7 @@ class UserController extends Controller
      */
     public function store(StoreUserRequest $request): UserResource
     {
-        $validated = $request->validated();
-        $validated['password'] = Hash::make($validated['password']);
-
-        $user = User::create($validated);
+        $user = $this->userService->createUser($request->validated());
 
         return new UserResource($user);
     }
@@ -69,16 +46,12 @@ class UserController extends Controller
      */
     public function show(Request $request, User $user): UserResource
     {
-        // Load relationships if requested
+        $includes = [];
         if ($request->filled('include')) {
             $includes = explode(',', $request->include);
-            $allowedIncludes = ['ownedTurfs', 'players'];
-            $validIncludes = array_intersect($includes, $allowedIncludes);
-
-            if (!empty($validIncludes)) {
-                $user->load($validIncludes);
-            }
         }
+
+        $user = $this->userService->getUserWithRelations($user, $includes);
 
         return new UserResource($user);
     }
@@ -88,13 +61,7 @@ class UserController extends Controller
      */
     public function update(UpdateUserRequest $request, User $user): UserResource
     {
-        $validated = $request->validated();
-
-        if (isset($validated['password'])) {
-            $validated['password'] = Hash::make($validated['password']);
-        }
-
-        $user->update($validated);
+        $user = $this->userService->updateUser($user, $request->validated());
 
         return new UserResource($user);
     }
@@ -104,7 +71,7 @@ class UserController extends Controller
      */
     public function destroy(User $user): Response
     {
-        $user->delete();
+        $this->userService->deleteUser($user);
 
         return response()->noContent();
     }

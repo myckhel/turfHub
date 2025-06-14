@@ -7,55 +7,26 @@ use App\Http\Requests\StoreTurfRequest;
 use App\Http\Requests\UpdateTurfRequest;
 use App\Http\Resources\TurfResource;
 use App\Models\Turf;
+use App\Services\TurfService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 
 class TurfController extends Controller
 {
+    protected TurfService $turfService;
+
+    public function __construct(TurfService $turfService)
+    {
+        $this->turfService = $turfService;
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request): AnonymousResourceCollection
     {
-        $query = Turf::query();
-
-        // Filter by owner
-        if ($request->filled('owner_id')) {
-            $query->where('owner_id', $request->owner_id);
-        }
-
-        // Filter by active status
-        if ($request->filled('is_active')) {
-            $query->where('is_active', $request->boolean('is_active'));
-        }
-
-        // Filter by membership requirement
-        if ($request->filled('requires_membership')) {
-            $query->where('requires_membership', $request->boolean('requires_membership'));
-        }
-
-        // Search by name or location
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'LIKE', "%{$search}%")
-                  ->orWhere('location', 'LIKE', "%{$search}%");
-            });
-        }
-
-        // Load relationships if requested
-        if ($request->filled('include')) {
-            $includes = explode(',', $request->include);
-            $allowedIncludes = ['owner', 'players', 'matchSessions', 'activeMatchSessions'];
-            $validIncludes = array_intersect($includes, $allowedIncludes);
-
-            if (!empty($validIncludes)) {
-                $query->with($validIncludes);
-            }
-        }
-
-        $turfs = $query->paginate($request->get('per_page', 15));
+        $turfs = $this->turfService->getTurfs($request);
 
         return TurfResource::collection($turfs);
     }
@@ -65,7 +36,7 @@ class TurfController extends Controller
      */
     public function store(StoreTurfRequest $request): TurfResource
     {
-        $turf = Turf::create($request->validated());
+        $turf = $this->turfService->createTurf($request->validated());
 
         return new TurfResource($turf);
     }
@@ -75,16 +46,12 @@ class TurfController extends Controller
      */
     public function show(Request $request, Turf $turf): TurfResource
     {
-        // Load relationships if requested
+        $includes = [];
         if ($request->filled('include')) {
             $includes = explode(',', $request->include);
-            $allowedIncludes = ['owner', 'players', 'matchSessions', 'activeMatchSessions'];
-            $validIncludes = array_intersect($includes, $allowedIncludes);
-
-            if (!empty($validIncludes)) {
-                $turf->load($validIncludes);
-            }
         }
+
+        $turf = $this->turfService->getTurfWithRelations($turf, $includes);
 
         return new TurfResource($turf);
     }
@@ -94,7 +61,7 @@ class TurfController extends Controller
      */
     public function update(UpdateTurfRequest $request, Turf $turf): TurfResource
     {
-        $turf->update($request->validated());
+        $turf = $this->turfService->updateTurf($turf, $request->validated());
 
         return new TurfResource($turf);
     }
@@ -104,7 +71,7 @@ class TurfController extends Controller
      */
     public function destroy(Turf $turf): Response
     {
-        $turf->delete();
+        $this->turfService->deleteTurf($turf);
 
         return response()->noContent();
     }

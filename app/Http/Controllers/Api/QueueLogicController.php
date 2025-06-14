@@ -7,46 +7,26 @@ use App\Http\Requests\StoreQueueLogicRequest;
 use App\Http\Requests\UpdateQueueLogicRequest;
 use App\Http\Resources\QueueLogicResource;
 use App\Models\QueueLogic;
+use App\Services\QueueLogicService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 
 class QueueLogicController extends Controller
 {
+    protected QueueLogicService $queueLogicService;
+
+    public function __construct(QueueLogicService $queueLogicService)
+    {
+        $this->queueLogicService = $queueLogicService;
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request): AnonymousResourceCollection
     {
-        $query = QueueLogic::query();
-
-        // Filter by match session
-        if ($request->filled('match_session_id')) {
-            $query->where('match_session_id', $request->match_session_id);
-        }
-
-        // Filter by team
-        if ($request->filled('team_id')) {
-            $query->where('team_id', $request->team_id);
-        }
-
-        // Filter by status
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-
-        // Load relationships if requested
-        if ($request->filled('include')) {
-            $includes = explode(',', $request->include);
-            $allowedIncludes = ['matchSession', 'team'];
-            $validIncludes = array_intersect($includes, $allowedIncludes);
-
-            if (!empty($validIncludes)) {
-                $query->with($validIncludes);
-            }
-        }
-
-        $queueLogic = $query->orderBy('queue_position', 'asc')->paginate($request->get('per_page', 15));
+        $queueLogic = $this->queueLogicService->getQueueLogic($request);
 
         return QueueLogicResource::collection($queueLogic);
     }
@@ -56,7 +36,7 @@ class QueueLogicController extends Controller
      */
     public function store(StoreQueueLogicRequest $request): QueueLogicResource
     {
-        $queueLogic = QueueLogic::create($request->validated());
+        $queueLogic = $this->queueLogicService->createQueueLogic($request->validated());
 
         return new QueueLogicResource($queueLogic);
     }
@@ -66,16 +46,12 @@ class QueueLogicController extends Controller
      */
     public function show(Request $request, QueueLogic $queueLogic): QueueLogicResource
     {
-        // Load relationships if requested
+        $includes = [];
         if ($request->filled('include')) {
             $includes = explode(',', $request->include);
-            $allowedIncludes = ['matchSession', 'team'];
-            $validIncludes = array_intersect($includes, $allowedIncludes);
-
-            if (!empty($validIncludes)) {
-                $queueLogic->load($validIncludes);
-            }
         }
+
+        $queueLogic = $this->queueLogicService->getQueueLogicWithRelations($queueLogic, $includes);
 
         return new QueueLogicResource($queueLogic);
     }
@@ -85,7 +61,7 @@ class QueueLogicController extends Controller
      */
     public function update(UpdateQueueLogicRequest $request, QueueLogic $queueLogic): QueueLogicResource
     {
-        $queueLogic->update($request->validated());
+        $queueLogic = $this->queueLogicService->updateQueueLogic($queueLogic, $request->validated());
 
         return new QueueLogicResource($queueLogic);
     }
@@ -95,7 +71,7 @@ class QueueLogicController extends Controller
      */
     public function destroy(QueueLogic $queueLogic): Response
     {
-        $queueLogic->delete();
+        $this->queueLogicService->deleteQueueLogic($queueLogic);
 
         return response()->noContent();
     }

@@ -7,46 +7,26 @@ use App\Http\Requests\StoreTeamPlayerRequest;
 use App\Http\Requests\UpdateTeamPlayerRequest;
 use App\Http\Resources\TeamPlayerResource;
 use App\Models\TeamPlayer;
+use App\Services\TeamPlayerService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 
 class TeamPlayerController extends Controller
 {
+    protected TeamPlayerService $teamPlayerService;
+
+    public function __construct(TeamPlayerService $teamPlayerService)
+    {
+        $this->teamPlayerService = $teamPlayerService;
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request): AnonymousResourceCollection
     {
-        $query = TeamPlayer::query();
-
-        // Filter by team
-        if ($request->filled('team_id')) {
-            $query->where('team_id', $request->team_id);
-        }
-
-        // Filter by player
-        if ($request->filled('player_id')) {
-            $query->where('player_id', $request->player_id);
-        }
-
-        // Filter by status
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-
-        // Load relationships if requested
-        if ($request->filled('include')) {
-            $includes = explode(',', $request->include);
-            $allowedIncludes = ['team', 'player'];
-            $validIncludes = array_intersect($includes, $allowedIncludes);
-
-            if (!empty($validIncludes)) {
-                $query->with($validIncludes);
-            }
-        }
-
-        $teamPlayers = $query->orderBy('join_time', 'asc')->paginate($request->get('per_page', 15));
+        $teamPlayers = $this->teamPlayerService->getTeamPlayers($request);
 
         return TeamPlayerResource::collection($teamPlayers);
     }
@@ -56,7 +36,7 @@ class TeamPlayerController extends Controller
      */
     public function store(StoreTeamPlayerRequest $request): TeamPlayerResource
     {
-        $teamPlayer = TeamPlayer::create($request->validated());
+        $teamPlayer = $this->teamPlayerService->createTeamPlayer($request->validated());
 
         return new TeamPlayerResource($teamPlayer);
     }
@@ -66,16 +46,12 @@ class TeamPlayerController extends Controller
      */
     public function show(Request $request, TeamPlayer $teamPlayer): TeamPlayerResource
     {
-        // Load relationships if requested
+        $includes = [];
         if ($request->filled('include')) {
             $includes = explode(',', $request->include);
-            $allowedIncludes = ['team', 'player'];
-            $validIncludes = array_intersect($includes, $allowedIncludes);
-
-            if (!empty($validIncludes)) {
-                $teamPlayer->load($validIncludes);
-            }
         }
+
+        $teamPlayer = $this->teamPlayerService->getTeamPlayerWithRelations($teamPlayer, $includes);
 
         return new TeamPlayerResource($teamPlayer);
     }
@@ -85,7 +61,7 @@ class TeamPlayerController extends Controller
      */
     public function update(UpdateTeamPlayerRequest $request, TeamPlayer $teamPlayer): TeamPlayerResource
     {
-        $teamPlayer->update($request->validated());
+        $teamPlayer = $this->teamPlayerService->updateTeamPlayer($teamPlayer, $request->validated());
 
         return new TeamPlayerResource($teamPlayer);
     }
@@ -95,7 +71,7 @@ class TeamPlayerController extends Controller
      */
     public function destroy(TeamPlayer $teamPlayer): Response
     {
-        $teamPlayer->delete();
+        $this->teamPlayerService->deleteTeamPlayer($teamPlayer);
 
         return response()->noContent();
     }

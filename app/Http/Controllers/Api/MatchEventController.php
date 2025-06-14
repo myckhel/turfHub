@@ -7,60 +7,26 @@ use App\Http\Requests\StoreMatchEventRequest;
 use App\Http\Requests\UpdateMatchEventRequest;
 use App\Http\Resources\MatchEventResource;
 use App\Models\MatchEvent;
+use App\Services\MatchEventService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 
 class MatchEventController extends Controller
 {
+    protected MatchEventService $matchEventService;
+
+    public function __construct(MatchEventService $matchEventService)
+    {
+        $this->matchEventService = $matchEventService;
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request): AnonymousResourceCollection
     {
-        $query = MatchEvent::query();
-
-        // Filter by game match
-        if ($request->filled('game_match_id')) {
-            $query->where('game_match_id', $request->game_match_id);
-        }
-
-        // Filter by player
-        if ($request->filled('player_id')) {
-            $query->where('player_id', $request->player_id);
-        }
-
-        // Filter by team
-        if ($request->filled('team_id')) {
-            $query->where('team_id', $request->team_id);
-        }
-
-        // Filter by event type
-        if ($request->filled('type')) {
-            $query->where('type', $request->type);
-        }
-
-        // Filter by minute range
-        if ($request->filled('minute_from')) {
-            $query->where('minute', '>=', $request->minute_from);
-        }
-
-        if ($request->filled('minute_to')) {
-            $query->where('minute', '<=', $request->minute_to);
-        }
-
-        // Load relationships if requested
-        if ($request->filled('include')) {
-            $includes = explode(',', $request->include);
-            $allowedIncludes = ['gameMatch', 'player', 'team', 'relatedPlayer'];
-            $validIncludes = array_intersect($includes, $allowedIncludes);
-
-            if (!empty($validIncludes)) {
-                $query->with($validIncludes);
-            }
-        }
-
-        $matchEvents = $query->orderBy('minute', 'asc')->paginate($request->get('per_page', 15));
+        $matchEvents = $this->matchEventService->getMatchEvents($request);
 
         return MatchEventResource::collection($matchEvents);
     }
@@ -70,7 +36,7 @@ class MatchEventController extends Controller
      */
     public function store(StoreMatchEventRequest $request): MatchEventResource
     {
-        $matchEvent = MatchEvent::create($request->validated());
+        $matchEvent = $this->matchEventService->createMatchEvent($request->validated());
 
         return new MatchEventResource($matchEvent);
     }
@@ -80,16 +46,12 @@ class MatchEventController extends Controller
      */
     public function show(Request $request, MatchEvent $matchEvent): MatchEventResource
     {
-        // Load relationships if requested
+        $includes = [];
         if ($request->filled('include')) {
             $includes = explode(',', $request->include);
-            $allowedIncludes = ['gameMatch', 'player', 'team', 'relatedPlayer'];
-            $validIncludes = array_intersect($includes, $allowedIncludes);
-
-            if (!empty($validIncludes)) {
-                $matchEvent->load($validIncludes);
-            }
         }
+
+        $matchEvent = $this->matchEventService->getMatchEventWithRelations($matchEvent, $includes);
 
         return new MatchEventResource($matchEvent);
     }
@@ -99,7 +61,7 @@ class MatchEventController extends Controller
      */
     public function update(UpdateMatchEventRequest $request, MatchEvent $matchEvent): MatchEventResource
     {
-        $matchEvent->update($request->validated());
+        $matchEvent = $this->matchEventService->updateMatchEvent($matchEvent, $request->validated());
 
         return new MatchEventResource($matchEvent);
     }
@@ -109,7 +71,7 @@ class MatchEventController extends Controller
      */
     public function destroy(MatchEvent $matchEvent): Response
     {
-        $matchEvent->delete();
+        $this->matchEventService->deleteMatchEvent($matchEvent);
 
         return response()->noContent();
     }

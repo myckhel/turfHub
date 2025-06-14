@@ -1253,6 +1253,514 @@
                 }
             ],
             "description": "Test various error scenarios and response handling"
+        },
+        {
+            "name": "Payment",
+            "item": [
+                {
+                    "name": "Initialize Payment",
+                    "event": [
+                        {
+                            "listen": "prerequest",
+                            "script": {
+                                "exec": [
+                                    "// Generate payment data",
+                                    "pm.globals.set('payment_amount', 1000.00);",
+                                    "pm.globals.set('payment_type', 'session_fee');",
+                                    "pm.globals.set('payment_description', 'Payment for match session participation');"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        },
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test('Response contains payment initialization data', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.have.property('status', true);",
+                                    "    pm.expect(jsonData).to.have.property('data');",
+                                    "    pm.expect(jsonData.data).to.have.property('payment_id');",
+                                    "    pm.expect(jsonData.data).to.have.property('reference');",
+                                    "    pm.expect(jsonData.data).to.have.property('authorization_url');",
+                                    "    pm.expect(jsonData.data).to.have.property('access_code');",
+                                    "});",
+                                    "",
+                                    "// Store payment data for other tests",
+                                    "if (pm.response.code === 200) {",
+                                    "    const responseData = pm.response.json().data;",
+                                    "    pm.environment.set('payment_id', responseData.payment_id);",
+                                    "    pm.environment.set('payment_reference', responseData.reference);",
+                                    "    pm.environment.set('payment_authorization_url', responseData.authorization_url);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"match_session_id\": {{sample_match_session_id}},\n    \"team_id\": null,\n    \"amount\": {{payment_amount}},\n    \"payment_type\": \"{{payment_type}}\",\n    \"description\": \"{{payment_description}}\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/payments/initialize",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "payments",
+                                "initialize"
+                            ]
+                        },
+                        "description": "Initialize a payment for a match session or team joining fee. Returns Paystack authorization URL for payment completion."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Verify Payment",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test('Response contains payment verification data', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.have.property('status', true);",
+                                    "    pm.expect(jsonData).to.have.property('data');",
+                                    "    pm.expect(jsonData.data).to.have.property('payment');",
+                                    "    pm.expect(jsonData.data).to.have.property('transaction_data');",
+                                    "});",
+                                    "",
+                                    "pm.test('Payment object has required fields', function () {",
+                                    "    const payment = pm.response.json().data.payment;",
+                                    "    pm.expect(payment).to.have.property('id');",
+                                    "    pm.expect(payment).to.have.property('reference');",
+                                    "    pm.expect(payment).to.have.property('status');",
+                                    "    pm.expect(payment).to.have.property('amount');",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"reference\": \"{{payment_reference}}\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/payments/verify",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "payments",
+                                "verify"
+                            ]
+                        },
+                        "description": "Verify a payment status with Paystack and update the local payment record"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Payment History",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test('Response contains payment history data', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.have.property('status', true);",
+                                    "    pm.expect(jsonData).to.have.property('data');",
+                                    "    pm.expect(jsonData.data).to.have.property('payments');",
+                                    "    pm.expect(jsonData.data).to.have.property('total_amount');",
+                                    "    pm.expect(jsonData.data).to.have.property('successful_payments');",
+                                    "});",
+                                    "",
+                                    "pm.test('Payments array contains valid payment objects', function () {",
+                                    "    const payments = pm.response.json().data.payments;",
+                                    "    if (payments.length > 0) {",
+                                    "        const firstPayment = payments[0];",
+                                    "        pm.expect(firstPayment).to.have.property('id');",
+                                    "        pm.expect(firstPayment).to.have.property('reference');",
+                                    "        pm.expect(firstPayment).to.have.property('amount');",
+                                    "        pm.expect(firstPayment).to.have.property('status');",
+                                    "        pm.expect(firstPayment).to.have.property('payment_type');",
+                                    "    }",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/payments/history?limit=20",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "payments",
+                                "history"
+                            ],
+                            "query": [
+                                {
+                                    "key": "limit",
+                                    "value": "20",
+                                    "description": "Number of payments to retrieve"
+                                }
+                            ]
+                        },
+                        "description": "Get the authenticated user's payment history with summary statistics"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Payment Details",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test('Response contains payment details', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.have.property('status', true);",
+                                    "    pm.expect(jsonData).to.have.property('data');",
+                                    "    pm.expect(jsonData.data).to.have.property('id');",
+                                    "    pm.expect(jsonData.data).to.have.property('reference');",
+                                    "    pm.expect(jsonData.data).to.have.property('amount');",
+                                    "    pm.expect(jsonData.data).to.have.property('status');",
+                                    "});",
+                                    "",
+                                    "pm.test('Payment has relationships loaded', function () {",
+                                    "    const payment = pm.response.json().data;",
+                                    "    pm.expect(payment).to.have.property('user');",
+                                    "    pm.expect(payment).to.have.property('match_session');",
+                                    "    pm.expect(payment.user).to.have.property('id');",
+                                    "    pm.expect(payment.match_session).to.have.property('id');",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/payments/{{payment_id}}",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "payments",
+                                "{{payment_id}}"
+                            ]
+                        },
+                        "description": "Get detailed information about a specific payment"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Suggested Payment Amount",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test('Response contains suggested amount', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.have.property('status', true);",
+                                    "    pm.expect(jsonData).to.have.property('data');",
+                                    "    pm.expect(jsonData.data).to.have.property('suggested_amount');",
+                                    "    pm.expect(jsonData.data).to.have.property('currency', 'NGN');",
+                                    "    pm.expect(jsonData.data).to.have.property('payment_type');",
+                                    "});",
+                                    "",
+                                    "pm.test('Suggested amount is valid', function () {",
+                                    "    const amount = pm.response.json().data.suggested_amount;",
+                                    "    pm.expect(amount).to.be.a('number');",
+                                    "    pm.expect(amount).to.be.above(0);",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/payments/suggested-amount?match_session_id={{sample_match_session_id}}&payment_type=session_fee",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "payments",
+                                "suggested-amount"
+                            ],
+                            "query": [
+                                {
+                                    "key": "match_session_id",
+                                    "value": "{{sample_match_session_id}}",
+                                    "description": "Match session ID"
+                                },
+                                {
+                                    "key": "payment_type",
+                                    "value": "session_fee",
+                                    "description": "Type of payment (session_fee or team_joining_fee)"
+                                }
+                            ]
+                        },
+                        "description": "Get suggested payment amount for a specific match session and payment type"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Cancel Payment",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test('Payment cancellation response', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.have.property('status', true);",
+                                    "    pm.expect(jsonData).to.have.property('message');",
+                                    "    pm.expect(jsonData.message).to.include('cancelled');",
+                                    "});",
+                                    "",
+                                    "pm.test('Cancelled payment has updated status', function () {",
+                                    "    const payment = pm.response.json().data;",
+                                    "    pm.expect(payment).to.have.property('status', 'cancelled');",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/payments/{{payment_id}}/cancel",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "payments",
+                                "{{payment_id}}",
+                                "cancel"
+                            ]
+                        },
+                        "description": "Cancel a pending payment (only works for payments with 'pending' status)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Match Session Payment Stats",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test('Response contains payment statistics', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.have.property('status', true);",
+                                    "    pm.expect(jsonData).to.have.property('data');",
+                                    "    pm.expect(jsonData.data).to.have.property('total_payments');",
+                                    "    pm.expect(jsonData.data).to.have.property('successful_payments');",
+                                    "    pm.expect(jsonData.data).to.have.property('pending_payments');",
+                                    "    pm.expect(jsonData.data).to.have.property('failed_payments');",
+                                    "    pm.expect(jsonData.data).to.have.property('total_amount_collected');",
+                                    "    pm.expect(jsonData.data).to.have.property('total_amount_pending');",
+                                    "});",
+                                    "",
+                                    "pm.test('Statistics are numbers', function () {",
+                                    "    const stats = pm.response.json().data;",
+                                    "    pm.expect(stats.total_payments).to.be.a('number');",
+                                    "    pm.expect(stats.successful_payments).to.be.a('number');",
+                                    "    pm.expect(stats.total_amount_collected).to.be.a('number');",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/match-sessions/{{sample_match_session_id}}/payment-stats",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "match-sessions",
+                                "{{sample_match_session_id}}",
+                                "payment-stats"
+                            ]
+                        },
+                        "description": "Get payment statistics for a specific match session (total payments, amounts, success rates, etc.)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Initialize Team Joining Payment",
+                    "event": [
+                        {
+                            "listen": "prerequest",
+                            "script": {
+                                "exec": [
+                                    "// Generate team joining payment data",
+                                    "pm.globals.set('team_payment_amount', 500.00);",
+                                    "pm.globals.set('team_payment_type', 'team_joining_fee');",
+                                    "pm.globals.set('team_payment_description', 'Payment for joining team in match session');"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        },
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test('Team payment initialization successful', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.have.property('status', true);",
+                                    "    pm.expect(jsonData.data).to.have.property('payment_id');",
+                                    "    pm.expect(jsonData.data).to.have.property('authorization_url');",
+                                    "});",
+                                    "",
+                                    "// Store team payment data",
+                                    "if (pm.response.code === 200) {",
+                                    "    const responseData = pm.response.json().data;",
+                                    "    pm.environment.set('team_payment_id', responseData.payment_id);",
+                                    "    pm.environment.set('team_payment_reference', responseData.reference);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"match_session_id\": {{sample_match_session_id}},\n    \"team_id\": 1,\n    \"amount\": {{team_payment_amount}},\n    \"payment_type\": \"{{team_payment_type}}\",\n    \"description\": \"{{team_payment_description}}\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/payments/initialize",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "payments",
+                                "initialize"
+                            ]
+                        },
+                        "description": "Initialize a payment specifically for joining a team in a match session"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Payment management endpoints for handling Paystack payment integration. Supports session fees and team joining fees with full payment lifecycle management.",
+            "event": [
+                {
+                    "listen": "prerequest",
+                    "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                            "// Payment-specific pre-request setup",
+                            "// Ensure we have required IDs for payment operations",
+                            "if (!pm.environment.get('sample_match_session_id')) {",
+                            "    console.warn('sample_match_session_id not set - some payment tests may fail');",
+                            "}",
+                            "",
+                            "// Set default payment amounts if not already set",
+                            "if (!pm.globals.get('payment_amount')) {",
+                            "    pm.globals.set('payment_amount', 1000.00);",
+                            "}",
+                            "",
+                            "if (!pm.globals.get('team_payment_amount')) {",
+                            "    pm.globals.set('team_payment_amount', 500.00);",
+                            "}"
+                        ]
+                    }
+                }
+            ]
         }
     ],
     "auth": {

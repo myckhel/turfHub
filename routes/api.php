@@ -69,4 +69,18 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('turfs', [TurfController::class, 'index'])->name('users.turfs.index');
         Route::get('players', [PlayerController::class, 'index'])->name('users.players.index');
     });
+
+    // Payment routes
+    Route::prefix('payments')->name('payments.')->group(function () {
+        Route::post('initialize', [App\Http\Controllers\Api\PaymentController::class, 'initialize'])->name('initialize');
+        Route::post('verify', [App\Http\Controllers\Api\PaymentController::class, 'verify'])->name('verify');
+        Route::get('history', [App\Http\Controllers\Api\PaymentController::class, 'history'])->name('history');
+        Route::get('suggested-amount', [App\Http\Controllers\Api\PaymentController::class, 'suggestedAmount'])->name('suggested-amount');
+        Route::get('{payment}', [App\Http\Controllers\Api\PaymentController::class, 'show'])->name('show');
+        Route::post('{payment}/cancel', [App\Http\Controllers\Api\PaymentController::class, 'cancel'])->name('cancel');
+    });
+
+    Route::prefix('match-sessions/{matchSession}')->group(function () {
+        Route::get('payment-stats', [App\Http\Controllers\Api\PaymentController::class, 'matchSessionStats'])->name('match-sessions.payment-stats');
+    });
 });

@@ -103,4 +103,20 @@ class User extends Authenticatable
     {
         return $this->hasRole(self::ROLE_PLAYER);
     }
+
+    /**
+     * Get the payments made by this user.
+     */
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    /**
+     * Get successful payments made by this user.
+     */
+    public function successfulPayments(): HasMany
+    {
+        return $this->payments()->where('status', \App\Models\Payment::STATUS_SUCCESS);
+    }
 }

@@ -19,6 +19,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Register Paystack webhook event listener
+        \Illuminate\Support\Facades\Event::listen(
+            \Binkode\Paystack\Events\Hook::class,
+            \App\Listeners\PaystackWebHookListener::class
+        );
     }
 }

@@ -27,12 +27,12 @@ To digitize and streamline the operations of turf-based mini football sessions b
 
 #### **Entities**
 
-* **User** (can own turfs, be player/admin/manager)
+* **User** (can own turfs)
 * **Turf**
 
   * Belongs to a User (admin)
   * May require membership (one-time or recurring)
-* **Player** (user within a turf)
+* **Player** (user within a turf) with roles of player/admin/manager to the turf
 * **MatchSession**
 
   * Belongs to Turf

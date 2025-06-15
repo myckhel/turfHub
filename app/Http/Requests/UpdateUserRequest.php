@@ -23,16 +23,22 @@ class UpdateUserRequest extends FormRequest
      */
     public function rules(): array
     {
+        $user = request()->route('user');
+        $userId = $user instanceof User ? $user->id : $user;
+
         return [
             'name' => ['sometimes', 'required', 'string', 'max:255'],
-            'email' => ['sometimes', 'required', 'string', 'email', 'max:255',
-                Rule::unique('users')->ignore($this->user)],
+            'email' => [
+                'sometimes',
+                'required',
+                'string',
+                'email',
+                'max:255',
+                Rule::unique('users')->ignore($userId)
+            ],
             'password' => ['sometimes', 'required', 'string', 'min:8', 'confirmed'],
-            'role' => ['sometimes', 'required', 'string', Rule::in([
-                User::ROLE_ADMIN,
-                User::ROLE_MANAGER,
-                User::ROLE_PLAYER,
-            ])],
+            // Role assignment is now handled through the permission system
+            // Roles are assigned contextually (per turf) using TurfPermissionService
         ];
     }
 }

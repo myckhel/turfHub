@@ -76,10 +76,6 @@ class UserService
     {
         $query = User::query();
 
-        // Filter by role if provided
-        if ($request->filled('role')) {
-            $query->where('role', $request->role);
-        }
 
         // Search by name or email
         if ($request->filled('search')) {

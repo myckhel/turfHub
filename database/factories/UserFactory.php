@@ -29,7 +29,7 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
-            'role' => fake()->randomElement(['admin', 'manager', 'player']),
+            // 'role' - removed as roles are now managed through Laravel Permission package
         ];
     }
 
@@ -45,31 +45,37 @@ class UserFactory extends Factory
 
     /**
      * Indicate that the user is an admin.
+     * Note: This is now just for backward compatibility during seeding.
+     * Actual roles are assigned through the permission system.
      */
     public function admin(): static
     {
         return $this->state(fn(array $attributes) => [
-            'role' => 'admin',
+            // Role assignment handled by permission system
         ]);
     }
 
     /**
      * Indicate that the user is a manager.
+     * Note: This is now just for backward compatibility during seeding.
+     * Actual roles are assigned through the permission system.
      */
     public function manager(): static
     {
         return $this->state(fn(array $attributes) => [
-            'role' => 'manager',
+            // Role assignment handled by permission system
         ]);
     }
 
     /**
      * Indicate that the user is a player.
+     * Note: This is now just for backward compatibility during seeding.
+     * Actual roles are assigned through the permission system.
      */
     public function player(): static
     {
         return $this->state(fn(array $attributes) => [
-            'role' => 'player',
+            // Role assignment handled by permission system
         ]);
     }
 }

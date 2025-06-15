@@ -74,4 +74,45 @@ class Turf extends Model
     {
         return $this->hasMany(MatchSession::class)->where('is_active', true);
     }
+
+    /**
+     * Boot the model and set up event listeners.
+     */
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        // When a turf is created, automatically assign the owner as admin
+        static::created(function (Turf $turf) {
+            $turfPermissionService = app(\App\Services\TurfPermissionService::class);
+            $turfPermissionService->setupTurfOwner($turf->owner, $turf);
+        });
+    }
+
+    /**
+     * Get all players who have admin role in this turf.
+     */
+    public function admins(): \Illuminate\Support\Collection
+    {
+        $turfPermissionService = app(\App\Services\TurfPermissionService::class);
+        return $turfPermissionService->getUsersWithRoleInTurf(User::TURF_ROLE_ADMIN, $this->id);
+    }
+
+    /**
+     * Get all players who have manager role in this turf.
+     */
+    public function managers(): \Illuminate\Support\Collection
+    {
+        $turfPermissionService = app(\App\Services\TurfPermissionService::class);
+        return $turfPermissionService->getUsersWithRoleInTurf(User::TURF_ROLE_MANAGER, $this->id);
+    }
+
+    /**
+     * Get all players who have player role in this turf.
+     */
+    public function turfPlayers(): \Illuminate\Support\Collection
+    {
+        $turfPermissionService = app(\App\Services\TurfPermissionService::class);
+        return $turfPermissionService->getUsersWithRoleInTurf(User::TURF_ROLE_PLAYER, $this->id);
+    }
 }

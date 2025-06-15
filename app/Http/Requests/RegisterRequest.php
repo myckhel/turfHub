@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
 
@@ -27,11 +26,8 @@ class RegisterRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'confirmed', Password::defaults()],
-            'role' => ['sometimes', 'in:' . implode(',', [
-                User::ROLE_ADMIN,
-                User::ROLE_MANAGER,
-                User::ROLE_PLAYER,
-            ])],
+            // Role assignment is now handled through the permission system
+            // Default role assignment happens during registration or turf invitation
         ];
     }
 
@@ -50,7 +46,6 @@ class RegisterRequest extends FormRequest
             'email.unique' => 'This email address is already registered',
             'password.required' => 'Password is required',
             'password.confirmed' => 'Password confirmation does not match',
-            'role.in' => 'Invalid role selected',
         ];
     }
 }

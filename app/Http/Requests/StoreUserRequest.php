@@ -2,9 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class StoreUserRequest extends FormRequest
 {
@@ -27,11 +25,8 @@ class StoreUserRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'role' => ['required', 'string', Rule::in([
-                User::ROLE_ADMIN,
-                User::ROLE_MANAGER,
-                User::ROLE_PLAYER,
-            ])],
+            // Role assignment is now handled through the permission system
+            // Roles are assigned contextually (per turf) using TurfPermissionService
         ];
     }
 }

@@ -24,7 +24,8 @@ class AuthController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => User::ROLE_PLAYER, // Default role
+            // Role assignment is handled through the permission system
+            // Users get roles when they join turfs or are assigned global roles
         ]);
 
         $token = $user->createToken('auth-token')->plainTextToken;

@@ -14,8 +14,8 @@ class PlayerSeeder extends Seeder
      */
     public function run(): void
     {
-        // Get all players (users with role 'player')
-        $playerUsers = User::where('role', 'player')->get();
+        // Get all players
+        $playerUsers = User::role('player')->get();
         $turfs = Turf::where('is_active', true)->get();
 
         // If we don't have enough player users, create some

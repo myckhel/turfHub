@@ -21,6 +21,7 @@ class Player extends Model
         'turf_id',
         'is_member', // Indicates if the player is a paying member of the turf
         'status',    // e.g., active, inactive, banned
+        // 'role' - removed as roles are now managed through Laravel Permission package
     ];
 
     /**
@@ -66,5 +67,63 @@ class Player extends Model
     public function matchEvents(): HasMany
     {
         return $this->hasMany(MatchEvent::class);
+    }
+
+    /**
+     * Check if this player has a specific role in their turf.
+     */
+    public function hasRoleInTurf(string $role): bool
+    {
+        return $this->user->hasRoleOnTurf($role, $this->turf_id);
+    }
+
+    /**
+     * Check if this player is an admin in their turf.
+     */
+    public function isTurfAdmin(): bool
+    {
+        return $this->hasRoleInTurf(User::TURF_ROLE_ADMIN);
+    }
+
+    /**
+     * Check if this player is a manager in their turf.
+     */
+    public function isTurfManager(): bool
+    {
+        return $this->hasRoleInTurf(User::TURF_ROLE_MANAGER);
+    }
+
+    /**
+     * Check if this player is a regular player in their turf.
+     */
+    public function isTurfPlayer(): bool
+    {
+        return $this->hasRoleInTurf(User::TURF_ROLE_PLAYER);
+    }
+
+    /**
+     * Assign a role to this player in their turf.
+     */
+    public function assignTurfRole(string $role): void
+    {
+        $currentTeamId = getPermissionsTeamId();
+        setPermissionsTeamId($this->turf_id);
+
+        $this->user->assignRole($role);
+
+        setPermissionsTeamId($currentTeamId);
+    }
+
+    /**
+     * Remove a role from this player in their turf.
+     */
+    public function removeTurfRole(string $role): void
+    {
+        $currentTeamId = getPermissionsTeamId();
+        setPermissionsTeamId($this->turf_id);
+
+        $this->user->removeRole($role);
+
+        setPermissionsTeamId($currentTeamId);
     }
 }

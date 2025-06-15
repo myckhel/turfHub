@@ -13,6 +13,7 @@
 - **Configuration:** Use .env files for environment-specific configuration and access them via the `config()` helper.
 - **Eloquent Relationships & Query Scopes:** Use Eloquent relationships and query scopes for reusable queries.
 - **Type Hinting & Return Types:** Use **type-hinting** and **return types** in all methods.
+- **Utilizing Observers and Events:** Leverage Laravel's model observers and events when needed for handling actions that require another action to be taken in another context.
 
 ### Inertia.js
 

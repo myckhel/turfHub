@@ -32,12 +32,12 @@ class TeamPlayerSeeder extends Seeder
             // Assign 3 to max_players_per_team players to each team
             // Ensure we don't request more players than available
             $maxPossiblePlayers = min($maxPlayersPerTeam, $availablePlayers->count());
-            
+
             // Only proceed if we have enough players for a minimum team
             if ($maxPossiblePlayers < 3) {
                 continue; // Skip this team if not enough players available
             }
-            
+
             $playersInTeam = fake()->numberBetween(3, $maxPossiblePlayers);
             $selectedPlayers = $availablePlayers->random($playersInTeam);
 

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('match_session_id')->constrained()->cascadeOnDelete();
             $table->string('name');
-            $table->foreignId('captain_id')->constrained('users')->cascadeOnDelete(); // Assuming captain is a User
+            $table->foreignId('captain_id')->nullable()->constrained('users')->cascadeOnDelete(); // Assuming captain is a User
             $table->string('status'); // active_in_match, waiting, eliminated
             $table->integer('wins')->default(0);
             $table->integer('losses')->default(0);

@@ -185,6 +185,21 @@ class User extends Authenticatable
     }
 
     /**
+     * Check if user has any of the specified turf roles across all turfs.
+     */
+    public function hasAnyTurfRole(array $roles): bool
+    {
+        foreach ($this->players as $player) {
+            foreach ($roles as $role) {
+                if ($this->hasRoleOnTurf($role, $player->turf_id)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
      * Get the payments made by this user.
      */
     public function payments(): HasMany

@@ -54,6 +54,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('teams', [TeamController::class, 'index'])->name('match-sessions.teams.index');
         Route::get('game-matches', [GameMatchController::class, 'index'])->name('match-sessions.game-matches.index');
         Route::get('queue-logic', [QueueLogicController::class, 'index'])->name('match-sessions.queue-logic.index');
+        Route::get('queue-status', [MatchSessionController::class, 'queueStatus'])->name('match-sessions.queue-status');
+
+        // Match session management routes
+        Route::post('start', [MatchSessionController::class, 'start'])->name('match-sessions.start');
+        Route::post('stop', [MatchSessionController::class, 'stop'])->name('match-sessions.stop');
+        Route::post('add-player-to-team', [MatchSessionController::class, 'addPlayerToTeam'])->name('match-sessions.add-player-to-team');
+        Route::post('set-game-result', [MatchSessionController::class, 'setGameResult'])->name('match-sessions.set-game-result');
     });
 
     Route::prefix('teams/{team}')->group(function () {

@@ -15,7 +15,6 @@ class TeamPlayer extends Model
      *
      * @var string
      */
-    protected $table = 'team_player'; // Explicitly define if not following laravel conventions for pivot
 
     /**
      * The attributes that are mass assignable.

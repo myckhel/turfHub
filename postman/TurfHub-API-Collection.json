@@ -918,7 +918,7 @@
                     "response": []
                 },
                 {
-                    "name": "Create Match Session",
+                    "name": "Create Match Session with Teams",
                     "event": [
                         {
                             "listen": "prerequest",
@@ -943,17 +943,21 @@
                                     "    pm.response.to.have.status(201);",
                                     "});",
                                     "",
-                                    "pm.test('Match session was created successfully', function () {",
+                                    "pm.test('Match session was created successfully with teams', function () {",
                                     "    const jsonData = pm.response.json();",
                                     "    pm.expect(jsonData).to.have.property('data');",
                                     "    pm.expect(jsonData.data).to.have.property('id');",
                                     "    pm.expect(jsonData.data.name).to.include('Evening Match Session');",
+                                    "    pm.expect(jsonData.data).to.have.property('teams');",
                                     "});",
                                     "",
-                                    "// Store created match session ID",
+                                    "// Store created match session ID and first team ID",
                                     "if (pm.response.code === 201) {",
                                     "    const session = pm.response.json().data;",
                                     "    pm.environment.set('created_match_session_id', session.id);",
+                                    "    if (session.teams && session.teams.length > 0) {",
+                                    "        pm.environment.set('sample_team_id', session.teams[0].id);",
+                                    "    }",
                                     "}"
                                 ],
                                 "type": "text/javascript"
@@ -965,7 +969,7 @@
                         "header": [],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"turf_id\": {{sample_turf_id}},\n    \"name\": \"{{session_name}}\",\n    \"session_date\": \"{{session_date}}\",\n    \"time_slot\": \"evening\",\n    \"start_time\": \"18:00\",\n    \"end_time\": \"22:00\",\n    \"max_teams\": 6,\n    \"status\": \"active\",\n    \"is_active\": true\n}",
+                            "raw": "{\n    \"turf_id\": {{sample_turf_id}},\n    \"name\": \"{{session_name}}\",\n    \"session_date\": \"{{session_date}}\",\n    \"time_slot\": \"evening\",\n    \"start_time\": \"18:00\",\n    \"end_time\": \"22:00\",\n    \"max_teams\": 6,\n    \"status\": \"scheduled\",\n    \"is_active\": false\n}",
                             "options": {
                                 "raw": {
                                     "language": "json"
@@ -982,12 +986,984 @@
                                 "match-sessions"
                             ]
                         },
-                        "description": "Create a new match session"
+                        "description": "Create a new match session with automatic team creation based on max_teams parameter"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Match Session Details",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test('Response contains match session details', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.have.property('data');",
+                                    "    pm.expect(jsonData.data).to.have.property('id');",
+                                    "    pm.expect(jsonData.data).to.have.property('name');",
+                                    "    pm.expect(jsonData.data).to.have.property('status');",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/match-sessions/{{sample_match_session_id}}?include=turf,teams,gameMatches,queueLogic",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "match-sessions",
+                                "{{sample_match_session_id}}"
+                            ],
+                            "query": [
+                                {
+                                    "key": "include",
+                                    "value": "turf,teams,gameMatches,queueLogic"
+                                }
+                            ]
+                        },
+                        "description": "Get detailed information about a specific match session including relationships"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Start Match Session",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test('Match session was started successfully', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData.data.status).to.equal('active');",
+                                    "    pm.expect(jsonData.data.is_active).to.be.true;",
+                                    "});",
+                                    "",
+                                    "// Store game match ID if created",
+                                    "const jsonData = pm.response.json();",
+                                    "if (jsonData.data.game_matches && jsonData.data.game_matches.length > 0) {",
+                                    "    pm.environment.set('current_game_match_id', jsonData.data.game_matches[0].id);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/match-sessions/{{created_match_session_id}}/start",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "match-sessions",
+                                "{{created_match_session_id}}",
+                                "start"
+                            ]
+                        },
+                        "description": "Start a match session - sets status to active and creates the first game match if enough teams are available"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Add Player to Team",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test('Player was added to team successfully', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData.message).to.include('Player added to team successfully');",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"team_id\": {{sample_team_id}},\n    \"player_id\": {{sample_player_id}}\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/match-sessions/{{created_match_session_id}}/add-player-to-team",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "match-sessions",
+                                "{{created_match_session_id}}",
+                                "add-player-to-team"
+                            ]
+                        },
+                        "description": "Add a player to a specific team in the match session. Validates player belongs to same turf and team isn't full."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Queue Status",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test('Queue status response structure', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.have.property('data');",
+                                    "    pm.expect(jsonData).to.have.property('message');",
+                                    "    pm.expect(jsonData.data).to.be.an('array');",
+                                    "});",
+                                    "",
+                                    "pm.test('Queue entries have required fields', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    if (jsonData.data.length > 0) {",
+                                    "        const queueEntry = jsonData.data[0];",
+                                    "        pm.expect(queueEntry).to.have.property('team_id');",
+                                    "        pm.expect(queueEntry).to.have.property('team_name');",
+                                    "        pm.expect(queueEntry).to.have.property('queue_position');",
+                                    "        pm.expect(queueEntry).to.have.property('status');",
+                                    "        pm.expect(queueEntry).to.have.property('reason');",
+                                    "    }",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/match-sessions/{{created_match_session_id}}/queue-status",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "match-sessions",
+                                "{{created_match_session_id}}",
+                                "queue-status"
+                            ]
+                        },
+                        "description": "Get the current queue status for a match session including team positions, statuses, and reasons"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Set Game Result",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test('Game result was processed successfully', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.have.property('data');",
+                                    "    pm.expect(jsonData.data).to.have.property('game_matches');",
+                                    "});",
+                                    "",
+                                    "pm.test('Queue was updated after result', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData.data).to.have.property('queue_logic');",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"game_match_id\": {{current_game_match_id}},\n    \"first_team_score\": 3,\n    \"second_team_score\": 1\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/match-sessions/{{created_match_session_id}}/set-game-result",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "match-sessions",
+                                "{{created_match_session_id}}",
+                                "set-game-result"
+                            ]
+                        },
+                        "description": "Set the result of a completed game match. Automatically processes queue logic and creates next match if session is active."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Stop Match Session",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test('Match session was stopped successfully', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData.data.status).to.equal('completed');",
+                                    "    pm.expect(jsonData.data.is_active).to.be.false;",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/match-sessions/{{created_match_session_id}}/stop",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "match-sessions",
+                                "{{created_match_session_id}}",
+                                "stop"
+                            ]
+                        },
+                        "description": "Stop a match session - sets status to completed and prevents new matches from being created"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update Match Session",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test('Match session was updated successfully', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData.data.name).to.include('Updated');",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "PUT",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Updated Evening Match Session\",\n    \"status\": \"scheduled\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/match-sessions/{{created_match_session_id}}",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "match-sessions",
+                                "{{created_match_session_id}}"
+                            ]
+                        },
+                        "description": "Update an existing match session"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Delete Match Session",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 204', function () {",
+                                    "    pm.response.to.have.status(204);",
+                                    "});",
+                                    "",
+                                    "pm.test('No content returned', function () {",
+                                    "    pm.expect(pm.response.text()).to.be.empty;",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "DELETE",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/match-sessions/{{created_match_session_id}}",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "match-sessions",
+                                "{{created_match_session_id}}"
+                            ]
+                        },
+                        "description": "Delete a match session (only allowed for admin/manager users)"
                     },
                     "response": []
                 }
             ],
-            "description": "Match session management endpoints"
+            "description": "Complete match session management endpoints including team creation, player management, queue logic, and session lifecycle control. All management operations require admin or manager role permissions."
+        },
+        {
+            "name": "Match Session Workflow (End-to-End)",
+            "item": [
+                {
+                    "name": "1. Setup - Get Sample Data",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "// Store sample turf ID",
+                                    "const jsonData = pm.response.json();",
+                                    "if (jsonData.data && jsonData.data.length > 0) {",
+                                    "    pm.environment.set('workflow_turf_id', jsonData.data[0].id);",
+                                    "    console.log('Workflow turf ID set:', jsonData.data[0].id);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/turfs?per_page=1",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "turfs"
+                            ],
+                            "query": [
+                                {
+                                    "key": "per_page",
+                                    "value": "1"
+                                }
+                            ]
+                        },
+                        "description": "Get a sample turf for the workflow"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "2. Get Turf Players",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "// Store multiple player IDs for workflow",
+                                    "const jsonData = pm.response.json();",
+                                    "if (jsonData.data && jsonData.data.length > 0) {",
+                                    "    pm.environment.set('workflow_player_1', jsonData.data[0].id);",
+                                    "    if (jsonData.data.length > 1) {",
+                                    "        pm.environment.set('workflow_player_2', jsonData.data[1].id);",
+                                    "    }",
+                                    "    if (jsonData.data.length > 2) {",
+                                    "        pm.environment.set('workflow_player_3', jsonData.data[2].id);",
+                                    "    }",
+                                    "    console.log('Workflow player IDs set');",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/turfs/{{workflow_turf_id}}/players?per_page=5",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "turfs",
+                                "{{workflow_turf_id}}",
+                                "players"
+                            ],
+                            "query": [
+                                {
+                                    "key": "per_page",
+                                    "value": "5"
+                                }
+                            ]
+                        },
+                        "description": "Get players for the selected turf"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "3. Create Match Session with Teams",
+                    "event": [
+                        {
+                            "listen": "prerequest",
+                            "script": {
+                                "exec": [
+                                    "// Generate session data for workflow",
+                                    "const today = new Date();",
+                                    "const tomorrow = new Date(today);",
+                                    "tomorrow.setDate(tomorrow.getDate() + 1);",
+                                    "",
+                                    "pm.environment.set('workflow_session_date', tomorrow.toISOString().split('T')[0]);",
+                                    "pm.environment.set('workflow_session_name', 'Workflow Test Session - ' + tomorrow.toDateString());"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        },
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 201', function () {",
+                                    "    pm.response.to.have.status(201);",
+                                    "});",
+                                    "",
+                                    "pm.test('Session created with teams', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData.data).to.have.property('teams');",
+                                    "    pm.expect(jsonData.data.teams).to.be.an('array');",
+                                    "    pm.expect(jsonData.data.teams.length).to.equal(6);",
+                                    "});",
+                                    "",
+                                    "// Store workflow session and team IDs",
+                                    "const jsonData = pm.response.json();",
+                                    "pm.environment.set('workflow_session_id', jsonData.data.id);",
+                                    "if (jsonData.data.teams && jsonData.data.teams.length > 0) {",
+                                    "    pm.environment.set('workflow_team_1', jsonData.data.teams[0].id);",
+                                    "    pm.environment.set('workflow_team_2', jsonData.data.teams[1].id);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"turf_id\": {{workflow_turf_id}},\n    \"name\": \"{{workflow_session_name}}\",\n    \"session_date\": \"{{workflow_session_date}}\",\n    \"time_slot\": \"evening\",\n    \"start_time\": \"18:00\",\n    \"end_time\": \"22:00\",\n    \"max_teams\": 6,\n    \"status\": \"scheduled\",\n    \"is_active\": false\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/match-sessions",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "match-sessions"
+                            ]
+                        },
+                        "description": "Create a match session with automatic team creation"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "4. Add Players to Teams",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test('Player added successfully', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData.message).to.include('successfully');",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"team_id\": {{workflow_team_1}},\n    \"player_id\": {{workflow_player_1}}\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/match-sessions/{{workflow_session_id}}/add-player-to-team",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "match-sessions",
+                                "{{workflow_session_id}}",
+                                "add-player-to-team"
+                            ]
+                        },
+                        "description": "Add first player to team 1"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "5. Add More Players",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test('Player added successfully', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData.message).to.include('successfully');",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"team_id\": {{workflow_team_2}},\n    \"player_id\": {{workflow_player_2}}\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/match-sessions/{{workflow_session_id}}/add-player-to-team",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "match-sessions",
+                                "{{workflow_session_id}}",
+                                "add-player-to-team"
+                            ]
+                        },
+                        "description": "Add second player to team 2"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "6. Check Initial Queue Status",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test('Queue has teams', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData.data).to.be.an('array');",
+                                    "    pm.expect(jsonData.data.length).to.equal(6);",
+                                    "});",
+                                    "",
+                                    "pm.test('First two teams are next to play', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    const nextToPlay = jsonData.data.filter(team => team.status === 'next_to_play');",
+                                    "    pm.expect(nextToPlay.length).to.equal(2);",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/match-sessions/{{workflow_session_id}}/queue-status",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "match-sessions",
+                                "{{workflow_session_id}}",
+                                "queue-status"
+                            ]
+                        },
+                        "description": "Check queue status before starting session"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "7. Start Match Session",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test('Session is now active', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData.data.status).to.equal('active');",
+                                    "    pm.expect(jsonData.data.is_active).to.be.true;",
+                                    "});",
+                                    "",
+                                    "// Store first game match ID",
+                                    "const jsonData = pm.response.json();",
+                                    "if (jsonData.data.game_matches && jsonData.data.game_matches.length > 0) {",
+                                    "    pm.environment.set('workflow_game_match_id', jsonData.data.game_matches[0].id);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/match-sessions/{{workflow_session_id}}/start",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "match-sessions",
+                                "{{workflow_session_id}}",
+                                "start"
+                            ]
+                        },
+                        "description": "Start the match session and create first game"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "8. Set First Game Result (Win)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test('Game result processed and next match created', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData.data).to.have.property('game_matches');",
+                                    "    pm.expect(jsonData.data).to.have.property('queue_logic');",
+                                    "});",
+                                    "",
+                                    "// Store next game match ID",
+                                    "const jsonData = pm.response.json();",
+                                    "if (jsonData.data.game_matches && jsonData.data.game_matches.length > 1) {",
+                                    "    const nextMatch = jsonData.data.game_matches.find(match => match.status === 'upcoming');",
+                                    "    if (nextMatch) {",
+                                    "        pm.environment.set('workflow_next_game_match_id', nextMatch.id);",
+                                    "    }",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"game_match_id\": {{workflow_game_match_id}},\n    \"first_team_score\": 3,\n    \"second_team_score\": 1\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/match-sessions/{{workflow_session_id}}/set-game-result",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "match-sessions",
+                                "{{workflow_session_id}}",
+                                "set-game-result"
+                            ]
+                        },
+                        "description": "Set result for first game (Team 1 wins 3-1)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "9. Check Queue After First Result",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test('Queue updated after match result', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData.data).to.be.an('array');",
+                                    "    ",
+                                    "    // Winner should stay next_to_play",
+                                    "    const nextToPlay = jsonData.data.filter(team => team.status === 'next_to_play');",
+                                    "    pm.expect(nextToPlay.length).to.be.greaterThan(0);",
+                                    "    ",
+                                    "    // Loser should be waiting",
+                                    "    const waiting = jsonData.data.filter(team => team.status === 'waiting');",
+                                    "    pm.expect(waiting.length).to.be.greaterThan(0);",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/match-sessions/{{workflow_session_id}}/queue-status",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "match-sessions",
+                                "{{workflow_session_id}}",
+                                "queue-status"
+                            ]
+                        },
+                        "description": "Check how queue was updated after first match"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "10. Set Second Game Result (Draw)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test('Draw result processed', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData.data).to.have.property('game_matches');",
+                                    "    pm.expect(jsonData.data).to.have.property('queue_logic');",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"game_match_id\": {{workflow_next_game_match_id}},\n    \"first_team_score\": 2,\n    \"second_team_score\": 2\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/match-sessions/{{workflow_session_id}}/set-game-result",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "match-sessions",
+                                "{{workflow_session_id}}",
+                                "set-game-result"
+                            ]
+                        },
+                        "description": "Set result for second game (Draw 2-2)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "11. Check Queue After Draw",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test('Queue handles draw situation', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData.data).to.be.an('array');",
+                                    "    ",
+                                    "    // Should have teams waiting for draw resolution",
+                                    "    const drawWaiting = jsonData.data.filter(team => team.status === 'played_waiting_draw_resolution');",
+                                    "    pm.expect(drawWaiting.length).to.be.greaterThan(0);",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/match-sessions/{{workflow_session_id}}/queue-status",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "match-sessions",
+                                "{{workflow_session_id}}",
+                                "queue-status"
+                            ]
+                        },
+                        "description": "Check queue after draw to see random selection logic"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "12. Stop Match Session",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test('Session stopped successfully', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData.data.status).to.equal('completed');",
+                                    "    pm.expect(jsonData.data.is_active).to.be.false;",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/match-sessions/{{workflow_session_id}}/stop",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "match-sessions",
+                                "{{workflow_session_id}}",
+                                "stop"
+                            ]
+                        },
+                        "description": "Stop the match session to complete the workflow"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Complete end-to-end workflow demonstrating the match session manager flow: create session with teams, add players, start session, process game results with queue logic, and stop session. This workflow tests all the key features of the match session management system including win/loss/draw scenarios."
         },
         {
             "name": "Teams",
@@ -1034,6 +2010,26 @@
             "item": [
                 {
                     "name": "Turf Players",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "// Store sample player ID for testing",
+                                    "const jsonData = pm.response.json();",
+                                    "if (jsonData.data && jsonData.data.length > 0) {",
+                                    "    pm.environment.set('sample_player_id', jsonData.data[0].id);",
+                                    "    console.log('Sample player ID set:', jsonData.data[0].id);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
                     "request": {
                         "method": "GET",
                         "header": [],

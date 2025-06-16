@@ -25,7 +25,7 @@ class StoreTurfRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:1000'],
             'location' => ['required', 'string', 'max:255'],
-            'owner_id' => ['required', 'exists:users,id'],
+            'owner_id' => ['exists:users,id'],
             'requires_membership' => ['boolean'],
             'membership_fee' => ['nullable', 'numeric', 'min:0'],
             'membership_type' => ['nullable', 'string', 'max:100'],

@@ -1,20 +1,87 @@
 import '../css/app.css';
 
 import { createInertiaApp } from '@inertiajs/react';
-import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
+import React from 'react';
 import { createRoot } from 'react-dom/client';
+import { AppLayout } from './layouts/AppLayout';
+import { AuthLayout } from './layouts/AuthLayout';
+import { GuestLayout } from './layouts/GuestLayout';
+import { useAuthStore } from './stores/auth.store';
+import { resolveComponent, routeConfigs } from './utils/route-resolver';
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+const appName = import.meta.env.VITE_APP_NAME || 'TurfHub';
+
+// Initialize PWA
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js');
+}
+
+// Layout resolver based on route configuration
+const getLayout = (routeName: string, page: React.ReactElement) => {
+  const config = routeConfigs[routeName];
+  const layout = config?.layout || 'guest';
+
+  const wrappedPage = <AppLayout>{page}</AppLayout>;
+
+  switch (layout) {
+    case 'auth':
+      return <AuthLayout>{wrappedPage}</AuthLayout>;
+    case 'dashboard':
+      return <AuthLayout>{wrappedPage}</AuthLayout>;
+    case 'guest':
+    default:
+      return <GuestLayout>{wrappedPage}</GuestLayout>;
+  }
+};
 
 createInertiaApp({
-    title: (title) => `${title} - ${appName}`,
-    resolve: (name) => resolvePageComponent(`./pages/${name}.tsx`, import.meta.glob('./pages/**/*.tsx')),
-    setup({ el, App, props }) {
-        const root = createRoot(el);
+  title: (title) => `${title} - ${appName}`,
 
-        root.render(<App {...props} />);
-    },
-    progress: {
-        color: '#4B5563',
-    },
+  resolve: async (name) => {
+    const page = await resolveComponent(name);
+    const routeName = name.toLowerCase().replace(/\//g, '.');
+
+    // Check route access permissions
+    const config = routeConfigs[routeName];
+    if (config?.roles || config?.permissions) {
+      const { user } = useAuthStore.getState();
+
+      if (!user) {
+        // Redirect to login if not authenticated
+        window.location.href = route('login');
+        return page;
+      }
+
+      // Check role access
+      if (config.roles && !config.roles.some((role) => user.roles.includes(role))) {
+        // Redirect to unauthorized page or dashboard
+        window.location.href = route('dashboard');
+        return page;
+      }
+
+      // Check permission access
+      if (config.permissions && !config.permissions.some((permission) => user.permissions.includes(permission))) {
+        window.location.href = route('dashboard');
+        return page;
+      }
+    }
+
+    // Add layout to page component
+    const PageComponent = page.default;
+    if (PageComponent && typeof PageComponent === 'function') {
+      PageComponent.layout = (pageElement: React.ReactElement) => getLayout(routeName, pageElement);
+    }
+
+    return page;
+  },
+
+  setup({ el, App, props }) {
+    const root = createRoot(el);
+    root.render(<App {...props} />);
+  },
+
+  progress: {
+    color: '#10b981',
+    showSpinner: true,
+  },
 });

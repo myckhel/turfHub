@@ -168,6 +168,7 @@ route('user.profile', { id: user.id });
 - **ESLint/Prettier**: Enforce code style using ESLint and Prettier. Configure them to work together.
 - **Comments**: Write clear and concise comments for complex logic or non-obvious code.
 - **DRY Principle**: Don't Repeat Yourself. Abstract reusable logic into functions, hooks, or components.
+- **Add new Exposed Api Postman Doc** Document any new API endpoints or changes to existing ones in the postman Api collection file.
 
 ### Artisan CLI
 

@@ -7,16 +7,16 @@ The new Player Flow endpoints have been properly organized in the Postman collec
 
 ### 🛠️ API Endpoints Documented
 
-| Method | Endpoint | Description | Status |
-|--------|----------|-------------|---------|
-| GET | `/api/players/{player}/match-sessions` | View available sessions | ✅ Documented |
-| GET | `/api/players/{player}/match-sessions/{matchSession}/teams` | View available teams | ✅ Documented |
-| POST | `/api/players/{player}/can-join-team` | Validate join eligibility | ✅ Documented |
-| POST | `/api/players/{player}/join-team` | Join team and pay | ✅ Documented |
-| POST | `/api/players/{player}/join-team` | Join team (auto-assign) | ✅ Documented |
-| GET | `/api/players/{player}/team-status` | Current team status | ✅ Documented |
-| POST | `/api/players/{player}/leave-team` | Leave team | ✅ Documented |
-| GET | `/api/players/{player}/payment-history` | Payment history | ✅ Documented |
+| Method | Endpoint                                                    | Description               | Status       |
+| ------ | ----------------------------------------------------------- | ------------------------- | ------------ |
+| GET    | `/api/players/{player}/match-sessions`                      | View available sessions   | ✅ Documented |
+| GET    | `/api/players/{player}/match-sessions/{matchSession}/teams` | View available teams      | ✅ Documented |
+| POST   | `/api/players/{player}/can-join-team`                       | Validate join eligibility | ✅ Documented |
+| POST   | `/api/players/{player}/join-team`                           | Join team and pay         | ✅ Documented |
+| POST   | `/api/players/{player}/join-team`                           | Join team (auto-assign)   | ✅ Documented |
+| GET    | `/api/players/{player}/team-status`                         | Current team status       | ✅ Documented |
+| POST   | `/api/players/{player}/leave-team`                          | Leave team                | ✅ Documented |
+| GET    | `/api/players/{player}/payment-history`                     | Payment history           | ✅ Documented |
 
 ### 🧪 Test Coverage Features
 
@@ -74,7 +74,7 @@ Each endpoint includes:
 ### 📚 Documentation Updates
 
 #### Files Updated:
-1. **`TurfHub-API-Collection.json`** - Main collection with new endpoints
+1. **`TurfMate-API-Collection.json`** - Main collection with new endpoints
 2. **`SUMMARY.md`** - Updated with player flow section
 3. **`README.md`** - Enhanced API coverage documentation
 

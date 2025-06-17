@@ -1,4 +1,4 @@
-# 🏗️ TurfHub Frontend Architecture Implementation
+# 🏗️ TurfMate Frontend Architecture Implementation
 
 ## ✅ Implementation Status
 
@@ -201,7 +201,7 @@ resources/js/__tests__/
 ### Environment Variables
 Add to your `.env`:
 ```bash
-VITE_APP_NAME="TurfHub"
+VITE_APP_NAME="TurfMate"
 VITE_APP_URL="http://localhost:8000"
 ```
 

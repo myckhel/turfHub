@@ -68,7 +68,7 @@ const Welcome: React.FC = () => {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-16 text-center">
             <Title level={2} className="mb-4 text-4xl font-bold text-gray-900">
-              Why Choose TurfHub?
+              Why Choose TurfMate?
             </Title>
             <Paragraph className="mx-auto max-w-2xl text-xl text-gray-600">
               We make sports facility booking simple, secure, and accessible for everyone.
@@ -100,7 +100,7 @@ const Welcome: React.FC = () => {
             Ready to Get Started?
           </Title>
           <Paragraph className="mb-8 text-xl text-emerald-100">
-            Join thousands of sports enthusiasts who trust TurfHub for their facility booking needs.
+            Join thousands of sports enthusiasts who trust TurfMate for their facility booking needs.
           </Paragraph>
 
           <Link href={route('register')}>

@@ -1,6 +1,6 @@
-# TurfHub Payment Integration Setup
+# TurfMate Payment Integration Setup
 
-This document outlines the Paystack payment integration setup for TurfHub, allowing players to pay for match sessions and team joining fees.
+This document outlines the Paystack payment integration setup for TurfMate, allowing players to pay for match sessions and team joining fees.
 
 ## Setup Completed
 

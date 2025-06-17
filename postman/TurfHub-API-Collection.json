@@ -1,8 +1,8 @@
 {
     "info": {
         "_postman_id": "6f0f01bb-8bfd-4a60-abe5-de2319ab8a14",
-        "name": "TurfHub API Collection",
-        "description": "Comprehensive API collection for TurfHub - A modern turf management system with Laravel + Sanctum authentication",
+        "name": "TurfMate API Collection",
+        "description": "Comprehensive API collection for TurfMate - A modern turf management system with Laravel + Sanctum authentication",
         "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
         "_exporter_id": "11570688"
     },

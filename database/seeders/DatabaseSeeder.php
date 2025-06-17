@@ -46,7 +46,7 @@ class DatabaseSeeder extends Seeder
             QueueLogicSeeder::class,     // Creates queue logic for active sessions
         ]);
 
-        $this->command->info('Database seeded successfully with realistic TurfHub data!');
+        $this->command->info('Database seeded successfully with realistic TurfMate data!');
         $this->command->info('You can login with:');
         $this->command->info('Admin: admin@turfhub.com / password');
         $this->command->info('Test Player: test@example.com / password');

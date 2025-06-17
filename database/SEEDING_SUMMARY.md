@@ -1,4 +1,4 @@
-# TurfHub Database Seeding Summary
+# TurfMate Database Seeding Summary
 
 ## 🎯 Overview
 The database has been seeded with realistic, production-like data that simulates a real-world turf booking and match management system.
@@ -120,7 +120,7 @@ The database now contains:
 - **Historical data** for analytics and reporting
 - **User variety** for role-based testing
 
-Perfect for developing and testing all TurfHub features including:
+Perfect for developing and testing all TurfMate features including:
 - Match management and live scoring
 - Tournament queue systems
 - Player statistics and leaderboards

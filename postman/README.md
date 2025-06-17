@@ -1,17 +1,17 @@
-# TurfHub API - Postman Collection Documentation
+# TurfMate API - Postman Collection Documentation
 
 ## Overview
 
-This comprehensive Postman collection provides complete API testing capabilities for the TurfHub application. It includes advanced features like automated testing, environment management, pre/post-request scripts, and detailed error handling.
+This comprehensive Postman collection provides complete API testing capabilities for the TurfMate application. It includes advanced features like automated testing, environment management, pre/post-request scripts, and detailed error handling.
 
 ## 📁 Files Structure
 
 ```
 postman/
-├── TurfHub-API-Collection.json              # Basic collection with core endpoints
-├── TurfHub-Complete-Collection.json         # Advanced collection with comprehensive testing
-├── TurfHub-Development.postman_environment.json    # Development environment
-├── TurfHub-Production.postman_environment.json     # Production environment
+├── TurfMate-API-Collection.json              # Basic collection with core endpoints
+├── TurfMate-Complete-Collection.json         # Advanced collection with comprehensive testing
+├── TurfMate-Development.postman_environment.json    # Development environment
+├── TurfMate-Production.postman_environment.json     # Production environment
 ├── run-tests.sh                             # Automated test runner script
 ├── reports/                                 # Test reports (generated)
 │   ├── basic-suite-report.html
@@ -41,7 +41,7 @@ postman/
 ### 2. Run Your First Test
 
 1. Ensure your Laravel server is running: `php artisan serve`
-2. Select the "TurfHub Development" environment
+2. Select the "TurfMate Development" environment
 3. Run the "Authentication" folder to set up test data
 4. Explore other endpoints
 
@@ -94,7 +94,7 @@ Similar to development but with production URLs and settings.
 
 ## 🎯 Test Suites
 
-### 1. Basic Suite (`TurfHub-API-Collection.json`)
+### 1. Basic Suite (`TurfMate-API-Collection.json`)
 
 **Scope**: Core functionality testing
 **Endpoints Covered**:
@@ -106,7 +106,7 @@ Similar to development but with production URLs and settings.
 **Run Time**: ~2-3 minutes
 **Tests**: 25+ automated tests
 
-### 2. Complete Suite (`TurfHub-Complete-Collection.json`)
+### 2. Complete Suite (`TurfMate-Complete-Collection.json`)
 
 **Scope**: Comprehensive testing with advanced scenarios
 **Endpoints Covered**:
@@ -139,7 +139,7 @@ yarn global add newman newman-reporter-htmlextra
 
 ```bash
 # Navigate to your project directory
-cd /path/to/turfHub
+cd /path/to/TurfMate
 
 # Make script executable (first time only)
 chmod +x postman/run-tests.sh
@@ -464,7 +464,7 @@ DEBUG=true ./postman/run-tests.sh
 
 ## 📄 License
 
-This Postman collection is part of the TurfHub project and follows the same licensing terms.
+This Postman collection is part of the TurfMate project and follows the same licensing terms.
 
 ---
 

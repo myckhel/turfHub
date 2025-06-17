@@ -142,7 +142,7 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500">
               <span className="text-sm font-bold text-white">TH</span>
             </div>
-            {!actuallyCollapsed && <span className="text-lg font-bold text-gray-900 dark:text-white">TurfHub</span>}
+            {!actuallyCollapsed && <span className="text-lg font-bold text-gray-900 dark:text-white">TurfMate</span>}
           </Link>
         </div>
 

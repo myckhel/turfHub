@@ -1,7 +1,7 @@
 {
-    "name": "turfhub-api-tests",
+    "name": "TurfMate-api-tests",
     "version": "1.0.0",
-    "description": "Postman collection and Newman tests for TurfHub API",
+    "description": "Postman collection and Newman tests for TurfMate API",
     "scripts": {
         "test": "./run-tests.sh",
         "test:basic": "./run-tests.sh basic",
@@ -31,6 +31,6 @@
         "type": "git",
         "url": "your-repo-url"
     },
-    "author": "TurfHub Team",
+    "author": "TurfMate Team",
     "license": "MIT"
 }

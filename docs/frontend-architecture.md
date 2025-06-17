@@ -1,4 +1,4 @@
-# 🏗️ Frontend Architecture - TurfHub PWA
+# 🏗️ Frontend Architecture - TurfMate PWA
 
 ## 📁 Folder Structure
 

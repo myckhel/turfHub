@@ -9,7 +9,7 @@ import { GuestLayout } from './layouts/GuestLayout';
 import { useAuthStore } from './stores/auth.store';
 import { resolveComponent, routeConfigs } from './utils/route-resolver';
 
-const appName = import.meta.env.VITE_APP_NAME || 'TurfHub';
+const appName = import.meta.env.VITE_APP_NAME || 'TurfMate';
 
 // Initialize PWA
 if ('serviceWorker' in navigator) {

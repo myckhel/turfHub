@@ -11,7 +11,7 @@ export const PWAUpdateNotification: React.FC = () => {
     if (updateAvailable) {
       api.info({
         message: 'Update Available',
-        description: 'A new version of TurfHub is available. Update now for the latest features and improvements.',
+        description: 'A new version of TurfMate is available. Update now for the latest features and improvements.',
         duration: 0, // Don't auto-close
         btn: (
           <div className="flex space-x-2">
@@ -39,8 +39,8 @@ export const PWAUpdateNotification: React.FC = () => {
   useEffect(() => {
     if (canInstall) {
       api.info({
-        message: 'Install TurfHub',
-        description: 'Install TurfHub on your device for a better experience and quick access.',
+        message: 'Install TurfMate',
+        description: 'Install TurfMate on your device for a better experience and quick access.',
         duration: 10,
         btn: (
           <div className="flex space-x-2">

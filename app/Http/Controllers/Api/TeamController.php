@@ -8,12 +8,15 @@ use App\Http\Requests\UpdateTeamRequest;
 use App\Http\Resources\TeamResource;
 use App\Models\Team;
 use App\Services\TeamService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 
 class TeamController extends Controller
 {
+    use AuthorizesRequests;
+
     protected TeamService $teamService;
 
     public function __construct(TeamService $teamService)
@@ -26,6 +29,8 @@ class TeamController extends Controller
      */
     public function index(Request $request): AnonymousResourceCollection
     {
+        $this->authorize('viewAny', Team::class);
+
         $teams = $this->teamService->getTeams($request);
 
         return TeamResource::collection($teams);
@@ -36,6 +41,8 @@ class TeamController extends Controller
      */
     public function store(StoreTeamRequest $request): TeamResource
     {
+        $this->authorize('create', Team::class);
+
         $team = $this->teamService->createTeam($request->validated());
 
         return new TeamResource($team);
@@ -46,6 +53,8 @@ class TeamController extends Controller
      */
     public function show(Request $request, Team $team): TeamResource
     {
+        $this->authorize('view', $team);
+
         $includes = [];
         if ($request->filled('include')) {
             $includes = explode(',', $request->include);
@@ -61,6 +70,8 @@ class TeamController extends Controller
      */
     public function update(UpdateTeamRequest $request, Team $team): TeamResource
     {
+        $this->authorize('update', $team);
+
         $team = $this->teamService->updateTeam($team, $request->validated());
 
         return new TeamResource($team);
@@ -71,6 +82,8 @@ class TeamController extends Controller
      */
     public function destroy(Team $team): Response
     {
+        $this->authorize('delete', $team);
+
         $this->teamService->deleteTeam($team);
 
         return response()->noContent();

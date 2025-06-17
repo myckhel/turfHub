@@ -196,7 +196,23 @@ After running tests, reports are generated in `postman/reports/`:
 - `PUT /api/match-sessions/{id}` - Update match session
 - `DELETE /api/match-sessions/{id}` - Delete match session
 
-### 👥 Teams & Players
+### � Player Flow (NEW)
+The complete player experience as specified in the project requirements:
+
+#### **Core Player Journey**
+- `GET /api/players/{player}/match-sessions` - **View active/scheduled sessions** 
+- `GET /api/players/{player}/match-sessions/{session}/teams` - **View available teams with slots**
+- `POST /api/players/{player}/can-join-team` - **Validate join eligibility** (pre-payment check)
+- `POST /api/players/{player}/join-team` - **Join team slot & pay online** (core flow)
+
+#### **Team Management**  
+- `GET /api/players/{player}/team-status` - **Track team wins/losses/draws**
+- `POST /api/players/{player}/leave-team` - **Leave team** (before match starts)
+
+#### **Payment & History**
+- `GET /api/players/{player}/payment-history` - **View payment history** (turf-related)
+
+### �👥 Teams & Players
 - `GET /api/teams` - List teams
 - `POST /api/teams` - Create team
 - `GET /api/players` - List players

@@ -27,6 +27,16 @@ postman/
 - ✅ Automatic token extraction and storage
 - ✅ Security headers validation
 
+### 👟 **NEW: Player Flow API Documentation**
+- ✅ View Available Match Sessions - `GET /api/players/{player}/match-sessions`
+- ✅ View Available Teams - `GET /api/players/{player}/match-sessions/{matchSession}/teams`
+- ✅ Validate Join Team Eligibility - `POST /api/players/{player}/can-join-team`
+- ✅ Join Team and Pay - `POST /api/players/{player}/join-team`
+- ✅ Join Team (Auto-assign) - `POST /api/players/{player}/join-team`
+- ✅ Get Current Team Status - `GET /api/players/{player}/team-status`
+- ✅ Leave Team - `POST /api/players/{player}/leave-team`
+- ✅ Get Payment History - `GET /api/players/{player}/payment-history`
+
 ### 🧪 Comprehensive Test Coverage
 - ✅ **100+ automated tests** across all endpoints
 - ✅ **Response structure validation** (Laravel API Resources)
@@ -60,6 +70,15 @@ postman/
 - 📝 **Match Events** (`/api/match-events`) - Event logging
 - 📋 **Queue Logic** (`/api/queue-logic`) - Queue management
 - 🔗 **Team Players** (`/api/team-players`) - Team membership
+
+### 👟 Player Flow Endpoints (NEW)
+- 🏟️ **View Match Sessions** (`/api/players/{player}/match-sessions`) - See active/scheduled sessions
+- 👥 **View Available Teams** (`/api/players/{player}/match-sessions/{session}/teams`) - Check team slots
+- ✅ **Validate Team Join** (`/api/players/{player}/can-join-team`) - Pre-payment eligibility check
+- 💳 **Join Team & Pay** (`/api/players/{player}/join-team`) - Core player flow with payment
+- 📊 **Team Status** (`/api/players/{player}/team-status`) - Track wins/losses/draws
+- 🚪 **Leave Team** (`/api/players/{player}/leave-team`) - Exit before match starts
+- 💰 **Payment History** (`/api/players/{player}/payment-history`) - View turf-related payments
 
 ### Nested Resource Routes
 - 🏟️ **Turf Relations**: `/api/turfs/{turf}/players`, `/api/turfs/{turf}/match-sessions`

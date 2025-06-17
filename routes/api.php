@@ -50,6 +50,17 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('match-sessions', [MatchSessionController::class, 'index'])->name('turfs.match-sessions.index');
     });
 
+    // Player-specific routes for the player flow
+    Route::prefix('players/{player}')->group(function () {
+        Route::get('match-sessions', [PlayerController::class, 'matchSessions'])->name('players.match-sessions');
+        Route::get('match-sessions/{matchSession}/teams', [PlayerController::class, 'availableTeams'])->name('players.available-teams');
+        Route::post('join-team', [PlayerController::class, 'joinTeam'])->name('players.join-team');
+        Route::post('leave-team', [PlayerController::class, 'leaveTeam'])->name('players.leave-team');
+        Route::get('team-status', [PlayerController::class, 'currentTeamStatus'])->name('players.team-status');
+        Route::get('payment-history', [PlayerController::class, 'paymentHistory'])->name('players.payment-history');
+        Route::post('can-join-team', [PlayerController::class, 'canJoinTeam'])->name('players.can-join-team');
+    });
+
     Route::prefix('match-sessions/{matchSession}')->group(function () {
         Route::get('teams', [TeamController::class, 'index'])->name('match-sessions.teams.index');
         Route::get('game-matches', [GameMatchController::class, 'index'])->name('match-sessions.game-matches.index');

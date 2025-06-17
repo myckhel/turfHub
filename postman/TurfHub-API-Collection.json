@@ -2006,6 +2006,539 @@
             "description": "Team management endpoints"
         },
         {
+            "name": "Players",
+            "description": "Player flow endpoints for viewing match sessions, joining teams, and managing player activities",
+            "item": [
+                {
+                    "name": "View Available Match Sessions",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test('Response contains match sessions data', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.have.property('data');",
+                                    "    pm.expect(jsonData.data).to.be.an('array');",
+                                    "});",
+                                    "",
+                                    "// Store first match session ID for other tests",
+                                    "if (pm.response.code === 200) {",
+                                    "    const responseData = pm.response.json();",
+                                    "    if (responseData.data.length > 0) {",
+                                    "        pm.environment.set('test_match_session_id', responseData.data[0].id);",
+                                    "    }",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/players/{{test_player_id}}/match-sessions",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "players",
+                                "{{test_player_id}}",
+                                "match-sessions"
+                            ]
+                        },
+                        "description": "Get all active and scheduled match sessions for a player's turf. This implements the 'Sees active/scheduled match sessions' part of the player flow."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "View Available Teams",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test('Response contains teams data', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.have.property('data');",
+                                    "    pm.expect(jsonData.data).to.be.an('array');",
+                                    "});",
+                                    "",
+                                    "// Store first available team ID for other tests",
+                                    "if (pm.response.code === 200) {",
+                                    "    const responseData = pm.response.json();",
+                                    "    if (responseData.data.length > 0) {",
+                                    "        pm.environment.set('test_available_team_id', responseData.data[0].id);",
+                                    "    }",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/players/{{test_player_id}}/match-sessions/{{test_match_session_id}}/teams",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "players",
+                                "{{test_player_id}}",
+                                "match-sessions",
+                                "{{test_match_session_id}}",
+                                "teams"
+                            ]
+                        },
+                        "description": "Get available teams with open slots for a specific match session. Shows teams that have less than 6 players."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Validate Join Team Eligibility",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test('Response contains eligibility check', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.have.property('can_join');",
+                                    "    pm.expect(jsonData.can_join).to.be.a('boolean');",
+                                    "});",
+                                    "",
+                                    "// Store eligibility status for conditional testing",
+                                    "if (pm.response.code === 200) {",
+                                    "    const responseData = pm.response.json();",
+                                    "    pm.environment.set('can_join_team', responseData.can_join);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"match_session_id\": {{test_match_session_id}},\n    \"team_id\": {{test_available_team_id}}\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/players/{{test_player_id}}/can-join-team",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "players",
+                                "{{test_player_id}}",
+                                "can-join-team"
+                            ]
+                        },
+                        "description": "Check if a player can join a specific team before initiating payment. Validates eligibility and returns available slots."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Join Team and Pay",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test('Response contains success message and data', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.have.property('message');",
+                                    "    pm.expect(jsonData).to.have.property('data');",
+                                    "    pm.expect(jsonData.data).to.have.property('team');",
+                                    "    pm.expect(jsonData.data).to.have.property('payment');",
+                                    "});",
+                                    "",
+                                    "// Store team and payment info",
+                                    "if (pm.response.code === 200) {",
+                                    "    const responseData = pm.response.json();",
+                                    "    pm.environment.set('joined_team_id', responseData.data.team.id);",
+                                    "    if (responseData.data.payment && responseData.data.payment.reference) {",
+                                    "        pm.environment.set('payment_reference', responseData.data.payment.reference);",
+                                    "    }",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"match_session_id\": {{test_match_session_id}},\n    \"team_id\": {{test_available_team_id}},\n    \"payment_amount\": 50.00\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/players/{{test_player_id}}/join-team",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "players",
+                                "{{test_player_id}}",
+                                "join-team"
+                            ]
+                        },
+                        "description": "Join a team slot and initiate payment. This is the core player flow functionality that implements 'Joins a team slot in-app; pays online'."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Join Team (Auto-assign)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test('Response contains team assignment', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.have.property('data');",
+                                    "    pm.expect(jsonData.data).to.have.property('team');",
+                                    "    pm.expect(jsonData.data.team).to.have.property('id');",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"match_session_id\": {{test_match_session_id}},\n    \"payment_amount\": 50.00\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/players/{{test_player_id}}/join-team",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "players",
+                                "{{test_player_id}}",
+                                "join-team"
+                            ]
+                        },
+                        "description": "Join a team without specifying team_id. System will automatically create a new team or assign to an available team."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Current Team Status",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test('Response contains team status data', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.have.property('data');",
+                                    "    pm.expect(jsonData.data).to.be.an('array');",
+                                    "});",
+                                    "",
+                                    "pm.test('Team status includes match session and team info', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    if (jsonData.data.length > 0) {",
+                                    "        const status = jsonData.data[0];",
+                                    "        pm.expect(status).to.have.property('match_session');",
+                                    "        pm.expect(status).to.have.property('team');",
+                                    "        pm.expect(status.team).to.have.property('wins');",
+                                    "        pm.expect(status.team).to.have.property('losses');",
+                                    "        pm.expect(status.team).to.have.property('draws');",
+                                    "    }",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/players/{{test_player_id}}/team-status",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "players",
+                                "{{test_player_id}}",
+                                "team-status"
+                            ]
+                        },
+                        "description": "Get current team status for a player across all active match sessions. Shows wins, losses, draws, and recent match history."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Leave Team",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test('Response contains success message', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.have.property('message');",
+                                    "    pm.expect(jsonData.message).to.include('Successfully left');",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"team_id\": {{joined_team_id}}\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/players/{{test_player_id}}/leave-team",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "players",
+                                "{{test_player_id}}",
+                                "leave-team"
+                            ]
+                        },
+                        "description": "Leave a team before the match starts. Only allowed for scheduled match sessions."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Payment History",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test('Response contains payment history', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.have.property('data');",
+                                    "    pm.expect(jsonData.data).to.have.property('data'); // Laravel pagination",
+                                    "    pm.expect(jsonData.data.data).to.be.an('array');",
+                                    "});",
+                                    "",
+                                    "pm.test('Payment history includes pagination', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData.data).to.have.property('current_page');",
+                                    "    pm.expect(jsonData.data).to.have.property('per_page');",
+                                    "    pm.expect(jsonData.data).to.have.property('total');",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/players/{{test_player_id}}/payment-history?per_page=10",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "players",
+                                "{{test_player_id}}",
+                                "payment-history"
+                            ],
+                            "query": [
+                                {
+                                    "key": "per_page",
+                                    "value": "10",
+                                    "description": "Number of items per page"
+                                }
+                            ]
+                        },
+                        "description": "Get paginated payment history for a player in their turf. Shows all payments related to match sessions and team joining."
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
             "name": "Nested Routes",
             "item": [
                 {

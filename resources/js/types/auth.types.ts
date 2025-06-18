@@ -4,6 +4,7 @@ export interface LoginCredentials {
   email: string;
   password: string;
   remember?: boolean;
+  [key: string]: string | boolean | undefined;
 }
 
 export interface RegisterData {
@@ -12,6 +13,7 @@ export interface RegisterData {
   password: string;
   password_confirmation: string;
   terms?: boolean;
+  [key: string]: string | boolean | undefined;
 }
 
 export interface ResetPasswordData {
@@ -19,10 +21,12 @@ export interface ResetPasswordData {
   token: string;
   password: string;
   password_confirmation: string;
+  [key: string]: string;
 }
 
 export interface ForgotPasswordData {
   email: string;
+  [key: string]: string;
 }
 
 export interface AuthUser {

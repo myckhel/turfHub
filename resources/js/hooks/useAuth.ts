@@ -1,4 +1,4 @@
-import { usePage } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 import { useEffect } from 'react';
 import { useAuthStore, type User } from '../stores/auth.store';
 
@@ -10,32 +10,23 @@ interface PageProps extends Record<string, unknown> {
 
 export const useAuth = () => {
   const { auth } = usePage<PageProps>().props;
-  const { 
-    user, 
-    isAuthenticated, 
-    isLoading, 
-    setUser, 
-    setLoading, 
-    logout,
-    hasPermission,
-    hasRole,
-    hasAnyRole
-  } = useAuthStore();
+  const { user, isAuthenticated, isLoading, setUser, setLoading, logout, hasPermission, hasRole, hasAnyRole } = useAuthStore();
 
   // Sync Inertia auth data with Zustand store
   useEffect(() => {
-    if (auth?.user && (!user || user.id !== auth.user.id)) {
+    if (auth?.user) {
       setUser(auth.user);
-    } else if (!auth?.user && user) {
+    } else if (!auth?.user) {
       logout();
     }
-  }, [auth?.user, user, setUser, logout]);
+  }, [auth?.user, setUser, logout]);
 
   const logoutUser = async () => {
     try {
       setLoading(true);
+      logout();
       // Call Laravel logout endpoint via Inertia
-      window.location.href = route('logout');
+      router.post(route('logout'));
     } catch (error) {
       console.error('Logout error:', error);
     } finally {

@@ -53,7 +53,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     <ConfigProvider theme={finalThemeConfig}>
       <AntApp>
         <div
-          className={`safe-area-inset min-h-screen bg-white text-slate-900 transition-colors duration-300 ease-out dark:bg-slate-900 dark:text-white ${isMobile ? 'mobile-layout' : 'desktop-layout'} `}
+          className={`safe-area-inset min-h-screen items-center justify-center bg-white text-slate-900 transition-colors duration-300 ease-out dark:bg-slate-900 dark:text-white ${isMobile ? 'mobile-layout' : 'desktop-layout'} `}
         >
           {children}
 

@@ -28,9 +28,9 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
   const { sidebarCollapsed, mobileMenuOpen, toggleSidebar, setMobileMenuOpen } = useLayoutStore();
   const { isMobile, isTablet } = useResponsive();
 
-  if (!canAccessDashboard()) {
-    return <div>Access Denied</div>;
-  }
+  // if (!canAccessDashboard()) {
+  //   return <div>Access Denied</div>;
+  // }
 
   // Mobile menu overlay
   const shouldCollapse = isMobile || isTablet;
@@ -51,12 +51,12 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
         {
           key: 'bookings',
           icon: <CalendarOutlined />,
-          label: <Link href={route('player.bookings')}>My Bookings</Link>,
+          label: <Link href={route('dashboard')}>My Bookings</Link>,
         },
         {
           key: 'matches',
           icon: <TrophyOutlined />,
-          label: <Link href={route('player.matches')}>My Matches</Link>,
+          label: <Link href={route('dashboard')}>My Matches</Link>,
         },
       );
     }
@@ -69,15 +69,15 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
         children: [
           {
             key: 'fields',
-            label: <Link href={route('manager.fields')}>Fields</Link>,
+            label: <Link href={route('dashboard')}>Fields</Link>,
           },
           {
             key: 'all-bookings',
-            label: <Link href={route('manager.bookings')}>All Bookings</Link>,
+            label: <Link href={route('dashboard')}>All Bookings</Link>,
           },
           {
             key: 'reports',
-            label: <Link href={route('manager.reports')}>Reports</Link>,
+            label: <Link href={route('dashboard')}>Reports</Link>,
           },
         ],
       });
@@ -91,11 +91,11 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
         children: [
           {
             key: 'users',
-            label: <Link href={route('admin.users')}>Users</Link>,
+            label: <Link href={route('dashboard')}>Users</Link>,
           },
           {
             key: 'settings',
-            label: <Link href={route('admin.settings')}>Settings</Link>,
+            label: <Link href={route('dashboard')}>Settings</Link>,
           },
         ],
       });
@@ -108,12 +108,12 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
     {
       key: 'profile',
       icon: <UserOutlined />,
-      label: <Link href={route('profile.edit')}>Profile</Link>,
+      label: <Link href={route('dashboard')}>Profile</Link>,
     },
     {
       key: 'settings',
       icon: <SettingOutlined />,
-      label: <Link href={route('settings')}>Settings</Link>,
+      label: <Link href={route('dashboard')}>Settings</Link>,
     },
     { type: 'divider' as const },
     {
@@ -153,7 +153,7 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
       {/* Mobile overlay */}
       {isMobile && mobileMenuOpen && <div className="bg-opacity-50 fixed inset-0 z-40 bg-black" onClick={() => setMobileMenuOpen(false)} />}
 
-      <Layout className={`${!isMobile && !actuallyCollapsed ? 'ml-280' : ''}`}>
+      <Layout className={`${!isMobile && !actuallyCollapsed ? '' : ''}`}>
         {/* Header */}
         <Header className="flex items-center justify-between border-b border-gray-200 bg-white px-4 dark:border-gray-700 dark:bg-gray-800">
           {/* Left side - Menu trigger */}

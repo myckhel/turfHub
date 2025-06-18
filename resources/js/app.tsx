@@ -23,6 +23,8 @@ const getLayout = (routeName: string, page: React.ReactElement) => {
 
   const wrappedPage = <AppLayout>{page}</AppLayout>;
 
+  console.log({ layout, routeName, config });
+
   switch (layout) {
     case 'auth':
       return <AuthLayout>{wrappedPage}</AuthLayout>;
@@ -53,23 +55,23 @@ createInertiaApp({
       }
 
       // Check role access
-      if (config.roles && !config.roles.some((role) => user.roles.includes(role))) {
-        // Redirect to unauthorized page or dashboard
-        window.location.href = route('dashboard');
-        return page;
-      }
+      // if (config.roles && !config.roles.some((role) => user.roles?.includes(role))) {
+      //   // Redirect to unauthorized page or dashboard
+      //   // window.location.href = route('dashboard');
+      //   return page;
+      // }
 
-      // Check permission access
-      if (config.permissions && !config.permissions.some((permission) => user.permissions.includes(permission))) {
-        window.location.href = route('dashboard');
-        return page;
-      }
+      // // Check permission access
+      // if (config.permissions && !config.permissions.some((permission) => user.permissions?.includes(permission))) {
+      //   // window.location.href = route('dashboard');
+      //   return page;
+      // }
     }
 
     // Add layout to page component
     const PageComponent = page.default;
     if (PageComponent && typeof PageComponent === 'function') {
-      PageComponent.layout = (pageElement: React.ReactElement) => getLayout(routeName, pageElement);
+      page.default.layout = (pageElement: React.ReactElement) => getLayout(routeName, pageElement);
     }
 
     return page;

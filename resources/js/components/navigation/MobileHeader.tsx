@@ -4,6 +4,7 @@ import { router, usePage } from '@inertiajs/react';
 import { Avatar, Badge, Button, Dropdown, Typography } from 'antd';
 import { gsap } from 'gsap';
 import React, { useRef } from 'react';
+import { useAuth } from '../../hooks/useAuth';
 import { useResponsive, useTheme } from '../../hooks/useTheme';
 
 const { Title } = Typography;
@@ -44,6 +45,7 @@ export const MobileHeader: React.FC<MobileHeaderProps> = ({
   className = '',
 }) => {
   const { setLightMode, setDarkMode, setSystemMode, reducedMotion, isDark } = useTheme();
+  const { logout } = useAuth();
   const { isMobile } = useResponsive();
   const { props } = usePage<PageProps>();
   const user = props.auth?.user;
@@ -165,7 +167,7 @@ export const MobileHeader: React.FC<MobileHeaderProps> = ({
     {
       key: 'logout',
       label: 'Sign Out',
-      onClick: () => router.post(route('logout')),
+      onClick: () => logout(),
     },
   ];
 

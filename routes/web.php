@@ -4,13 +4,13 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
-    return Inertia::render('Public/Welcome');
+  return Inertia::render('Public/Welcome');
 })->name('welcome');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('dashboard', function () {
-        return Inertia::render('dashboard');
-    })->name('dashboard');
+  Route::get('dashboard', function () {
+    return Inertia::render('Shared/Dashboard');
+  })->name('dashboard');
 });
 
 // Public payment callback route (for Paystack)

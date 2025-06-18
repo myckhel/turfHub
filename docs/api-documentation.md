@@ -3,6 +3,125 @@
 ## Overview
 This document provides an overview of the RESTful CRUD API controllers created for the TurfMate application.
 
+## Authentication
+
+### Authentication Endpoints (`/api/auth`)
+
+The authentication system provides comprehensive user management with Laravel Sanctum token-based authentication.
+
+#### Public Endpoints (No Authentication Required)
+
+**Registration**
+- `POST /api/auth/register` - Register new user account
+  ```json
+  {
+    "name": "John Doe",
+    "email": "john@example.com", 
+    "password": "password123",
+    "password_confirmation": "password123"
+  }
+  ```
+  **Response:** User data + Bearer token
+
+**Login**
+- `POST /api/auth/login` - Authenticate user credentials
+  ```json
+  {
+    "email": "john@example.com",
+    "password": "password123"
+  }
+  ```
+  **Response:** User data + Bearer token
+
+**Password Reset Flow**
+- `POST /api/auth/forgot-password` - Send password reset email
+  ```json
+  {
+    "email": "john@example.com"
+  }
+  ```
+
+- `POST /api/auth/reset-password` - Reset password with token
+  ```json
+  {
+    "token": "reset_token_from_email",
+    "email": "john@example.com",
+    "password": "newpassword123",
+    "password_confirmation": "newpassword123"
+  }
+  ```
+
+**Email Verification**
+- `GET /api/auth/verify-email/{id}/{hash}` - Verify email address
+  - Requires signed URL from verification email
+  - Query params: `expires`, `signature` (from email link)
+
+#### Protected Endpoints (Requires Bearer Token)
+
+**User Management**
+- `GET /api/auth/user` - Get authenticated user profile
+- `POST /api/auth/logout` - Logout (revoke current token)
+- `POST /api/auth/logout-all` - Logout from all devices (revoke all tokens)
+
+**Email Verification**
+- `POST /api/auth/email/verification-notification` - Send verification email
+  - Rate limited: 6 attempts per minute
+
+**Password Confirmation**
+- `POST /api/auth/confirm-password` - Confirm user password for sensitive operations
+  ```json
+  {
+    "password": "current_password"
+  }
+  ```
+
+#### Authentication Headers
+All protected endpoints require the Bearer token in the Authorization header:
+```
+Authorization: Bearer your_token_here
+Accept: application/json
+Content-Type: application/json
+```
+
+#### Response Format
+All authentication endpoints return consistent JSON responses:
+
+**Success Response:**
+```json
+{
+  "message": "Operation successful",
+  "user": {
+    "id": 1,
+    "name": "John Doe",
+    "email": "john@example.com",
+    "email_verified_at": "2025-06-18T10:00:00.000000Z",
+    "created_at": "2025-06-18T09:00:00.000000Z",
+    "updated_at": "2025-06-18T10:00:00.000000Z"
+  },
+  "token": "bearer_token_here"
+}
+```
+
+**Error Response:**
+```json
+{
+  "message": "Error description",
+  "errors": {
+    "field": ["Validation error message"]
+  }
+}
+```
+
+#### Security Features
+- Rate limiting on login attempts and email verification
+- CSRF protection for web forms
+- Signed URLs for email verification
+- Password confirmation for sensitive operations
+- Token-based API authentication with Sanctum
+- Email verification requirement (configurable)
+
+---
+
 ## Controllers & Resources
 
 ### 1. UserController (`/api/users`)

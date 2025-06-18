@@ -3,28 +3,30 @@
 namespace App\Http\Controllers\Web\Auth;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Auth\Events\Verified;
+use App\Services\AuthService;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\RedirectResponse;
 
 class VerifyEmailController extends Controller
 {
-    /**
-     * Mark the authenticated user's email address as verified.
-     */
-    public function __invoke(EmailVerificationRequest $request): RedirectResponse
-    {
-        if ($request->user()->hasVerifiedEmail()) {
-            return redirect()->intended(route('dashboard', absolute: false).'?verified=1');
-        }
+  protected AuthService $authService;
 
-        if ($request->user()->markEmailAsVerified()) {
-            /** @var \Illuminate\Contracts\Auth\MustVerifyEmail $user */
-            $user = $request->user();
+  public function __construct(AuthService $authService)
+  {
+    $this->authService = $authService;
+  }
 
-            event(new Verified($user));
-        }
-
-        return redirect()->intended(route('dashboard', absolute: false).'?verified=1');
+  /**
+   * Mark the authenticated user's email address as verified.
+   */
+  public function __invoke(EmailVerificationRequest $request): RedirectResponse
+  {
+    if ($request->user()->hasVerifiedEmail()) {
+      return redirect()->intended(route('dashboard', absolute: false) . '?verified=1');
     }
+
+    $this->authService->verifyEmail($request->user(), $request);
+
+    return redirect()->intended(route('dashboard', absolute: false) . '?verified=1');
+  }
 }

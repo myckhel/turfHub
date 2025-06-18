@@ -1,8 +1,52 @@
 # TurfMate API - Postman Collection Documentation
 
-## Overview
+## 📋 Overview
 
-This comprehensive Postman collection provides complete API testing capabilities for the TurfMate application. It includes advanced features like automated testing, environment management, pre/post-request scripts, and detailed error handling.
+This Postman collection provides comprehensive testing capabilities for the TurfMate API, including full authentication flow, user management, turf operations, match sessions, and player interactions.
+
+## 🚀 Quick Start
+
+### 1. Import Collection
+Import `TurfMate-API-Collection.json` into Postman.
+
+### 2. Set Environment
+Import and select either:
+- `TurfMate-Development.postman_environment.json` (for local development)
+- `TurfMate-Production.postman_environment.json` (for production testing)
+
+### 3. Run Authentication Flow
+Execute the requests in the **Authentication** folder in order:
+1. **Register User (API)** - Creates a new user account
+2. **Login User (API)** - Authenticates and gets Bearer token
+3. Other protected endpoints will now work with the stored token
+
+## 🔐 Authentication System
+
+### Complete Authentication Flow
+
+The collection includes a comprehensive authentication system with the following endpoints:
+
+#### Public Authentication (No token required)
+- **Register User** - Create new account with email verification
+- **Login User** - Authenticate with email/password, returns Bearer token
+- **Forgot Password** - Send password reset email
+- **Reset Password** - Reset password using token from email
+- **Verify Email** - Verify email address using signed URL from email
+
+#### Protected Authentication (Bearer token required)
+- **Get User Profile** - Retrieve authenticated user information
+- **Send Email Verification** - Resend verification email
+- **Confirm Password** - Verify password for sensitive operations
+- **Logout** - Revoke current session token
+- **Logout All** - Revoke all user tokens (logout from all devices)
+
+### Token Management
+
+The collection automatically:
+- ✅ Stores Bearer tokens from login/registration responses
+- ✅ Uses stored tokens for protected endpoint authentication
+- ✅ Clears tokens on logout operations
+- ✅ Handles token expiration and refresh scenarios
 
 ## 📁 Files Structure
 

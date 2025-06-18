@@ -1,6 +1,6 @@
 // Layout Components
-export { default as MobileLayout } from './components/layout/MobileLayout';
-export { AppLayout } from './layouts/AppLayout';
+export { AppLayout } from './components/layout/AppLayout';
+export { ResponsiveLayout as default } from './components/layout/ResponsiveLayout';
 
 // Navigation Components
 export { default as BottomTabNavigation } from './components/navigation/BottomTabNavigation';
@@ -17,9 +17,6 @@ export { useResponsive, useTheme } from './hooks/useTheme';
 // Stores
 export { useBreakpoint, useLayoutStore, useMobileMenu, useSidebar } from './stores/layout.store';
 export { BRAND_COLORS, getAntdTheme, getThemeColors, useThemeStore } from './stores/theme.store';
-
-// Pages
-export { default as DashboardPage } from './pages/DashboardPage';
 
 // Types
 export type { ColorScheme, ThemeMode } from './stores/theme.store';

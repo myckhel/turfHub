@@ -1,10 +1,10 @@
 import { App as AntApp, ConfigProvider, theme as antdTheme } from 'antd';
 import React from 'react';
-import { FlashMessages } from '../components/shared/FlashMessages';
-import { PWAUpdateNotification } from '../components/shared/PWAUpdateNotification';
-import { useFlash } from '../hooks/useFlash';
-import { useResponsive, useTheme } from '../hooks/useTheme';
-import { getAntdTheme } from '../stores/theme.store';
+import { useFlash } from '../../hooks/useFlash';
+import { useResponsive, useTheme } from '../../hooks/useTheme';
+import { getAntdTheme } from '../../stores/theme.store';
+import { FlashMessages } from '../shared/FlashMessages';
+import { PWAUpdateNotification } from '../shared/PWAUpdateNotification';
 
 interface AppLayoutProps {
   children: React.ReactNode;

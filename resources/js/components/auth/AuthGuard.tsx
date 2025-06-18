@@ -10,13 +10,7 @@ interface AuthGuardProps {
   permissions?: string[];
 }
 
-export const AuthGuard: React.FC<AuthGuardProps> = ({
-  children,
-  fallback = null,
-  redirectTo = 'login',
-  roles = [],
-  permissions = [],
-}) => {
+export const AuthGuard: React.FC<AuthGuardProps> = ({ children, fallback = null, redirectTo = 'login', roles = [], permissions = [] }) => {
   const { isAuthenticated, hasPermission, hasAnyRole } = useAuthStore();
 
   // Check if user is authenticated
@@ -38,7 +32,7 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
   }
 
   // Check permission requirements
-  if (permissions.length > 0 && !permissions.some(permission => hasPermission(permission))) {
+  if (permissions.length > 0 && !permissions.some((permission) => hasPermission(permission))) {
     if (redirectTo) {
       router.visit(route('dashboard'));
       return fallback;

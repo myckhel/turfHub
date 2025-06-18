@@ -1,0 +1,343 @@
+import {
+  BellOutlined,
+  CalendarOutlined,
+  DashboardOutlined,
+  LogoutOutlined,
+  MenuOutlined,
+  SettingOutlined,
+  TrophyOutlined,
+  UserOutlined,
+} from '@ant-design/icons';
+import { useGSAP } from '@gsap/react';
+import { Link } from '@inertiajs/react';
+import { Layout as AntLayout, Avatar, Badge, Button, Dropdown, Menu } from 'antd';
+import { gsap } from 'gsap';
+import React, { useEffect, useRef } from 'react';
+import { useAuth } from '../../hooks/useAuth';
+import { usePermissions } from '../../hooks/usePermissions';
+import { useResponsive } from '../../hooks/useResponsive';
+import { useTheme } from '../../hooks/useTheme';
+import { useLayoutStore } from '../../stores';
+import BottomTabNavigation from '../navigation/BottomTabNavigation';
+import MobileHeader from '../navigation/MobileHeader';
+
+const { Content, Header, Sider } = AntLayout;
+
+interface ResponsiveLayoutProps {
+  /** Current active tab for navigation */
+  activeTab?: string;
+  /** Page title for header */
+  title?: string;
+  /** Page subtitle for header */
+  subtitle?: string;
+  /** Show back button in header */
+  showBackButton?: boolean;
+  /** Show bottom navigation on mobile */
+  showBottomNav?: boolean;
+  /** Show header */
+  showHeader?: boolean;
+  /** Custom header content */
+  headerContent?: React.ReactNode;
+  /** Custom right content for header */
+  headerRightContent?: React.ReactNode;
+  /** Content padding */
+  contentPadding?: boolean;
+  /** Safe area handling */
+  safeArea?: boolean;
+  /** Page background variant */
+  backgroundVariant?: 'default' | 'gradient' | 'pattern';
+  /** Custom background */
+  background?: string;
+  /** Back button handler */
+  onBackPress?: () => void;
+  /** Children content */
+  children: React.ReactNode;
+  /** Additional CSS classes */
+  className?: string;
+}
+
+export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
+  activeTab = 'home',
+  title,
+  subtitle,
+  showBackButton = false,
+  showBottomNav = true,
+  showHeader = true,
+  headerContent,
+  headerRightContent,
+  contentPadding = true,
+  safeArea = true,
+  backgroundVariant = 'default',
+  background,
+  onBackPress,
+  children,
+  className = '',
+}) => {
+  const { isDark, reducedMotion } = useTheme();
+  const { isMobile, isTablet, isDesktop } = useResponsive();
+  const { user, logout } = useAuth();
+  const { isPlayer, isManager, isAdmin } = usePermissions();
+  const { sidebarCollapsed, mobileMenuOpen, toggleSidebar, setMobileMenuOpen } = useLayoutStore();
+
+  const layoutRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  // Responsive layout logic
+  const shouldCollapse = isMobile || isTablet;
+  const actuallyCollapsed = shouldCollapse || sidebarCollapsed;
+  const useDesktopLayout = isDesktop;
+  const useMobileLayout = isMobile;
+
+  // Menu items based on role
+  const getMenuItems = () => {
+    const items = [
+      {
+        key: 'dashboard',
+        icon: <DashboardOutlined />,
+        label: <Link href={route('dashboard')}>Dashboard</Link>,
+      },
+    ];
+
+    if (isPlayer()) {
+      items.push(
+        {
+          key: 'bookings',
+          icon: <CalendarOutlined />,
+          label: <Link href={route('dashboard')}>My Bookings</Link>,
+        },
+        {
+          key: 'matches',
+          icon: <TrophyOutlined />,
+          label: <Link href={route('dashboard')}>My Matches</Link>,
+        },
+      );
+    }
+
+    if (isManager() || isAdmin()) {
+      items.push(
+        {
+          key: 'fields',
+          icon: <SettingOutlined />,
+          label: <Link href={route('dashboard')}>Fields</Link>,
+        },
+        {
+          key: 'all-bookings',
+          icon: <CalendarOutlined />,
+          label: <Link href={route('dashboard')}>All Bookings</Link>,
+        },
+        {
+          key: 'reports',
+          icon: <TrophyOutlined />,
+          label: <Link href={route('dashboard')}>Reports</Link>,
+        },
+      );
+    }
+
+    if (isAdmin()) {
+      items.push(
+        {
+          key: 'users',
+          icon: <UserOutlined />,
+          label: <Link href={route('dashboard')}>Users</Link>,
+        },
+        {
+          key: 'settings',
+          icon: <SettingOutlined />,
+          label: <Link href={route('dashboard')}>Settings</Link>,
+        },
+      );
+    }
+
+    return items;
+  };
+
+  const userMenuItems = [
+    {
+      key: 'profile',
+      icon: <UserOutlined />,
+      label: <Link href={route('dashboard')}>Profile</Link>,
+    },
+    {
+      key: 'settings',
+      icon: <SettingOutlined />,
+      label: <Link href={route('dashboard')}>Settings</Link>,
+    },
+    { type: 'divider' as const },
+    {
+      key: 'logout',
+      icon: <LogoutOutlined />,
+      label: 'Logout',
+      onClick: logout,
+    },
+  ];
+
+  // GSAP page transition animations
+  useGSAP(() => {
+    if (reducedMotion) return;
+
+    const tl = gsap.timeline();
+
+    // Layout entrance animation
+    tl.fromTo(layoutRef.current, { opacity: 0 }, { opacity: 1, duration: 0.3, ease: 'power2.out' });
+
+    // Content slide-in animation
+    if (contentRef.current) {
+      tl.fromTo(
+        contentRef.current,
+        { x: 20, opacity: 0 },
+        {
+          x: 0,
+          opacity: 1,
+          duration: 0.5,
+          ease: 'back.out(1.7)',
+        },
+        '-=0.2',
+      );
+    }
+
+    return () => {
+      tl.kill();
+    };
+  }, [reducedMotion, activeTab]);
+
+  // Page transition effect when activeTab changes
+  useEffect(() => {
+    if (reducedMotion || !contentRef.current) return;
+
+    const content = contentRef.current;
+
+    gsap.fromTo(
+      content,
+      { scale: 0.98, opacity: 0.8 },
+      {
+        scale: 1,
+        opacity: 1,
+        duration: 0.3,
+        ease: 'back.out(2)',
+      },
+    );
+  }, [activeTab, reducedMotion]);
+
+  // Background styles
+  const getBackgroundStyles = () => {
+    if (background) return { background };
+
+    const baseStyles = 'min-h-screen transition-colors duration-300';
+    const backgrounds = {
+      default: isDark ? `${baseStyles} bg-slate-900` : `${baseStyles} bg-white`,
+      gradient: isDark
+        ? `${baseStyles} bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900`
+        : `${baseStyles} bg-gradient-to-br from-white via-slate-50 to-white`,
+      pattern: isDark
+        ? `${baseStyles} bg-slate-900 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.05)_1px,transparent_0)]`
+        : `${baseStyles} bg-white bg-[radial-gradient(circle_at_1px_1px,rgba(0,0,0,0.05)_1px,transparent_0)]`,
+    };
+
+    return backgrounds[backgroundVariant];
+  };
+
+  return (
+    <AntLayout
+      ref={layoutRef}
+      className={`${getBackgroundStyles()} ${safeArea ? 'safe-area-inset-top safe-area-inset-bottom' : ''} ${className}`}
+      style={background ? { background } : undefined}
+    >
+      {/* Desktop Sidebar */}
+      {useDesktopLayout && (
+        <Sider
+          trigger={null}
+          collapsible
+          collapsed={actuallyCollapsed}
+          breakpoint="lg"
+          collapsedWidth={80}
+          className="bg-white transition-transform duration-300 dark:bg-gray-800"
+          width={280}
+        >
+          {/* Logo */}
+          <div className="flex h-16 items-center justify-center border-b border-gray-200 dark:border-gray-700">
+            <Link href={route('dashboard')} className="flex items-center space-x-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500">
+                <span className="text-sm font-bold text-white">TH</span>
+              </div>
+              {!actuallyCollapsed && <span className="text-lg font-bold text-gray-900 dark:text-white">TurfMate</span>}
+            </Link>
+          </div>
+
+          {/* Navigation Menu */}
+          <Menu mode="inline" items={getMenuItems()} className="border-r-0 bg-transparent" style={{ height: 'calc(100vh - 64px)' }} />
+        </Sider>
+      )}
+
+      {/* Mobile sidebar overlay */}
+      {isMobile && mobileMenuOpen && <div className="bg-opacity-50 fixed inset-0 z-40 bg-black" onClick={() => setMobileMenuOpen(false)} />}
+
+      <AntLayout>
+        {/* Desktop Header or Mobile Header */}
+        {useDesktopLayout && showHeader && (
+          <Header className="flex items-center justify-between border-b border-gray-200 bg-white px-4 dark:border-gray-700 dark:bg-gray-800">
+            {/* Left side - Menu trigger */}
+            <div className="flex items-center space-x-4">
+              <Button type="text" icon={<MenuOutlined />} onClick={toggleSidebar} className="flex items-center justify-center" />
+              {title && (
+                <div>
+                  <h1 className="text-lg font-semibold text-gray-900 dark:text-white">{title}</h1>
+                  {/* {subtitle && <p className="text-sm text-gray-500 dark:text-gray-400">{subtitle}</p>} */}
+                </div>
+              )}
+            </div>
+
+            {/* Right side - User menu */}
+            <div className="flex items-center space-x-4">
+              {headerRightContent}
+
+              {/* Notifications */}
+              <Button
+                type="text"
+                icon={
+                  <Badge count={0} size="small">
+                    <BellOutlined />
+                  </Badge>
+                }
+              />
+
+              {/* User dropdown */}
+              <Dropdown menu={{ items: userMenuItems }} placement="bottomRight" arrow>
+                <div className="flex cursor-pointer items-center space-x-2 rounded-lg px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-700">
+                  <Avatar size="small" src={user?.avatar} icon={<UserOutlined />} />
+                  <span className="text-sm font-medium text-gray-900 dark:text-white">{user?.name}</span>
+                </div>
+              </Dropdown>
+            </div>
+          </Header>
+        )}
+
+        {/* Mobile Header */}
+        {useMobileLayout && showHeader && (
+          <MobileHeader
+            title={title}
+            subtitle={subtitle}
+            showBackButton={showBackButton}
+            onBackPress={onBackPress}
+            rightContent={headerRightContent}
+          />
+        )}
+
+        {/* Custom Header Content */}
+        {headerContent && <div className="sticky top-0 z-30 bg-white/90 backdrop-blur-xl dark:bg-slate-900/90">{headerContent}</div>}
+
+        {/* Main Content */}
+        <Content
+          ref={contentRef}
+          className={`flex-1 ${contentPadding ? 'px-4 py-6' : ''} ${showBottomNav && useMobileLayout ? 'pb-20' : contentPadding ? 'pb-6' : ''} ${useMobileLayout ? 'min-h-[calc(100vh-theme(spacing.16))]' : 'min-h-screen'} ${useDesktopLayout ? 'bg-gray-50 dark:bg-gray-900' : ''} transition-all duration-300 ease-out`}
+        >
+          <div className={useDesktopLayout ? 'mx-auto max-w-full' : 'mx-auto max-w-screen-xl'}>{children}</div>
+        </Content>
+      </AntLayout>
+
+      {/* Bottom Navigation - Mobile Only */}
+      {showBottomNav && useMobileLayout && <BottomTabNavigation activeTab={activeTab} />}
+    </AntLayout>
+  );
+};
+
+export default ResponsiveLayout;

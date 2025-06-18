@@ -3,10 +3,11 @@ import '../css/app.css';
 import { createInertiaApp } from '@inertiajs/react';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { AppLayout } from './layouts/AppLayout';
-import { AuthLayout } from './layouts/AuthLayout';
+import { AppLayout } from './components/layout/AppLayout';
+import ResponsiveLayout from './components/layout/ResponsiveLayout';
+import { PageTransition } from './components/shared/GSAPAnimations';
+import ThemeToggle from './components/ui/ThemeToggle';
 import { GuestLayout } from './layouts/GuestLayout';
-import { useAuthStore } from './stores/auth.store';
 import { resolveComponent, routeConfigs } from './utils/route-resolver';
 
 const appName = import.meta.env.VITE_APP_NAME || 'TurfMate';
@@ -23,13 +24,35 @@ const getLayout = (routeName: string, page: React.ReactElement) => {
 
   const wrappedPage = <AppLayout>{page}</AppLayout>;
 
-  console.log({ layout, routeName, config });
-
   switch (layout) {
     case 'auth':
-      return <AuthLayout>{wrappedPage}</AuthLayout>;
+      return (
+        <PageTransition>
+          <ResponsiveLayout
+            activeTab="home"
+            title="Welcome back!"
+            subtitle="Ready to play?"
+            headerRightContent={<ThemeToggle size="small" />}
+            backgroundVariant="gradient"
+          >
+            {wrappedPage}
+          </ResponsiveLayout>
+        </PageTransition>
+      );
     case 'dashboard':
-      return <AuthLayout>{wrappedPage}</AuthLayout>;
+      return (
+        <PageTransition>
+          <ResponsiveLayout
+            activeTab="home"
+            title="Welcome back!"
+            subtitle="Ready to play?"
+            headerRightContent={<ThemeToggle size="small" />}
+            backgroundVariant="gradient"
+          >
+            {wrappedPage}
+          </ResponsiveLayout>
+        </PageTransition>
+      );
     case 'guest':
     default:
       return <GuestLayout>{wrappedPage}</GuestLayout>;
@@ -46,21 +69,18 @@ createInertiaApp({
     // Check route access permissions
     const config = routeConfigs[routeName];
     if (config?.roles || config?.permissions) {
-      const { user } = useAuthStore.getState();
-
-      if (!user) {
-        // Redirect to login if not authenticated
-        window.location.href = route('login');
-        return page;
-      }
-
+      // const { user } = useAuthStore.getState();
+      // if (!user) {
+      //   // Redirect to login if not authenticated
+      //   window.location.href = route('login');
+      //   return page;
+      // }
       // Check role access
       // if (config.roles && !config.roles.some((role) => user.roles?.includes(role))) {
       //   // Redirect to unauthorized page or dashboard
       //   // window.location.href = route('dashboard');
       //   return page;
       // }
-
       // // Check permission access
       // if (config.permissions && !config.permissions.some((permission) => user.permissions?.includes(permission))) {
       //   // window.location.href = route('dashboard');

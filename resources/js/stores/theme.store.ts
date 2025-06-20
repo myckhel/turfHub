@@ -59,8 +59,8 @@ export const useThemeStore = create<ThemeState & ThemeActions>()(
       (set, get) => ({
         // Initial State
         mode: 'system',
-        colorScheme: 'light',
-        isSystemDark: false,
+        colorScheme: typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light',
+        isSystemDark: typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches,
         accentColor: 'turfGreen',
         reducedMotion: false,
         highContrast: false,
@@ -72,10 +72,18 @@ export const useThemeStore = create<ThemeState & ThemeActions>()(
 
           set({ mode, colorScheme }, false, 'theme/setMode');
 
-          // Update document class
+          // Update document class and data attributes
           if (typeof document !== 'undefined') {
-            document.documentElement.classList.toggle('dark', colorScheme === 'dark');
-            document.documentElement.setAttribute('data-theme', colorScheme);
+            const root = document.documentElement;
+            root.classList.toggle('dark', colorScheme === 'dark');
+            root.setAttribute('data-theme', colorScheme);
+
+            // Ensure CSS custom properties are updated
+            if (colorScheme === 'dark') {
+              root.style.colorScheme = 'dark';
+            } else {
+              root.style.colorScheme = 'light';
+            }
           }
         },
 
@@ -83,8 +91,16 @@ export const useThemeStore = create<ThemeState & ThemeActions>()(
           set({ colorScheme }, false, 'theme/setColorScheme');
 
           if (typeof document !== 'undefined') {
-            document.documentElement.classList.toggle('dark', colorScheme === 'dark');
-            document.documentElement.setAttribute('data-theme', colorScheme);
+            const root = document.documentElement;
+            root.classList.toggle('dark', colorScheme === 'dark');
+            root.setAttribute('data-theme', colorScheme);
+
+            // Ensure CSS custom properties are updated
+            if (colorScheme === 'dark') {
+              root.style.colorScheme = 'dark';
+            } else {
+              root.style.colorScheme = 'light';
+            }
           }
         },
 
@@ -144,14 +160,21 @@ export const useThemeStore = create<ThemeState & ThemeActions>()(
             get().toggleReducedMotion();
           }
 
-          // Initialize theme
+          // Initialize theme - this will trigger DOM updates
           get().setMode(mode);
           get().setAccentColor(accentColor);
 
-          // Apply accessibility preferences
+          // Apply accessibility preferences immediately
           if (typeof document !== 'undefined') {
-            document.documentElement.classList.toggle('reduce-motion', reducedMotion);
-            document.documentElement.classList.toggle('high-contrast', highContrast);
+            const root = document.documentElement;
+            root.classList.toggle('reduce-motion', reducedMotion);
+            root.classList.toggle('high-contrast', highContrast);
+
+            // Ensure proper initial color scheme is set
+            const { colorScheme } = get();
+            root.classList.toggle('dark', colorScheme === 'dark');
+            root.setAttribute('data-theme', colorScheme);
+            root.style.colorScheme = colorScheme;
           }
         },
       }),
@@ -163,6 +186,15 @@ export const useThemeStore = create<ThemeState & ThemeActions>()(
           reducedMotion: state.reducedMotion,
           highContrast: state.highContrast,
         }),
+        onRehydrateStorage: () => (state) => {
+          // Apply theme immediately after rehydration
+          if (state && typeof document !== 'undefined') {
+            const root = document.documentElement;
+            root.classList.toggle('dark', state.colorScheme === 'dark');
+            root.setAttribute('data-theme', state.colorScheme);
+            root.style.colorScheme = state.colorScheme;
+          }
+        },
       },
     ),
     { name: 'ThemeStore' },

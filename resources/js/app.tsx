@@ -1,13 +1,14 @@
 import '../css/app.css';
 
 import { createInertiaApp } from '@inertiajs/react';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import { AppLayout } from './components/layout/AppLayout';
+import { GuestLayout } from './components/layout/GuestLayout';
 import ResponsiveLayout from './components/layout/ResponsiveLayout';
 import { PageTransition } from './components/shared/GSAPAnimations';
 import ThemeToggle from './components/ui/ThemeToggle';
-import { GuestLayout } from './layouts/GuestLayout';
+import { useThemeStore } from './stores/theme.store';
 import { resolveComponent, routeConfigs } from './utils/route-resolver';
 
 const appName = import.meta.env.VITE_APP_NAME || 'TurfMate';
@@ -16,6 +17,18 @@ const appName = import.meta.env.VITE_APP_NAME || 'TurfMate';
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js');
 }
+
+// Theme initialization component
+const ThemeInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const initializeTheme = useThemeStore((state) => state.initializeTheme);
+
+  useEffect(() => {
+    // Initialize theme immediately when app starts
+    initializeTheme();
+  }, [initializeTheme]);
+
+  return <>{children}</>;
+};
 
 // Layout resolver based on route configuration
 const getLayout = (routeName: string, page: React.ReactElement) => {
@@ -89,9 +102,10 @@ createInertiaApp({
     }
 
     // Add layout to page component
-    const PageComponent = page.default;
+    const pageModule = page as { default: React.ComponentType & { layout?: (page: React.ReactElement) => React.ReactElement } };
+    const PageComponent = pageModule.default;
     if (PageComponent && typeof PageComponent === 'function') {
-      page.default.layout = (pageElement: React.ReactElement) => getLayout(routeName, pageElement);
+      pageModule.default.layout = (pageElement: React.ReactElement) => getLayout(routeName, pageElement);
     }
 
     return page;
@@ -99,7 +113,11 @@ createInertiaApp({
 
   setup({ el, App, props }) {
     const root = createRoot(el);
-    root.render(<App {...props} />);
+    root.render(
+      <ThemeInitializer>
+        <App {...props} />
+      </ThemeInitializer>,
+    );
   },
 
   progress: {

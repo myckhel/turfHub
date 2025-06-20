@@ -1,32 +1,59 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" @class(['dark' => ($appearance ?? 'system') == 'dark'])>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        {{-- Inline script to detect system dark mode preference and apply it immediately --}}
+        {{-- Inline script to detect and apply theme from localStorage or system preference --}}
         <script>
             (function() {
-                const appearance = '{{ $appearance ?? "system" }}';
+                // Check for stored theme preference first
+                const storedTheme = localStorage.getItem('turfmate-theme');
+                let theme = 'system';
 
-                if (appearance === 'system') {
-                    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-                    if (prefersDark) {
-                        document.documentElement.classList.add('dark');
+                if (storedTheme) {
+                    try {
+                        const parsed = JSON.parse(storedTheme);
+                        theme = parsed.state?.mode || 'system';
+                    } catch (e) {
+                        // Fall back to system
                     }
+                }
+
+                let shouldBeDark = false;
+
+                if (theme === 'dark') {
+                    shouldBeDark = true;
+                } else if (theme === 'light') {
+                    shouldBeDark = false;
+                } else {
+                    // System preference
+                    shouldBeDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                }
+
+                // Apply theme immediately to prevent flash
+                const root = document.documentElement;
+                if (shouldBeDark) {
+                    root.classList.add('dark');
+                    root.setAttribute('data-theme', 'dark');
+                    root.style.colorScheme = 'dark';
+                } else {
+                    root.classList.remove('dark');
+                    root.setAttribute('data-theme', 'light');
+                    root.style.colorScheme = 'light';
                 }
             })();
         </script>
 
-        {{-- Inline style to set the HTML background color based on our theme in app.css --}}
+        {{-- Inline style to set the HTML background color based on our theme --}}
         <style>
             html {
-                background-color: oklch(1 0 0);
+                background-color: #ffffff;
+                transition: background-color 0.3s ease;
             }
 
             html.dark {
-                background-color: oklch(0.145 0 0);
+                background-color: #0f172a;
             }
         </style>
 

@@ -8,12 +8,10 @@ interface GuestGuardProps {
 }
 
 export const GuestGuard: React.FC<GuestGuardProps> = ({ children, redirectTo = 'dashboard' }) => {
-  const { user } = useAuthStore();
-
-  console.log({ user, redirectTo });
+  const { user, isAuthenticated } = useAuthStore();
 
   // Redirect authenticated users
-  if (user) {
+  if (user && isAuthenticated) {
     router.visit(route(redirectTo));
     return null;
   }

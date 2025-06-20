@@ -59,7 +59,7 @@ export const GuestLayout: React.FC<GuestLayoutProps> = ({ children }) => {
 
       {/* Footer */}
       <Footer className="bg-gray-900 text-white">
-        <div className="mx-auto max-w-7xl py-12">
+        <div className="mx-auto max-w-7xl pt-12">
           <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
             {/* Company info */}
             <div className="col-span-1 md:col-span-2">
@@ -69,7 +69,7 @@ export const GuestLayout: React.FC<GuestLayoutProps> = ({ children }) => {
                 </div>
                 <span className="text-xl font-bold">TurfMate</span>
               </div>
-              <p className="max-w-md text-gray-400">
+              <p className="text-gray-400">
                 The premier platform for turf booking and sports facility management. Connect with players, manage facilities, and grow your sports
                 community.
               </p>

@@ -1,6 +1,5 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { Alert, Button, Checkbox, Form, Input, Typography } from 'antd';
-import { GuestGuard } from '../../components/auth';
 import { LoginCredentials } from '../../types/auth.types';
 
 const { Title, Text } = Typography;
@@ -19,7 +18,7 @@ export default function Login({ status, canResetPassword, errors }: LoginProps) 
   };
 
   return (
-    <GuestGuard>
+    <>
       <Head title="Log in" />
 
       <div className="mx-auto min-w-sm space-y-8">
@@ -90,6 +89,6 @@ export default function Login({ status, canResetPassword, errors }: LoginProps) 
           </Text>
         </div>
       </div>
-    </GuestGuard>
+    </>
   );
 }

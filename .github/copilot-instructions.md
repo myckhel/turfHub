@@ -1,14 +1,16 @@
 ## 🧱 Copilot Instruction Guide for Full-Stack (Laravel + Inertia.js + React + TS + AntD + @gsap/react + Workbox pwa)
 
+You are an expert frontend developer working on **TurfMate**, a progressive web app for managing mini football turf sessions (match queueing, team creation, session management).
+
 ## Backend
 
 ### Laravel
 
 - **Eloquent ORM:**
-    - Use `findOrFail()` or `firstOrFail()` to automatically handle "not found" scenarios.
-    - Utilize Eager Loading (`with()`) to prevent N+1 query problems.
-    - Define clear relationships in your models.
-    - Use API Resources for transforming models and collections before sending them to the frontend, ensuring a consistent API structure.
+  - Use `findOrFail()` or `firstOrFail()` to automatically handle "not found" scenarios.
+  - Utilize Eager Loading (`with()`) to prevent N+1 query problems.
+  - Define clear relationships in your models.
+  - Use API Resources for transforming models and collections before sending them to the frontend, ensuring a consistent API structure.
 - **Routing:** Group related routes and use route model binding. Name your routes for easier URL generation.
 - **Form Requests:** Use Form Request classes for validation and authorization of incoming requests. This keeps controllers lean.
 - **Services:** consider using Service classes for encapsulating domain-specific business logic. This promotes single responsibility and reusability.
@@ -41,58 +43,76 @@ To reuse data provider logic effectively in a Laravel and Inertia.js application
 - **Transformation:** A `ProductResource` transforms a `Product` model into a structured array/JSON.
 - **Inertia Controller:**
 
-    ```php
-    // filepath: app/Http/Controllers/Web/ProductController.php
-    use App\Http\Resources\ProductResource;
-    use App\Services\ProductService;
-    use Inertia\Inertia;
-    use Inertia\Response;
+  ```php
+  // filepath: app/Http/Controllers/Web/ProductController.php
+  use App\Http\Resources\ProductResource;
+  use App\Services\ProductService;
+  use Inertia\Inertia;
+  use Inertia\Response;
 
-    class ProductController extends Controller
-    {
-        protected ProductService $productService;
+  class ProductController extends Controller
+  {
+      protected ProductService $productService;
 
-        public function __construct(ProductService $productService)
-        {
-            $this->productService = $productService;
-        }
+      public function __construct(ProductService $productService)
+      {
+          $this->productService = $productService;
+      }
 
-        public function index(): Response
-        {
-            $products = $this->productService->getActiveProducts();
-            return Inertia::render('Products/Index', [
-                'products' => ProductResource::collection($products),
-            ]);
-        }
-    }
-    ```
+      public function index(): Response
+      {
+          $products = $this->productService->getActiveProducts();
+          return Inertia::render('Products/Index', [
+              'products' => ProductResource::collection($products),
+          ]);
+      }
+  }
+  ```
 
 - **API Controller:**
 
-    ```php
-    // filepath: app/Http/Controllers/Api/ProductController.php
-    use App\Http\Resources\ProductResource;
-    use App\Services\ProductService;
-    use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+  ```php
+  // filepath: app/Http/Controllers/Api/ProductController.php
+  use App\Http\Resources\ProductResource;
+  use App\Services\ProductService;
+  use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
-    class ProductController extends Controller
-    {
-        protected ProductService $productService;
+  class ProductController extends Controller
+  {
+      protected ProductService $productService;
 
-        public function __construct(ProductService $productService)
-        {
-            $this->productService = $productService;
-        }
+      public function __construct(ProductService $productService)
+      {
+          $this->productService = $productService;
+      }
 
-        public function index(): AnonymousResourceCollection
-        {
-            $products = $this->productService->getActiveProducts();
-            return ProductResource::collection($products);
-        }
-    }
-    ```
+      public function index(): AnonymousResourceCollection
+      {
+          $products = $this->productService->getActiveProducts();
+          return ProductResource::collection($products);
+      }
+  }
+  ```
 
 ## Frontend
+
+You are building the frontend of a progressive web app called **TurfMate**, a mini football turf management system. The UI should follow the **Discord design system** and interaction patterns to ensure a clean, responsive, and modern experience.
+
+Here’s what to emulate from Discord’s design:
+
+🧱 Visual & Structural Design:
+
+- Use a **dark/light theme toggle**
+- Employ **side navigation** with collapsible sections (similar to Discord's server list and channels)
+- Use **rounded cards, shadows, and depth** for session and match displays
+- Use **modular, surface-based UI** with clear sections for players, teams, and matches
+
+🧩 Interaction Patterns:
+
+- Reuse **pop-out menus, sliding drawers, dropdowns, and modals**
+- Add **feedback states**: loading, success, error (like Discord banners/toasts)
+- Support **presence/status indicators** for players in match sessions
+- Resizable panels or collapsible menus (e.g., Team list, Player panel)
 
 ### Inertia.js
 
@@ -144,13 +164,14 @@ route('user.profile', { id: user.id });
 * Instead, use enums or clear constants.
 
 - **Don’t mix Laravel redirects with Inertia navigation**
--   - Use Inertia’s `<Link />` or `router.visit()` instead of `<a href>`.
+- - Use Inertia’s `<Link />` or `router.visit()` instead of `<a href>`.
 - **Leverage `route().current()` to highlight active links**
 - **Use `route().has()` to check if route exists before navigating**
 
 ### Ant Design
 
 - **Theme Customization:** Use Ant Design's theming capabilities (e.g., via `ConfigProvider` or by customizing Less variables if you've set up Less) to match your application's branding.
+- **Ant Design components:** restyled to match Discord’s theme
 - **Form Handling:** Leverage Ant Design's `Form` component for robust form handling, validation, and layout.
 - **Accessibility:** Pay attention to Ant Design's accessibility features and ensure your usage aligns with WCAG guidelines.
 
@@ -174,10 +195,10 @@ route('user.profile', { id: user.id });
 
 - **Vite PWA Plugin:** In a Vite project, use the `vite-plugin-pwa` to simplify Workbox integration.
 - **Caching Strategies:**
-    - `StaleWhileRevalidate`: Good for assets that can be a bit stale but should be fast to load, like user avatars or API responses that don't need to be real-time.
-    - `CacheFirst`: Best for assets that never change, like fonts, logos, or versioned static assets.
-    - `NetworkFirst`: For requests where having the most up-to-date data is crucial, like fetching an article's content.
-    - `NetworkOnly`: For requests that should never be cached, like payment transactions.
+  - `StaleWhileRevalidate`: Good for assets that can be a bit stale but should be fast to load, like user avatars or API responses that don't need to be real-time.
+  - `CacheFirst`: Best for assets that never change, like fonts, logos, or versioned static assets.
+  - `NetworkFirst`: For requests where having the most up-to-date data is crucial, like fetching an article's content.
+  - `NetworkOnly`: For requests that should never be cached, like payment transactions.
 - **Background Sync:** Use Workbox's `BackgroundSyncPlugin` to queue failed network requests (e.g., form submissions) and retry them when the network is available.
 - **Precaching:** Precache your app shell (the minimal HTML, CSS, and JavaScript required to power the user interface) so the app loads reliably and instantly on subsequent visits.
 - **Service Worker Lifecycle:** Understand the service worker lifecycle (`install`, `activate`, `fetch`). Use `skipWaiting()` and `clients.claim()` carefully to ensure new service workers activate quickly, but be aware of the implications for open tabs.
@@ -227,3 +248,4 @@ resources/
 - Use **ESLint** and **Prettier** for code consistency.
 - Document components and APIs with **JSDoc** or PHPDoc.
 - Use **GitHub Actions** or similar for CI/CD.
+- Put theme mode into consideration for frontend, allowing users to switch between light and dark modes seamlessly.

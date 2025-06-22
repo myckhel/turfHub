@@ -1083,6 +1083,74 @@
                         "description": "Delete a user"
                     },
                     "response": []
+                },
+                {
+                    "name": "Get User's Belonging Turfs",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Status code is 200', function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test('Response has turfs data', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.have.property('data');",
+                                    "    pm.expect(jsonData.data).to.be.an('array');",
+                                    "});",
+                                    "",
+                                    "pm.test('Turfs contain pivot data', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    if (jsonData.data.length > 0) {",
+                                    "        const firstTurf = jsonData.data[0];",
+                                    "        pm.expect(firstTurf).to.have.property('id');",
+                                    "        pm.expect(firstTurf).to.have.property('name');",
+                                    "        pm.expect(firstTurf).to.have.property('pivot');",
+                                    "        pm.expect(firstTurf.pivot).to.have.property('is_member');",
+                                    "        pm.expect(firstTurf.pivot).to.have.property('status');",
+                                    "    }",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/users/{{sample_user_id}}/belonging-turfs?is_active=true",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "users",
+                                "{{sample_user_id}}",
+                                "belonging-turfs"
+                            ],
+                            "query": [
+                                {
+                                    "key": "is_active",
+                                    "value": "true"
+                                },
+                                {
+                                    "key": "player_status",
+                                    "value": "active",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "is_member",
+                                    "value": "true",
+                                    "disabled": true
+                                }
+                            ]
+                        },
+                        "description": "Get all turfs that a user belongs to through their player relationships. Supports filtering by turf active status, player status, and membership status."
+                    },
+                    "response": []
                 }
             ],
             "description": "CRUD operations for user management"

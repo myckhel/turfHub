@@ -93,6 +93,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
   Route::prefix('users/{user}')->group(function () {
     Route::get('turfs', [TurfController::class, 'index'])->name('users.turfs.index');
+    Route::get('belonging-turfs', [UserController::class, 'belongingTurfs'])->name('users.belonging-turfs');
     Route::get('players', [PlayerController::class, 'index'])->name('users.players.index');
   });
 

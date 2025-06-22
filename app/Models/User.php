@@ -80,6 +80,16 @@ class User extends Authenticatable implements MustVerifyEmail
   }
 
   /**
+   * Get the turfs that this user belongs to through their player relationships.
+   */
+  public function belongingTurfs(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+  {
+    return $this->belongsToMany(Turf::class, 'players', 'user_id', 'turf_id')
+      ->withPivot('is_member', 'status')
+      ->withTimestamps();
+  }
+
+  /**
    * Check if user has a specific role within a turf.
    */
   public function hasRoleOnTurf(string $role, int $turfId): bool

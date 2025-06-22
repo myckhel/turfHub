@@ -8,71 +8,86 @@ use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Services\UserService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 
 class UserController extends Controller
 {
-    protected UserService $userService;
+  use AuthorizesRequests;
+  protected UserService $userService;
 
-    public function __construct(UserService $userService)
-    {
-        $this->userService = $userService;
+  public function __construct(UserService $userService)
+  {
+    $this->userService = $userService;
+  }
+
+  /**
+   * Display a listing of the resource.
+   */
+  public function index(Request $request): AnonymousResourceCollection
+  {
+    $users = $this->userService->getUsers($request);
+
+    return UserResource::collection($users);
+  }
+
+  /**
+   * Store a newly created resource in storage.
+   */
+  public function store(StoreUserRequest $request): UserResource
+  {
+    $user = $this->userService->createUser($request->validated());
+
+    return new UserResource($user);
+  }
+
+  /**
+   * Display the specified resource.
+   */
+  public function show(Request $request, User $user): UserResource
+  {
+    $includes = [];
+    if ($request->filled('include')) {
+      $includes = explode(',', $request->include);
     }
 
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(Request $request): AnonymousResourceCollection
-    {
-        $users = $this->userService->getUsers($request);
+    $user = $this->userService->getUserWithRelations($user, $includes);
 
-        return UserResource::collection($users);
-    }
+    return new UserResource($user);
+  }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreUserRequest $request): UserResource
-    {
-        $user = $this->userService->createUser($request->validated());
+  /**
+   * Update the specified resource in storage.
+   */
+  public function update(UpdateUserRequest $request, User $user): UserResource
+  {
+    $user = $this->userService->updateUser($user, $request->validated());
 
-        return new UserResource($user);
-    }
+    return new UserResource($user);
+  }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Request $request, User $user): UserResource
-    {
-        $includes = [];
-        if ($request->filled('include')) {
-            $includes = explode(',', $request->include);
-        }
+  /**
+   * Remove the specified resource from storage.
+   */
+  public function destroy(User $user): Response
+  {
+    $this->userService->deleteUser($user);
 
-        $user = $this->userService->getUserWithRelations($user, $includes);
+    return response()->noContent();
+  }
 
-        return new UserResource($user);
-    }
+  /**
+   * Get turfs that the user belongs to through their player relationships.
+   * This allows a user to see all turfs they are registered as players in.
+   */
+  public function belongingTurfs(Request $request, User $user): AnonymousResourceCollection
+  {
+    $this->authorize('view', $user);
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateUserRequest $request, User $user): UserResource
-    {
-        $user = $this->userService->updateUser($user, $request->validated());
+    $turfs = $this->userService->getUserBelongingTurfs($user, $request);
 
-        return new UserResource($user);
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(User $user): Response
-    {
-        $this->userService->deleteUser($user);
-
-        return response()->noContent();
-    }
+    return \App\Http\Resources\TurfResource::collection($turfs);
+  }
 }

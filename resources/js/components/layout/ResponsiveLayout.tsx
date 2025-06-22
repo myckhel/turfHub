@@ -1,4 +1,5 @@
 import {
+  AppstoreOutlined,
   BellOutlined,
   CalendarOutlined,
   DashboardOutlined,
@@ -20,6 +21,7 @@ import { useTheme } from '../../hooks/useTheme';
 import { useLayoutStore } from '../../stores';
 import BottomTabNavigation from '../navigation/BottomTabNavigation';
 import MobileHeader from '../navigation/MobileHeader';
+import TurfSwitcher from '../ui/TurfSwitcher';
 
 const { Content, Header, Sider } = AntLayout;
 
@@ -95,6 +97,11 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
         key: 'dashboard',
         icon: <DashboardOutlined />,
         label: <Link href={route('dashboard')}>Dashboard</Link>,
+      },
+      {
+        key: 'turfs',
+        icon: <AppstoreOutlined />,
+        label: <Link href={route('web.turfs.index')}>Browse Turfs</Link>,
       },
     ];
 
@@ -280,9 +287,12 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
             <div className="flex items-center space-x-4">
               <Button type="text" icon={<MenuOutlined />} onClick={toggleSidebar} className="turf-header-btn flex items-center justify-center" />
               {title && (
-                <div>
-                  <h1 className="turf-brand-text text-lg font-semibold">{title}</h1>
-                  {/* {subtitle && <p className="text-sm text-gray-500 dark:text-gray-400">{subtitle}</p>} */}
+                <div className="flex items-center space-x-4">
+                  <div>
+                    <h1 className="turf-brand-text text-lg font-semibold">{title}</h1>
+                    {/* {subtitle && <p className="text-sm text-gray-500 dark:text-gray-400">{subtitle}</p>} */}
+                  </div>
+                  <TurfSwitcher size="middle" placement="bottomLeft" />
                 </div>
               )}
             </div>

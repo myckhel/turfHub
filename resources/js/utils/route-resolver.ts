@@ -25,9 +25,23 @@ export const routeConfigs: Record<string, RouteConfig> = {
   'confirm-password': { name: 'confirm-password', component: 'Auth/ConfirmPassword', layout: 'auth' },
 
   // Dashboard routes
-  'shared.dashboard': {
+  'app.dashboard': {
     name: 'dashboard',
-    component: 'Shared/Dashboard',
+    component: 'App/Dashboard',
+    roles: ['player', 'manager', 'admin'],
+    layout: 'dashboard',
+  },
+
+  // Turf routes
+  'app.turfs.index': {
+    name: 'turfs.index',
+    component: 'App/Turfs/Index',
+    roles: ['player', 'manager', 'admin'],
+    layout: 'dashboard',
+  },
+  'app.turfs.show': {
+    name: 'turfs.show',
+    component: 'App/Turfs/Show',
     roles: ['player', 'manager', 'admin'],
     layout: 'dashboard',
   },
@@ -89,13 +103,13 @@ export const routeConfigs: Record<string, RouteConfig> = {
   // Profile routes
   'profile.edit': {
     name: 'profile.edit',
-    component: 'Shared/Profile/Edit',
+    component: 'App/Profile/Edit',
     roles: ['player', 'manager', 'admin'],
     layout: 'dashboard',
   },
   settings: {
     name: 'settings',
-    component: 'Shared/Settings/Index',
+    component: 'App/Settings/Index',
     roles: ['player', 'manager', 'admin'],
     layout: 'dashboard',
   },

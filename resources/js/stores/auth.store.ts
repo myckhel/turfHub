@@ -49,13 +49,25 @@ export const useAuthStore = create<AuthState & AuthActions>()(
               roles: user?.roles || [],
             },
             false,
-            'auth/setUser'
+            'auth/setUser',
           ),
 
-        setLoading: (isLoading) =>
-          set({ isLoading }, false, 'auth/setLoading'),
+        setLoading: (isLoading) => set({ isLoading }, false, 'auth/setLoading'),
+        logout: () => {
+          // Clear turf data when logging out
+          try {
+            // Dynamic import to avoid circular dependency
+            import('./turf.store')
+              .then(({ useTurfStore }) => {
+                useTurfStore.getState().clearTurfData();
+              })
+              .catch(() => {
+                // Ignore error if turf store is not available
+              });
+          } catch {
+            // Ignore error
+          }
 
-        logout: () =>
           set(
             {
               user: null,
@@ -64,8 +76,9 @@ export const useAuthStore = create<AuthState & AuthActions>()(
               roles: [],
             },
             false,
-            'auth/logout'
-          ),
+            'auth/logout',
+          );
+        },
 
         hasPermission: (permission) => {
           const { permissions } = get();
@@ -90,8 +103,8 @@ export const useAuthStore = create<AuthState & AuthActions>()(
           permissions: state.permissions,
           roles: state.roles,
         }),
-      }
+      },
     ),
-    { name: 'AuthStore' }
-  )
+    { name: 'AuthStore' },
+  ),
 );

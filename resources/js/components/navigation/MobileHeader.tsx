@@ -6,6 +6,7 @@ import { gsap } from 'gsap';
 import React, { useRef } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { useResponsive, useTheme } from '../../hooks/useTheme';
+import TurfSwitcher from '../ui/TurfSwitcher';
 
 const { Title } = Typography;
 
@@ -195,10 +196,19 @@ export const MobileHeader: React.FC<MobileHeaderProps> = ({
           )}
 
           <div ref={titleRef} className="min-w-0 flex-1">
-            <Title level={isMobile ? 4 : 3} className="!mb-0 truncate !text-slate-900 dark:!text-white" style={{ fontFamily: 'var(--font-display)' }}>
-              {title}
-            </Title>
-            {subtitle && <p className="mt-0.5 truncate text-sm text-slate-500 dark:text-slate-400">{subtitle}</p>}
+            <div className="flex items-center gap-2">
+              <div className="min-w-0 flex-1">
+                <Title
+                  level={isMobile ? 4 : 3}
+                  className="!mb-0 truncate !text-slate-900 dark:!text-white"
+                  style={{ fontFamily: 'var(--font-display)' }}
+                >
+                  {title}
+                </Title>
+                {subtitle && <p className="mt-0.5 truncate text-sm text-slate-500 dark:text-slate-400">{subtitle}</p>}
+              </div>
+              {showProfileMenu && <TurfSwitcher size="small" placement="bottomLeft" />}
+            </div>
           </div>
         </div>
 

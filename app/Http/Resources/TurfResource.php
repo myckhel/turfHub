@@ -34,12 +34,16 @@ class TurfResource extends JsonResource
       // Relationships (loaded when needed)
       'owner' => new UserResource($this->whenLoaded('owner')),
       'players' => PlayerResource::collection($this->whenLoaded('players')),
-      'authPlayer' => new PlayerResource($this->whenLoaded('authPlayer')),
+      'player' => new PlayerResource($this->whenLoaded('player')),
       'match_sessions' => MatchSessionResource::collection($this->whenLoaded('matchSessions')),
       'active_match_sessions' => MatchSessionResource::collection($this->whenLoaded('activeMatchSessions')),
 
       // Permission information for the current user
       'user_permissions' => $this->when($user, function () use ($user, $turfPermissionService) {
+
+        // Clear any cached permissions to ensure fresh check
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
         return [
           'can_manage_turf' => $turfPermissionService->userCanInTurf($user, 'manage turf settings', $this->id),
           'can_invite_players' => $turfPermissionService->userCanInTurf($user, 'invite players', $this->id),

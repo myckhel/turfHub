@@ -25,7 +25,7 @@ class TurfService
    */
   public function getTurfWithRelations(Turf $turf, array $includes = []): Turf
   {
-    $allowedIncludes = ['owner', 'players', 'matchSessions', 'activeMatchSessions'];
+    $allowedIncludes = ['owner', 'players', 'players.user', 'matchSessions', 'activeMatchSessions'];
     $validIncludes = array_intersect($includes, $allowedIncludes);
 
     if (!empty($validIncludes)) {

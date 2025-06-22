@@ -1,4 +1,4 @@
-import { CalendarOutlined, HomeOutlined, SettingOutlined, TrophyOutlined, UserOutlined } from '@ant-design/icons';
+import { AppstoreOutlined, CalendarOutlined, HomeOutlined, TrophyOutlined, UserOutlined } from '@ant-design/icons';
 import { useGSAP } from '@gsap/react';
 import { router } from '@inertiajs/react';
 import { Badge } from 'antd';
@@ -27,13 +27,19 @@ const TAB_ITEMS: TabItem[] = [
     route: 'dashboard',
   },
   {
+    key: 'turfs',
+    icon: <AppstoreOutlined />,
+    label: 'Turfs',
+    route: 'web.turfs.index',
+  },
+  {
     key: 'matches',
     icon: <CalendarOutlined />,
     label: 'Matches',
     route: 'matches.index',
   },
   {
-    key: 'leaderboard',
+    key: 'rankings',
     icon: <TrophyOutlined />,
     label: 'Rankings',
     route: 'leaderboard.index',
@@ -43,12 +49,6 @@ const TAB_ITEMS: TabItem[] = [
     icon: <UserOutlined />,
     label: 'Profile',
     route: 'profile.show',
-  },
-  {
-    key: 'settings',
-    icon: <SettingOutlined />,
-    label: 'Settings',
-    route: 'settings.index',
   },
 ];
 

@@ -60,13 +60,6 @@ class Turf extends Model
     return $this->hasMany(Player::class);
   }
 
-  function authPlayer(): HasOne
-  {
-    $user = auth()->user();
-
-    return $this->hasOne(Player::class)->where('user_id', $user->id);
-  }
-
   /**
    * Get the match sessions for this turf.
    */

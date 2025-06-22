@@ -425,3 +425,59 @@ body {
   background-image: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.05) 1px, transparent 0);
   background-size: 20px 20px;
 }
+
+/* TurfSwitcher Component Styles */
+.turf-switcher-button {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  border-radius: 12px !important;
+}
+
+.turf-switcher-button:hover {
+  background-color: rgba(27, 94, 32, 0.1) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(27, 94, 32, 0.15) !important;
+}
+
+.dark .turf-switcher-button:hover {
+  background-color: rgba(93, 173, 226, 0.1) !important;
+}
+
+.turf-switcher-dropdown {
+  border-radius: 12px !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15) !important;
+}
+
+.dark .turf-switcher-dropdown {
+  background-color: var(--color-light-slate) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.turf-switcher-item {
+  border-radius: 8px !important;
+  margin: 4px 8px !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.turf-switcher-item:hover {
+  background-color: rgba(27, 94, 32, 0.1) !important;
+  transform: translateX(4px);
+}
+
+.dark .turf-switcher-item:hover {
+  background-color: rgba(93, 173, 226, 0.1) !important;
+}
+
+.turf-switcher-selected-indicator {
+  background-color: var(--color-turf-green) !important;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}

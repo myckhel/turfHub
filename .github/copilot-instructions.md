@@ -1,6 +1,6 @@
 ## 🧱 Copilot Instruction Guide for Full-Stack (Laravel + Inertia.js + React + TS + AntD + @gsap/react + Workbox pwa)
 
-You are an expert frontend developer working on **TurfMate**, a progressive web app for managing mini football turf sessions (match queueing, team creation, session management).
+You are an expert senior fullstack developer working on **TurfMate**, a progressive web app for managing mini football turf sessions (match queueing, team creation, session management).
 
 ## Backend
 
@@ -118,9 +118,54 @@ To reuse data provider logic effectively in a Laravel and Inertia.js application
 - **Component Composition:** Break down UI into small, reusable components. Favor composition over inheritance.
 - **Props:** Keep props minimal and clearly defined. Use TypeScript interfaces for prop types.
 - **State Management:** For local component state, `useState` is often sufficient. For more complex, shared state, use Zustand.
-- **Memoization:** Use `React.memo` for components and `useMemo`/`useCallback` for functions and values to prevent unnecessary re-renders.
+- **Memoization & Performance:** Use `React.memo` for components and `useMemo`/`useCallback` for functions and values to prevent unnecessary re-renders.
 - **Component State Encapsulation:** Keep component state encapsulated. Avoid lifting state up unless necessary.
 - **Sub Components:** Break down large components into smaller sub-components to improve readability and maintainability in the same file that doesnt need to have its component in a separate file.
+
+### File-Based API Module Pattern
+
+- **Centralized API Functions:** All API requests must use dedicated API modules located in `/resources/js/apis/`. Never make direct `fetch()`, `axios()`, or similar calls in components or stores.
+- **Module Structure:** Each API module should export functions for specific domain operations (e.g., `turfApi.searchTurfs()`, `userApi.updateProfile()`).
+
+**Example API Module Structure:**
+
+```typescript
+// filepath: resources/js/apis/turf.ts
+import { api } from './index';
+import type { TurfSearchParams, TurfResponse, PaginatedResponse } from '@/types';
+
+export const turfApi = {
+  searchTurfs: async (params: TurfSearchParams): Promise<PaginatedResponse<TurfResponse>> => {
+    return api.get(route('api.turfs.search'), { params });
+  },
+
+  joinTurf: async (turfId: number): Promise<{ success: boolean; message: string }> => {
+    return api.post(route('api.turfs.join', { turf: turfId }));
+  },
+
+  getTurfDetails: async (turfId: number): Promise<TurfResponse> => {
+    return api.get(route('api.turfs.show', { turf: turfId }));
+  },
+};
+```
+
+**Usage in Components:**
+
+```typescript
+// ✅ Correct - Using API module
+import { turfApi } from '@/apis/turf';
+
+const handleJoinTurf = async (turfId: number) => {
+  try {
+    const result = await turfApi.joinTurf(turfId);
+    // Handle success
+  } catch (error) {
+    // Handle error
+  }
+};
+```
+
+**Integration with Zustand:** API modules should be used within Zustand store actions to maintain consistency and enable proper error handling and state updates.
 
 ### TypeScript
 
@@ -170,6 +215,9 @@ route('user.profile', { id: user.id });
 - **`@apply` Sparingly:** Use `@apply` in CSS/SCSS files for component-level abstractions or to group common utility patterns, but avoid overusing it, as it can negate some benefits of utility-first.
 - **Configuration:** Customize your `tailwind.config.ts` to define your project's design system (colors, spacing, fonts, etc.).
 - **Readability:** For very long lists of utility classes, consider breaking components down further or using conditional class helpers to improve readability.
+- **Responsive Design:** Use Tailwind's responsive utilities to create mobile-first designs. Use `sm:`, `md:`, `lg:`, etc., to apply styles at different breakpoints.
+- **Dark Mode:** Use Tailwind's dark mode utilities to support dark mode. Ensure your design is accessible in both light and dark themes.
+- **Avoid custom CSS:** Rely on Tailwind's utility classes instead of writing custom CSS whenever possible. This keeps your styles consistent and easier to maintain.
 
 ### @gsap/react
 

@@ -122,6 +122,17 @@ class UserService
       $query->wherePivot('is_member', $request->boolean('is_member'));
     }
 
+
+    if ($request->filled('include')) {
+      $includes = explode(',', $request->include);
+      $allowedIncludes = ['owner', 'players', 'authPlayer', 'matchSessions', 'activeMatchSessions'];
+      $validIncludes = array_intersect($includes, $allowedIncludes);
+
+      if (!empty($validIncludes)) {
+        $query->with($validIncludes);
+      }
+    }
+
     return $query->get();
   }
 }

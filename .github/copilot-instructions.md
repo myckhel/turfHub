@@ -96,22 +96,10 @@ To reuse data provider logic effectively in a Laravel and Inertia.js application
 
 ## Frontend
 
-You are building the frontend of a progressive web app called **TurfMate**, a mini football turf management system. The UI should follow the **Discord design system** and interaction patterns to ensure a clean, responsive, and modern experience.
-
-Here’s what to emulate from Discord’s design:
-
-🧱 Visual & Structural Design:
-
-- Use a **dark/light theme toggle**
-- Employ **side navigation** with collapsible sections (similar to Discord's server list and channels)
-- Use **rounded cards, shadows, and depth** for session and match displays
-- Use **modular, surface-based UI** with clear sections for players, teams, and matches
-
 🧩 Interaction Patterns:
 
 - Reuse **pop-out menus, sliding drawers, dropdowns, and modals**
-- Add **feedback states**: loading, success, error (like Discord banners/toasts)
-- Support **presence/status indicators** for players in match sessions
+- Add **feedback states**: loading, success, error
 - Resizable panels or collapsible menus (e.g., Team list, Player panel)
 
 ### Inertia.js
@@ -130,8 +118,9 @@ Here’s what to emulate from Discord’s design:
 - **Component Composition:** Break down UI into small, reusable components. Favor composition over inheritance.
 - **Props:** Keep props minimal and clearly defined. Use TypeScript interfaces for prop types.
 - **State Management:** For local component state, `useState` is often sufficient. For more complex, shared state, use Zustand.
-- **Memoization:** Use `React.memo` for components and `useMemo`/`useCallback` for functions and values to prevent unnecessary re-renders, but only after profiling and identifying performance bottlenecks.
+- **Memoization:** Use `React.memo` for components and `useMemo`/`useCallback` for functions and values to prevent unnecessary re-renders.
 - **Component State Encapsulation:** Keep component state encapsulated. Avoid lifting state up unless necessary.
+- **Sub Components:** Break down large components into smaller sub-components to improve readability and maintainability in the same file that doesnt need to have its component in a separate file.
 
 ### TypeScript
 

@@ -115,7 +115,7 @@ resources/js/
 ├── pages/
 │   ├── Public/
 │   │   └── Welcome.tsx
-│   └── Shared/
+│   └── App/
 │       └── Dashboard.tsx
 ├── stores/
 │   ├── auth.store.ts

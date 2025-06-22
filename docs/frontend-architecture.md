@@ -23,7 +23,7 @@ resources/js/
 │   ├── Player/         # Player-specific pages
 │   ├── Admin/          # Admin-specific pages
 │   ├── Manager/        # Manager-specific pages
-│   └── Shared/         # Shared authenticated pages
+│   └── App/         # App authenticated pages
 ├── stores/             # Zustand state management
 │   ├── auth.store.ts
 │   ├── flash.store.ts

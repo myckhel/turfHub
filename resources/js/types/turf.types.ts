@@ -41,3 +41,34 @@ export interface TurfSwitcherActions {
   autoSelectFirstTurf: () => void;
   clearTurfData: () => void;
 }
+
+// Enhanced TurfSwitcher Types
+export type TurfSwitcherVariant = 'default' | 'compact' | 'detailed';
+export type TurfSwitcherPlacement = 'bottom' | 'bottomLeft' | 'bottomRight' | 'top' | 'topLeft' | 'topRight';
+export type TurfSwitcherSize = 'small' | 'middle' | 'large';
+
+export interface TurfSwitcherProps {
+  /** Dropdown placement relative to the button */
+  placement?: TurfSwitcherPlacement;
+  /** Button size */
+  size?: TurfSwitcherSize;
+  /** Whether to show the swap icon */
+  showIcon?: boolean;
+  /** Whether to show location information */
+  showLocation?: boolean;
+  /** Maximum length for display text before truncation */
+  maxDisplayLength?: number;
+  /** Visual variant of the switcher */
+  variant?: TurfSwitcherVariant;
+  /** Additional CSS classes */
+  className?: string;
+  /** Callback when turf selection changes */
+  onTurfChange?: (turf: Turf | null) => void;
+}
+
+export interface TurfMenuItem {
+  key: string;
+  label: React.ReactNode;
+  onClick: () => void;
+  disabled?: boolean;
+}

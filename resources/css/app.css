@@ -36,45 +36,45 @@
   --color-error: #f44336;
   --color-info: #2196f3;
 
-  /* Mobile-First Spacing Scale */
-  --spacing-xs: 0.25rem; /* 4px */
-  --spacing-sm: 0.5rem; /* 8px */
-  --spacing-md: 0.75rem; /* 12px */
-  --spacing-base: 1rem; /* 16px */
-  --spacing-lg: 1.5rem; /* 24px */
-  --spacing-xl: 2rem; /* 32px */
-  --spacing-2xl: 3rem; /* 48px */
-  --spacing-3xl: 4rem; /* 64px */
+  /* TurfMate Custom Spacing Scale (for internal use) */
+  --turf-spacing-xs: 0.25rem; /* 4px */
+  --turf-spacing-sm: 0.5rem; /* 8px */
+  --turf-spacing-md: 0.75rem; /* 12px */
+  --turf-spacing-base: 1rem; /* 16px */
+  --turf-spacing-lg: 1.5rem; /* 24px */
+  --turf-spacing-xl: 2rem; /* 32px */
+  --turf-spacing-2xl: 3rem; /* 48px */
+  --turf-spacing-3xl: 4rem; /* 64px */
 
-  /* Touch-Friendly Sizing */
-  --size-touch-sm: 2.25rem; /* 36px */
-  --size-touch-md: 2.75rem; /* 44px - Apple's recommended minimum */
-  --size-touch-lg: 3.25rem; /* 52px */
-  --size-touch-xl: 4rem; /* 64px */
+  /* TurfMate Touch-Friendly Sizing */
+  --turf-touch-sm: 2.25rem; /* 36px */
+  --turf-touch-md: 2.75rem; /* 44px - Apple's recommended minimum */
+  --turf-touch-lg: 3.25rem; /* 52px */
+  --turf-touch-xl: 4rem; /* 64px */
 
-  /* Border Radius - iOS-inspired */
-  --radius-xs: 0.25rem; /* 4px */
-  --radius-sm: 0.5rem; /* 8px */
-  --radius-md: 0.75rem; /* 12px */
-  --radius-lg: 1rem; /* 16px */
-  --radius-xl: 1.5rem; /* 24px */
-  --radius-full: 9999px;
+  /* TurfMate Border Radius - iOS-inspired */
+  --turf-radius-xs: 0.25rem; /* 4px */
+  --turf-radius-sm: 0.5rem; /* 8px */
+  --turf-radius-md: 0.75rem; /* 12px */
+  --turf-radius-lg: 1rem; /* 16px */
+  --turf-radius-xl: 1.5rem; /* 24px */
+  --turf-radius-full: 9999px;
 
-  /* Animation Tokens */
-  --duration-fast: 0.15s;
-  --duration-normal: 0.25s;
-  --duration-slow: 0.35s;
-  --ease-spring: cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  --ease-out: cubic-bezier(0.215, 0.61, 0.355, 1);
-  --ease-in-out: cubic-bezier(0.645, 0.045, 0.355, 1);
+  /* TurfMate Animation Tokens */
+  --turf-duration-fast: 0.15s;
+  --turf-duration-normal: 0.25s;
+  --turf-duration-slow: 0.35s;
+  --turf-ease-spring: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --turf-ease-out: cubic-bezier(0.215, 0.61, 0.355, 1);
+  --turf-ease-in-out: cubic-bezier(0.645, 0.045, 0.355, 1);
 
-  /* Shadow System - iOS-inspired */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
-  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
-  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1);
-  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.06);
-  --shadow-modal: 0 25px 50px rgba(0, 0, 0, 0.25);
+  /* TurfMate Shadow System - iOS-inspired */
+  --turf-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --turf-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+  --turf-shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --turf-shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1);
+  --turf-shadow-card: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --turf-shadow-modal: 0 25px 50px rgba(0, 0, 0, 0.25);
 }
 
 /* Base Styles */
@@ -137,7 +137,7 @@ body {
 *:focus-visible {
   outline: 2px solid var(--color-turf-green);
   outline-offset: 2px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--turf-radius-sm);
 }
 
 /* Safe Area Insets for iOS */
@@ -166,8 +166,8 @@ body {
 
 /* Utility Classes */
 .touch-target {
-  min-height: var(--size-touch-md);
-  min-width: var(--size-touch-md);
+  min-height: var(--turf-touch-md);
+  min-width: var(--turf-touch-md);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -184,7 +184,7 @@ body {
 }
 
 .spring-bounce {
-  transition: transform var(--duration-normal) var(--ease-spring);
+  transition: transform var(--turf-duration-normal) var(--turf-ease-spring);
 }
 
 .spring-bounce:active {
@@ -203,7 +203,7 @@ body {
 
 ::-webkit-scrollbar-thumb {
   background: var(--color-medium-gray);
-  border-radius: var(--radius-full);
+  border-radius: var(--turf-radius-full);
 }
 
 ::-webkit-scrollbar-thumb:hover {

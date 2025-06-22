@@ -238,3 +238,4 @@ resources/
 - Document components and APIs with **JSDoc** or PHPDoc.
 - Use **GitHub Actions** or similar for CI/CD.
 - Put theme mode into consideration for frontend, allowing users to switch between light and dark modes seamlessly.
+- Api documentation exists in the Postman collection file, ensure to check it when there is a need to call an API endpoint.

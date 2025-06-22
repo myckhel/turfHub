@@ -17,11 +17,12 @@ export const routeConfigs: Record<string, RouteConfig> = {
   contact: { name: 'contact', component: 'Public/Contact', layout: 'guest' },
 
   // Auth routes
-  login: { name: 'login', component: 'Auth/Login', layout: 'guest' },
-  register: { name: 'register', component: 'Auth/Register', layout: 'guest' },
-  'forgot-password': { name: 'forgot-password', component: 'Auth/ForgotPassword', layout: 'guest' },
-  'reset-password': { name: 'reset-password', component: 'Auth/ResetPassword', layout: 'guest' },
+  login: { name: 'login', component: 'Auth/Login', layout: 'auth' },
+  register: { name: 'register', component: 'Auth/Register', layout: 'auth' },
+  'forgot-password': { name: 'forgot-password', component: 'Auth/ForgotPassword', layout: 'auth' },
+  'reset-password': { name: 'reset-password', component: 'Auth/ResetPassword', layout: 'auth' },
   'verify-email': { name: 'verify-email', component: 'Auth/VerifyEmail', layout: 'auth' },
+  'confirm-password': { name: 'confirm-password', component: 'Auth/ConfirmPassword', layout: 'auth' },
 
   // Dashboard routes
   'shared.dashboard': {

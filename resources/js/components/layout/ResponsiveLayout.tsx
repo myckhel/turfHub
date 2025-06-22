@@ -236,7 +236,7 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
     <AntLayout
       ref={layoutRef}
       className={`${getBackgroundStyles()} ${safeArea ? 'safe-area-inset-top safe-area-inset-bottom' : ''} ${className}`}
-      style={background ? { background } : undefined}
+      style={background ? { background, minHeight: '100vh' } : { minHeight: '100vh' }}
     >
       {/* Desktop Sidebar */}
       {useDesktopLayout && (
@@ -330,7 +330,7 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
         {/* Main Content */}
         <Content
           ref={contentRef}
-          className={`turf-content flex-1 ${contentPadding ? 'px-4 py-6' : ''} ${showBottomNav && useMobileLayout ? 'pb-20' : contentPadding ? 'pb-6' : ''} ${useMobileLayout ? 'min-h-[calc(100vh-theme(spacing.16))]' : 'min-h-screen'} transition-all duration-300 ease-out`}
+          className={`turf-content flex-1 ${contentPadding ? 'px-4 py-6' : ''} ${showBottomNav && useMobileLayout ? 'pb-24' : contentPadding ? 'pb-6' : ''} ${useMobileLayout ? 'min-h-[calc(100vh-theme(spacing.16))]' : 'min-h-screen'} transition-all duration-300 ease-out`}
         >
           <div className={useDesktopLayout ? 'mx-auto max-w-full' : 'mx-auto max-w-screen-xl'}>{children}</div>
         </Content>

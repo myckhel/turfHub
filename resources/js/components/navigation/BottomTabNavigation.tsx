@@ -127,10 +127,14 @@ export const BottomTabNavigation: React.FC<BottomTabNavigationProps> = ({ active
   return (
     <div
       ref={containerRef}
-      className={`safe-area-bottom fixed right-0 bottom-0 left-0 z-50 border-t border-slate-200/50 bg-white/80 backdrop-blur-xl dark:border-slate-700/50 dark:bg-slate-900/80 ${className} `}
+      className={`safe-area-bottom fixed inset-x-0 bottom-0 z-50 border-t border-slate-200/50 bg-white/80 backdrop-blur-xl dark:border-slate-700/50 dark:bg-slate-900/80 ${className}`}
       style={{
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        right: 0,
       }}
     >
       {/* Active tab indicator */}

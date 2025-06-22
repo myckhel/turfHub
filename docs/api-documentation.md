@@ -131,7 +131,7 @@ All authentication endpoints return consistent JSON responses:
 **Features:**
 - Filter by role (`?role=admin|manager|player`)
 - Search by name or email (`?search=john`)
-- Include relationships (`?include=ownedTurfs,players`)
+- Include relationships (`?include=ownedTurfs,players,belongingTurfs`)
 - Pagination support (`?per_page=20`)
 
 **Endpoints:**
@@ -140,6 +140,19 @@ All authentication endpoints return consistent JSON responses:
 - `GET /api/users/{user}` - Get specific user
 - `PUT/PATCH /api/users/{user}` - Update user
 - `DELETE /api/users/{user}` - Delete user
+- `GET /api/users/{user}/belonging-turfs` - Get turfs that user belongs to through player relationships
+
+**New Endpoint Details:**
+
+**Get User's Belonging Turfs**
+- `GET /api/users/{user}/belonging-turfs` - Get all turfs that a user belongs to as a player
+
+**Query Parameters:**
+- `is_active` (boolean) - Filter by turf active status
+- `player_status` (string) - Filter by player status (active, inactive, banned)
+- `is_member` (boolean) - Filter by membership status
+
+**Response:** Collection of `TurfResource` with pivot data (is_member, status, timestamps)
 
 ---
 

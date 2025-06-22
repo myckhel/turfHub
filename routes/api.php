@@ -56,6 +56,8 @@ Route::middleware('auth:sanctum')->group(function () {
   Route::prefix('turfs/{turf}')->group(function () {
     Route::get('players', [PlayerController::class, 'index'])->name('turfs.players.index');
     Route::get('match-sessions', [MatchSessionController::class, 'index'])->name('turfs.match-sessions.index');
+    Route::post('join', [TurfController::class, 'join'])->name('turfs.join');
+    Route::delete('leave', [TurfController::class, 'leave'])->name('turfs.leave');
   });
 
   // Player-specific routes for the player flow

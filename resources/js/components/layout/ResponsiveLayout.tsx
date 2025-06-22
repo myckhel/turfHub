@@ -73,7 +73,7 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
   children,
   className = '',
 }) => {
-  const { isDark, reducedMotion } = useTheme();
+  const { reducedMotion } = useTheme();
   const { isMobile, isTablet, isDesktop } = useResponsive();
   const { user, logout } = useAuth();
   const { isPlayer, isManager, isAdmin } = usePermissions();
@@ -224,13 +224,9 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
 
     const baseStyles = 'min-h-screen transition-colors duration-300';
     const backgrounds = {
-      default: isDark ? `${baseStyles} bg-slate-900` : `${baseStyles} bg-white`,
-      gradient: isDark
-        ? `${baseStyles} bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900`
-        : `${baseStyles} bg-gradient-to-br from-white via-slate-50 to-white`,
-      pattern: isDark
-        ? `${baseStyles} bg-slate-900 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.05)_1px,transparent_0)]`
-        : `${baseStyles} bg-white bg-[radial-gradient(circle_at_1px_1px,rgba(0,0,0,0.05)_1px,transparent_0)]`,
+      default: `${baseStyles} turf-layout-bg`,
+      gradient: `${baseStyles} turf-layout-gradient`,
+      pattern: `${baseStyles} turf-layout-pattern`,
     };
 
     return backgrounds[backgroundVariant];
@@ -250,37 +246,42 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
           collapsed={actuallyCollapsed}
           breakpoint="lg"
           collapsedWidth={80}
-          className="bg-white transition-transform duration-300 dark:bg-gray-800"
+          className="turf-sidebar transition-transform duration-300"
           width={280}
         >
           {/* Logo */}
-          <div className="flex h-16 items-center justify-center border-b border-gray-200 dark:border-gray-700">
-            <Link href={route('dashboard')} className="flex items-center space-x-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500">
+          <div className="flex h-16 items-center justify-center border-b" style={{ borderColor: 'var(--color-medium-gray)' }}>
+            <Link href={route('dashboard')} className="flex items-center space-x-2 transition-transform hover:scale-105">
+              <div
+                className="flex h-8 w-8 items-center justify-center rounded-lg shadow-lg"
+                style={{ background: 'linear-gradient(135deg, var(--color-turf-green), var(--color-turf-light))' }}
+              >
                 <span className="text-sm font-bold text-white">TH</span>
               </div>
-              {!actuallyCollapsed && <span className="text-lg font-bold text-gray-900 dark:text-white">TurfMate</span>}
+              {!actuallyCollapsed && <span className="turf-brand-text text-lg font-bold">TurfMate</span>}
             </Link>
           </div>
 
           {/* Navigation Menu */}
-          <Menu mode="inline" items={getMenuItems()} className="border-r-0 bg-transparent" style={{ height: 'calc(100vh - 64px)' }} />
+          <Menu mode="inline" items={getMenuItems()} className="turf-sidebar-menu border-r-0" style={{ height: 'calc(100vh - 64px)' }} />
         </Sider>
       )}
 
       {/* Mobile sidebar overlay */}
-      {isMobile && mobileMenuOpen && <div className="bg-opacity-50 fixed inset-0 z-40 bg-black" onClick={() => setMobileMenuOpen(false)} />}
+      {isMobile && mobileMenuOpen && (
+        <div className="bg-opacity-50 fixed inset-0 z-40 bg-black backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)} />
+      )}
 
       <AntLayout>
         {/* Desktop Header or Mobile Header */}
         {useDesktopLayout && showHeader && (
-          <Header className="flex items-center justify-between border-b border-gray-200 bg-white px-4 dark:border-gray-700 dark:bg-gray-800">
+          <Header className="turf-header flex items-center justify-between border-b px-4">
             {/* Left side - Menu trigger */}
             <div className="flex items-center space-x-4">
-              <Button type="text" icon={<MenuOutlined />} onClick={toggleSidebar} className="flex items-center justify-center" />
+              <Button type="text" icon={<MenuOutlined />} onClick={toggleSidebar} className="turf-header-btn flex items-center justify-center" />
               {title && (
                 <div>
-                  <h1 className="text-lg font-semibold text-gray-900 dark:text-white">{title}</h1>
+                  <h1 className="turf-brand-text text-lg font-semibold">{title}</h1>
                   {/* {subtitle && <p className="text-sm text-gray-500 dark:text-gray-400">{subtitle}</p>} */}
                 </div>
               )}
@@ -293,6 +294,7 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
               {/* Notifications */}
               <Button
                 type="text"
+                className="turf-header-btn"
                 icon={
                   <Badge count={0} size="small">
                     <BellOutlined />
@@ -302,9 +304,9 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
 
               {/* User dropdown */}
               <Dropdown menu={{ items: userMenuItems }} placement="bottomRight" arrow>
-                <div className="flex cursor-pointer items-center space-x-2 rounded-lg px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <div className="turf-user-dropdown flex cursor-pointer items-center space-x-2 rounded-lg px-2 py-1">
                   <Avatar size="small" src={user?.avatar} icon={<UserOutlined />} />
-                  <span className="text-sm font-medium text-gray-900 dark:text-white">{user?.name}</span>
+                  <span className="turf-brand-text text-sm font-medium">{user?.name}</span>
                 </div>
               </Dropdown>
             </div>
@@ -323,12 +325,12 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
         )}
 
         {/* Custom Header Content */}
-        {headerContent && <div className="sticky top-0 z-30 bg-white/90 backdrop-blur-xl dark:bg-slate-900/90">{headerContent}</div>}
+        {headerContent && <div className="turf-header-content sticky top-0 z-30 backdrop-blur-xl">{headerContent}</div>}
 
         {/* Main Content */}
         <Content
           ref={contentRef}
-          className={`flex-1 ${contentPadding ? 'px-4 py-6' : ''} ${showBottomNav && useMobileLayout ? 'pb-20' : contentPadding ? 'pb-6' : ''} ${useMobileLayout ? 'min-h-[calc(100vh-theme(spacing.16))]' : 'min-h-screen'} ${useDesktopLayout ? 'bg-gray-50 dark:bg-gray-900' : ''} transition-all duration-300 ease-out`}
+          className={`turf-content flex-1 ${contentPadding ? 'px-4 py-6' : ''} ${showBottomNav && useMobileLayout ? 'pb-20' : contentPadding ? 'pb-6' : ''} ${useMobileLayout ? 'min-h-[calc(100vh-theme(spacing.16))]' : 'min-h-screen'} transition-all duration-300 ease-out`}
         >
           <div className={useDesktopLayout ? 'mx-auto max-w-full' : 'mx-auto max-w-screen-xl'}>{children}</div>
         </Content>

@@ -1,7 +1,7 @@
+import { LockOutlined } from '@ant-design/icons';
 import { Head, router } from '@inertiajs/react';
 import { Button, Form, Input, Typography } from 'antd';
-import React from 'react';
-import { LockOutlined } from '@ant-design/icons';
+import { AuthLayout } from '../../components/layout/AuthLayout';
 
 const { Title, Text } = Typography;
 
@@ -17,54 +17,51 @@ export default function ConfirmPassword({ errors }: ConfirmPasswordProps) {
   };
 
   return (
-    <>
+    <AuthLayout>
       <Head title="Confirm Password" />
-      
-      <div className="mx-auto w-full max-w-md space-y-8">
+
+      <div className="rounded-2xl border border-gray-200 bg-white/80 p-8 shadow-2xl backdrop-blur-sm dark:border-gray-700 dark:bg-gray-800/80">
+        {/* Header with icon */}
         <div className="text-center">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-amber-100">
-            <LockOutlined className="h-8 w-8 text-amber-600" />
+          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-amber-100 to-amber-200 dark:from-amber-900/20 dark:to-amber-800/20">
+            <LockOutlined className="text-3xl text-amber-600 dark:text-amber-400" />
           </div>
-          
-          <Title level={2} className="!mb-2 !mt-6">
+
+          <Title level={2} className="!mt-6 !mb-2 !text-gray-900 dark:!text-white">
             Confirm your password
           </Title>
-          <Text type="secondary">
+          <Text type="secondary" className="text-base">
             This is a secure area of the application. Please confirm your password before continuing.
           </Text>
         </div>
 
-        <Form
-          form={form}
-          name="confirm-password"
-          layout="vertical"
-          onFinish={onFinish}
-          autoComplete="off"
-          size="large"
-        >
+        {/* Confirm Form */}
+        <Form form={form} name="confirm-password" layout="vertical" onFinish={onFinish} autoComplete="off" size="large" className="space-y-1">
           <Form.Item
-            label="Password"
+            label={<span className="text-sm font-medium text-gray-700 dark:text-gray-300">Password</span>}
             name="password"
             rules={[{ required: true, message: 'Please input your password!' }]}
             validateStatus={errors.password ? 'error' : ''}
             help={errors.password}
+            className="mb-6"
           >
-            <Input.Password placeholder="Enter your password" />
+            <Input.Password placeholder="Enter your password" className="h-12 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700" />
           </Form.Item>
 
-          <Form.Item className="mt-6">
+          {/* Submit button */}
+          <Form.Item className="mb-0">
             <Button
               type="primary"
               htmlType="submit"
               block
               size="large"
-              className="bg-emerald-600 border-emerald-600 hover:bg-emerald-700 hover:border-emerald-700"
+              className="h-12 rounded-lg border-none bg-gradient-to-r from-emerald-600 to-emerald-700 font-medium shadow-lg transition-all duration-200 hover:from-emerald-700 hover:to-emerald-800 hover:shadow-xl"
             >
               Confirm
             </Button>
           </Form.Item>
         </Form>
       </div>
-    </>
+    </AuthLayout>
   );
 }

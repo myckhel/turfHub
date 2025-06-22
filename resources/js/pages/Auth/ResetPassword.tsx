@@ -2,6 +2,7 @@ import { ArrowLeftOutlined } from '@ant-design/icons';
 import { Head, Link, router } from '@inertiajs/react';
 import { Button, Form, Input, Typography } from 'antd';
 import { useEffect } from 'react';
+import { AuthLayout } from '../../components/layout/AuthLayout';
 import { ResetPasswordData } from '../../types/auth.types';
 
 const { Title, Text } = Typography;
@@ -29,20 +30,24 @@ export default function ResetPassword({ token, email, errors }: ResetPasswordPro
   };
 
   return (
-    <>
+    <AuthLayout>
       <Head title="Reset Password" />
 
-      <div className="mx-auto min-w-sm space-y-8">
+      <div className="space-y-6">
+        {/* Header */}
         <div className="text-center">
-          <Title level={2} className="!mb-2">
+          <Title level={2} className="!mb-2 !text-gray-900 dark:!text-white">
             Reset your password
           </Title>
-          <Text type="secondary">Enter your new password below</Text>
+          <Text type="secondary" className="text-base">
+            Enter your new password below
+          </Text>
         </div>
 
-        <Form form={form} name="reset-password" layout="vertical" onFinish={onFinish} autoComplete="off" size="large">
+        {/* Reset Form */}
+        <Form form={form} name="reset-password" layout="vertical" onFinish={onFinish} autoComplete="off" size="large" className="space-y-1">
           <Form.Item
-            label="Email"
+            label={<span className="text-sm font-medium text-gray-700 dark:text-gray-300">Email</span>}
             name="email"
             rules={[
               { required: true, message: 'Please input your email!' },
@@ -50,12 +55,13 @@ export default function ResetPassword({ token, email, errors }: ResetPasswordPro
             ]}
             validateStatus={errors.email ? 'error' : ''}
             help={errors.email}
+            className="mb-4"
           >
-            <Input placeholder="Enter your email" disabled />
+            <Input placeholder="Enter your email" disabled className="h-12 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700" />
           </Form.Item>
 
           <Form.Item
-            label="New Password"
+            label={<span className="text-sm font-medium text-gray-700 dark:text-gray-300">New Password</span>}
             name="password"
             rules={[
               { required: true, message: 'Please input your new password!' },
@@ -63,12 +69,13 @@ export default function ResetPassword({ token, email, errors }: ResetPasswordPro
             ]}
             validateStatus={errors.password ? 'error' : ''}
             help={errors.password}
+            className="mb-4"
           >
-            <Input.Password placeholder="Enter your new password" />
+            <Input.Password placeholder="Enter your new password" className="h-12 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700" />
           </Form.Item>
 
           <Form.Item
-            label="Confirm New Password"
+            label={<span className="text-sm font-medium text-gray-700 dark:text-gray-300">Confirm New Password</span>}
             name="password_confirmation"
             dependencies={['password']}
             rules={[
@@ -84,30 +91,39 @@ export default function ResetPassword({ token, email, errors }: ResetPasswordPro
             ]}
             validateStatus={errors.password_confirmation ? 'error' : ''}
             help={errors.password_confirmation}
+            className="mb-6"
           >
-            <Input.Password placeholder="Confirm your new password" />
+            <Input.Password
+              placeholder="Confirm your new password"
+              className="h-12 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700"
+            />
           </Form.Item>
 
-          <Form.Item className="mt-6">
+          {/* Submit button */}
+          <Form.Item className="mb-0">
             <Button
               type="primary"
               htmlType="submit"
               block
               size="large"
-              className="border-emerald-600 bg-emerald-600 hover:border-emerald-700 hover:bg-emerald-700"
+              className="h-12 rounded-lg border-none bg-gradient-to-r from-emerald-600 to-emerald-700 font-medium shadow-lg transition-all duration-200 hover:from-emerald-700 hover:to-emerald-800 hover:shadow-xl"
             >
               Reset Password
             </Button>
           </Form.Item>
         </Form>
 
-        <div className="text-center">
-          <Link href={route('login')} className="inline-flex items-center text-sm text-emerald-600 hover:text-emerald-500">
+        {/* Back to login */}
+        <div className="border-t border-gray-200 pt-4 text-center dark:border-gray-700">
+          <Link
+            href={route('login')}
+            className="inline-flex items-center text-sm font-medium text-emerald-600 transition-colors hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300"
+          >
             <ArrowLeftOutlined className="mr-2" />
             Back to login
           </Link>
         </div>
       </div>
-    </>
+    </AuthLayout>
   );
 }

@@ -1,14 +1,12 @@
 import { ArrowLeftOutlined, BellOutlined, MenuOutlined, MoonOutlined, SunOutlined } from '@ant-design/icons';
 import { useGSAP } from '@gsap/react';
 import { router, usePage } from '@inertiajs/react';
-import { Avatar, Badge, Button, Dropdown, Typography } from 'antd';
+import { Avatar, Badge, Button, Dropdown } from 'antd';
 import { gsap } from 'gsap';
 import React, { useRef } from 'react';
 import { useAuth } from '../../hooks/useAuth';
-import { useResponsive, useTheme } from '../../hooks/useTheme';
+import { useTheme } from '../../hooks/useTheme';
 import TurfSwitcher from '../ui/TurfSwitcher';
-
-const { Title } = Typography;
 
 interface User {
   id: number;
@@ -36,8 +34,6 @@ interface MobileHeaderProps {
 }
 
 export const MobileHeader: React.FC<MobileHeaderProps> = ({
-  title = 'TurfMate',
-  subtitle,
   showBackButton = false,
   showProfileMenu = true,
   showNotifications = true,
@@ -47,7 +43,6 @@ export const MobileHeader: React.FC<MobileHeaderProps> = ({
 }) => {
   const { setLightMode, setDarkMode, setSystemMode, reducedMotion, isDark } = useTheme();
   const { logout } = useAuth();
-  const { isMobile } = useResponsive();
   const { props } = usePage<PageProps>();
   const user = props.auth?.user;
 
@@ -196,19 +191,7 @@ export const MobileHeader: React.FC<MobileHeaderProps> = ({
           )}
 
           <div ref={titleRef} className="min-w-0 flex-1">
-            <div className="flex items-center gap-2">
-              <div className="min-w-0 flex-1">
-                <Title
-                  level={isMobile ? 4 : 3}
-                  className="!mb-0 truncate !text-slate-900 dark:!text-white"
-                  style={{ fontFamily: 'var(--font-display)' }}
-                >
-                  {title}
-                </Title>
-                {subtitle && <p className="mt-0.5 truncate text-sm text-slate-500 dark:text-slate-400">{subtitle}</p>}
-              </div>
-              {showProfileMenu && <TurfSwitcher size="small" placement="bottomLeft" />}
-            </div>
+            <div className="flex items-center gap-2">{showProfileMenu && <TurfSwitcher size="small" placement="bottomLeft" />}</div>
           </div>
         </div>
 

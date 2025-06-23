@@ -60,8 +60,6 @@ interface ResponsiveLayoutProps {
 
 export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
   activeTab = 'home',
-  title,
-  subtitle,
   showBackButton = false,
   showBottomNav = true,
   showHeader = true,
@@ -286,15 +284,9 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
             {/* Left side - Menu trigger */}
             <div className="flex items-center space-x-4">
               <Button type="text" icon={<MenuOutlined />} onClick={toggleSidebar} className="turf-header-btn flex items-center justify-center" />
-              {title && (
-                <div className="flex items-center space-x-4">
-                  <div>
-                    <h1 className="turf-brand-text text-lg font-semibold">{title}</h1>
-                    {/* {subtitle && <p className="text-sm text-gray-500 dark:text-gray-400">{subtitle}</p>} */}
-                  </div>
-                  <TurfSwitcher size="middle" placement="bottomLeft" />
-                </div>
-              )}
+              <div className="flex items-center space-x-4">
+                <TurfSwitcher size="middle" placement="bottomLeft" />
+              </div>
             </div>
 
             {/* Right side - User menu */}
@@ -325,13 +317,7 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
 
         {/* Mobile Header */}
         {useMobileLayout && showHeader && (
-          <MobileHeader
-            title={title}
-            subtitle={subtitle}
-            showBackButton={showBackButton}
-            onBackPress={onBackPress}
-            rightContent={headerRightContent}
-          />
+          <MobileHeader showBackButton={showBackButton} onBackPress={onBackPress} rightContent={headerRightContent} />
         )}
 
         {/* Custom Header Content */}

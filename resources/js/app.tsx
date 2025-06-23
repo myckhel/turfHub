@@ -41,13 +41,7 @@ const getLayout = (routeName: string, page: React.ReactElement) => {
     case 'auth':
       return (
         <PageTransition>
-          <ResponsiveLayout
-            activeTab="home"
-            title="Welcome back!"
-            subtitle="Ready to play?"
-            headerRightContent={<ThemeToggle size="small" />}
-            backgroundVariant="gradient"
-          >
+          <ResponsiveLayout activeTab="home" headerRightContent={<ThemeToggle size="small" />} backgroundVariant="gradient">
             {wrappedPage}
           </ResponsiveLayout>
         </PageTransition>
@@ -55,13 +49,7 @@ const getLayout = (routeName: string, page: React.ReactElement) => {
     case 'dashboard':
       return (
         <PageTransition>
-          <ResponsiveLayout
-            activeTab="home"
-            title="Welcome back!"
-            subtitle="Ready to play?"
-            headerRightContent={<ThemeToggle size="small" />}
-            backgroundVariant="gradient"
-          >
+          <ResponsiveLayout activeTab="home" headerRightContent={<ThemeToggle size="small" />} backgroundVariant="gradient">
             {wrappedPage}
           </ResponsiveLayout>
         </PageTransition>

@@ -121,6 +121,31 @@ To reuse data provider logic effectively in a Laravel and Inertia.js application
 - **Memoization & Performance:** Use `React.memo` for components and `useMemo`/`useCallback` for functions and values to prevent unnecessary re-renders.
 - **Component State Encapsulation:** Keep component state encapsulated. Avoid lifting state up unless necessary.
 - **Sub Components:** Break down large components into smaller sub-components to improve readability and maintainability in the same file that doesnt need to have its component in a separate file.
+  example:
+
+```tsx
+import { memo } from 'react';
+
+const ItemList = memo(({ items }) => {
+  return (
+    <ul>
+      {items.map((item) => (
+        <Item key={item.id} item={item} />
+      ))}
+    </ul>
+  );
+});
+
+const Item = memo(({ item }) => {
+  return (
+    <li>
+      <h3>{item.title}</h3>
+      <p>{item.description}</p>
+    </li>
+  );
+});
+export default ItemList;
+```
 
 ### File-Based API Module Pattern
 
@@ -252,6 +277,7 @@ route('user.profile', { id: user.id });
 - **Comments**: Write clear and concise comments for complex logic or non-obvious code.
 - **DRY Principle**: Don't Repeat Yourself. Abstract reusable logic into functions, hooks, or components.
 - **Add new Exposed Api Postman Doc** Document any new API endpoints or changes to existing ones in the postman Api collection file.
+- **Page Naming Conventions**: follow Index, Show, Edit, Create conventions.
 
 ### Artisan CLI
 

@@ -5,8 +5,6 @@ export interface User {
   id: number;
   name: string;
   email: string;
-  roles: string[];
-  permissions: string[];
   avatar?: string;
   email_verified_at?: string;
 }
@@ -15,29 +13,22 @@ interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  permissions: string[];
-  roles: string[];
 }
 
 interface AuthActions {
   setUser: (user: User | null) => void;
   setLoading: (loading: boolean) => void;
   logout: () => void;
-  hasPermission: (permission: string) => boolean;
-  hasRole: (role: string) => boolean;
-  hasAnyRole: (roles: string[]) => boolean;
 }
 
 export const useAuthStore = create<AuthState & AuthActions>()(
   devtools(
     persist(
-      (set, get) => ({
+      (set) => ({
         // State
         user: null,
         isAuthenticated: false,
         isLoading: false,
-        permissions: [],
-        roles: [],
 
         // Actions
         setUser: (user) =>
@@ -45,8 +36,6 @@ export const useAuthStore = create<AuthState & AuthActions>()(
             {
               user,
               isAuthenticated: !!user,
-              permissions: user?.permissions || [],
-              roles: user?.roles || [],
             },
             false,
             'auth/setUser',
@@ -72,27 +61,10 @@ export const useAuthStore = create<AuthState & AuthActions>()(
             {
               user: null,
               isAuthenticated: false,
-              permissions: [],
-              roles: [],
             },
             false,
             'auth/logout',
           );
-        },
-
-        hasPermission: (permission) => {
-          const { permissions } = get();
-          return permissions.includes(permission);
-        },
-
-        hasRole: (role) => {
-          const { roles } = get();
-          return roles.includes(role);
-        },
-
-        hasAnyRole: (targetRoles) => {
-          const { roles } = get();
-          return targetRoles.some((role) => roles.includes(role));
         },
       }),
       {
@@ -100,8 +72,6 @@ export const useAuthStore = create<AuthState & AuthActions>()(
         partialize: (state) => ({
           user: state.user,
           isAuthenticated: state.isAuthenticated,
-          permissions: state.permissions,
-          roles: state.roles,
         }),
       },
     ),

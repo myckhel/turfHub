@@ -19,9 +19,14 @@ export interface Turf {
   user_permissions?: {
     can_manage_turf: boolean;
     can_invite_players: boolean;
+    can_remove_players: boolean;
     can_manage_sessions: boolean;
+    can_create_teams: boolean;
     can_manage_teams: boolean;
+    can_view_analytics: boolean;
     can_manage_payments: boolean;
+    is_owner: boolean;
+    role_in_turf: string | null;
   };
 }
 

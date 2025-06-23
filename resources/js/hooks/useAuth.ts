@@ -10,7 +10,7 @@ interface PageProps extends Record<string, unknown> {
 
 export const useAuth = () => {
   const { auth } = usePage<PageProps>().props;
-  const { user, isAuthenticated, isLoading, setUser, setLoading, logout, hasPermission, hasRole, hasAnyRole } = useAuthStore();
+  const { user, isAuthenticated, isLoading, setUser, setLoading, logout } = useAuthStore();
 
   // Sync Inertia auth data with Zustand store
   useEffect(() => {
@@ -39,8 +39,5 @@ export const useAuth = () => {
     isAuthenticated,
     isLoading,
     logout: logoutUser,
-    hasPermission,
-    hasRole,
-    hasAnyRole,
   };
 };

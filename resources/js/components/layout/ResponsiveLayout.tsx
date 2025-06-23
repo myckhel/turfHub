@@ -78,7 +78,7 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
   const { reducedMotion } = useTheme();
   const { isMobile, isTablet, isDesktop } = useResponsive();
   const { user, logout } = useAuth();
-  const { isPlayer, isManager, isAdmin } = usePermissions();
+  const { isTurfPlayer, isTurfManager, isTurfAdmin } = usePermissions();
   const { sidebarCollapsed, mobileMenuOpen, toggleSidebar, setMobileMenuOpen } = useLayoutStore();
 
   const layoutRef = useRef<HTMLDivElement>(null);
@@ -105,7 +105,7 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
       },
     ];
 
-    if (isPlayer()) {
+    if (isTurfPlayer()) {
       items.push(
         {
           key: 'bookings',
@@ -120,7 +120,7 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
       );
     }
 
-    if (isManager() || isAdmin()) {
+    if (isTurfManager() || isTurfAdmin()) {
       items.push(
         {
           key: 'fields',
@@ -140,7 +140,7 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
       );
     }
 
-    if (isAdmin()) {
+    if (isTurfAdmin()) {
       items.push(
         {
           key: 'users',

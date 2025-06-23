@@ -45,6 +45,18 @@ export const routeConfigs: Record<string, RouteConfig> = {
     roles: ['player', 'manager', 'admin'],
     layout: 'dashboard',
   },
+  'app.turfs.create': {
+    name: 'turfs.create',
+    component: 'App/Turfs/Create',
+    roles: ['player', 'manager', 'admin'],
+    layout: 'dashboard',
+  },
+  'app.turfs.edit': {
+    name: 'turfs.edit',
+    component: 'App/Turfs/Edit',
+    roles: ['manager', 'admin'],
+    layout: 'dashboard',
+  },
 
   // Player routes
   'player.bookings': {

@@ -4,6 +4,7 @@ import {
   CloseCircleOutlined,
   CrownOutlined,
   DollarOutlined,
+  EditOutlined,
   EnvironmentOutlined,
   LogoutOutlined,
   TeamOutlined,
@@ -63,7 +64,7 @@ const TurfDetail: React.FC<TurfDetailProps> = ({ turf }) => {
 
     setLoading(true);
     try {
-      const response = await turfApi.join(turf.id, {
+      await turfApi.join(turf.id, {
         is_member: turf.requires_membership,
       });
 
@@ -303,7 +304,11 @@ const TurfDetail: React.FC<TurfDetailProps> = ({ turf }) => {
 
             {/* Action Buttons */}
             <Space wrap>
-              {!isOwner && (
+              {isOwner ? (
+                <Button type="primary" size="large" icon={<EditOutlined />} onClick={() => router.visit(route('web.turfs.edit', { turf: turf.id }))}>
+                  Edit Turf
+                </Button>
+              ) : (
                 <>
                   {isMember ? (
                     <>

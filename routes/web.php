@@ -15,7 +15,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
   // Turf routes
   Route::get('turfs', [TurfController::class, 'index'])->name('web.turfs.index');
+  Route::get('turfs/create', [TurfController::class, 'create'])->name('web.turfs.create');
   Route::get('turfs/{turf}', [TurfController::class, 'show'])->name('web.turfs.show');
+  Route::get('turfs/{turf}/edit', [TurfController::class, 'edit'])->name('web.turfs.edit');
 })->prefix('app');
 
 // Public payment callback route (for Paystack)

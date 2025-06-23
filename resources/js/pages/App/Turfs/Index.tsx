@@ -1,4 +1,13 @@
-import { CheckCircleOutlined, CrownOutlined, EnvironmentOutlined, SearchOutlined, TeamOutlined } from '@ant-design/icons';
+import {
+  CheckCircleOutlined,
+  CrownOutlined,
+  EditOutlined,
+  EnvironmentOutlined,
+  FilterOutlined,
+  PlusOutlined,
+  SearchOutlined,
+  TeamOutlined,
+} from '@ant-design/icons';
 import { router } from '@inertiajs/react';
 import { Button, Card, Empty, Input, Skeleton, Spin, Typography, message } from 'antd';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -13,22 +22,43 @@ const { Title, Text, Paragraph } = Typography;
 const { Search } = Input;
 
 // Header Section Component
-const TurfListHeader: React.FC = () => (
-  <div className="my-6">
-    <Title level={2} className="mb-2 text-white">
-      Discover Turfs
-    </Title>
-    <Text className="text-base text-gray-300">Find and join football turfs in your area</Text>
-  </div>
-);
+const TurfListHeader: React.FC = () => {
+  const handleCreateTurf = () => {
+    router.visit(route('web.turfs.create'));
+  };
+
+  return (
+    <div className="my-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <Title level={2} className="mb-2 text-white">
+            Discover Turfs
+          </Title>
+          <Text className="text-base text-gray-300">Find and join football turfs in your area</Text>
+        </div>
+        <Button
+          type="primary"
+          size="large"
+          icon={<PlusOutlined />}
+          onClick={handleCreateTurf}
+          className="border-green-600 bg-green-600 hover:border-green-700 hover:bg-green-700"
+        >
+          Create Turf
+        </Button>
+      </div>
+    </div>
+  );
+};
 
 // Search Component with encapsulated state
 interface TurfSearchProps {
   onSearch: (value: string) => void;
+  onFilterChange: (filter: 'all' | 'owned' | 'joined') => void;
+  currentFilter: 'all' | 'owned' | 'joined';
   loading: boolean;
 }
 
-const TurfSearch: React.FC<TurfSearchProps> = ({ onSearch, loading }) => {
+const TurfSearch: React.FC<TurfSearchProps> = ({ onSearch, onFilterChange, currentFilter, loading }) => {
   const [searchTerm, setSearchTerm] = useState('');
 
   const handleSearch = (value: string) => {
@@ -41,7 +71,7 @@ const TurfSearch: React.FC<TurfSearchProps> = ({ onSearch, loading }) => {
   };
 
   return (
-    <div className="mb-6">
+    <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <Search
         placeholder="Search turfs by name or location..."
         allowClear
@@ -53,6 +83,18 @@ const TurfSearch: React.FC<TurfSearchProps> = ({ onSearch, loading }) => {
         className="max-w-md"
         loading={loading}
       />
+
+      <div className="flex gap-2">
+        <Button type={currentFilter === 'all' ? 'primary' : 'default'} icon={<FilterOutlined />} onClick={() => onFilterChange('all')}>
+          All
+        </Button>
+        <Button type={currentFilter === 'owned' ? 'primary' : 'default'} icon={<CrownOutlined />} onClick={() => onFilterChange('owned')}>
+          My Turfs
+        </Button>
+        <Button type={currentFilter === 'joined' ? 'primary' : 'default'} icon={<TeamOutlined />} onClick={() => onFilterChange('joined')}>
+          Joined
+        </Button>
+      </div>
     </div>
   );
 };
@@ -74,6 +116,11 @@ const TurfCardActions: React.FC<TurfCardActionsProps> = ({ turf, isMember, isSel
     router.visit(route('web.turfs.show', { turf: turf.id }));
   };
 
+  const handleEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    router.visit(route('web.turfs.edit', { turf: turf.id }));
+  };
+
   const handleSelect = (e: React.MouseEvent) => {
     e.stopPropagation();
     onSelect(isSelected ? null : turf);
@@ -90,7 +137,11 @@ const TurfCardActions: React.FC<TurfCardActionsProps> = ({ turf, isMember, isSel
         View Details
       </Button>
 
-      {!isOwner && (
+      {isOwner ? (
+        <Button type="default" size="small" icon={<EditOutlined />} onClick={handleEdit} className="flex-1">
+          Edit
+        </Button>
+      ) : (
         <>
           {isMember ? (
             <Button type={isSelected ? 'default' : 'primary'} size="small" onClick={handleSelect} className="flex-1">
@@ -284,6 +335,7 @@ const TurfList: React.FC = () => {
   const [joinLoading, setJoinLoading] = useState<number | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [currentSearchTerm, setCurrentSearchTerm] = useState('');
+  const [currentFilter, setCurrentFilter] = useState<'all' | 'owned' | 'joined'>('all');
 
   // Load user's belonging turfs to check membership status
   useEffect(() => {
@@ -292,47 +344,84 @@ const TurfList: React.FC = () => {
     }
   }, [user?.id, fetchBelongingTurfs]);
 
-  // Load initial turfs on component mount
-  useEffect(() => {
-    const loadInitialTurfs = async () => {
+  // Filter turfs based on current filter
+  const getFilteredTurfs = useCallback(
+    (allTurfs: Turf[]) => {
+      if (!user) return allTurfs;
+
+      switch (currentFilter) {
+        case 'owned':
+          return allTurfs.filter((turf) => turf.owner_id === user.id);
+        case 'joined':
+          return allTurfs.filter((turf) => belongingTurfs.some((bt) => bt.id === turf.id) && turf.owner_id !== user.id);
+        default:
+          return allTurfs;
+      }
+    },
+    [currentFilter, user, belongingTurfs],
+  );
+
+  const loadTurfs = useCallback(
+    async (searchTerm = '', page = 1) => {
       setLoading(true);
       try {
         const response = await turfApi.getAll({
+          search: searchTerm,
           per_page: 12,
+          page,
           include: 'owner,players',
         });
 
-        setTurfs(response);
-        setCurrentPage(1);
+        const filteredData = {
+          ...response,
+          data: getFilteredTurfs(response.data),
+        };
+
+        if (page === 1) {
+          setTurfs(filteredData);
+        } else {
+          setTurfs((prev) => ({
+            ...filteredData,
+            data: [...prev.data, ...filteredData.data],
+          }));
+        }
+        setCurrentPage(page);
       } catch (error) {
         console.error('Failed to load turfs:', error);
         message.error('Failed to load turfs');
       } finally {
         setLoading(false);
       }
-    };
+    },
+    [getFilteredTurfs],
+  );
 
-    loadInitialTurfs();
-  }, []);
+  // Load initial turfs on component mount
+  useEffect(() => {
+    loadTurfs();
+  }, [loadTurfs]);
 
-  const handleSearch = useCallback(async (value: string) => {
-    setLoading(true);
-    setCurrentSearchTerm(value);
-    try {
-      const response = await turfApi.getAll({
-        search: value,
-        per_page: 12,
-        include: 'owner,players',
-      });
-
-      setTurfs(response);
-      setCurrentPage(1);
-    } catch (error) {
-      console.error('Search failed:', error);
-      message.error('Failed to search turfs');
-    } finally {
-      setLoading(false);
+  // Reload when filter changes
+  useEffect(() => {
+    if (belongingTurfs.length > 0 || currentFilter === 'all') {
+      // Re-filter existing data instead of making new API call for filter changes
+      setTurfs((prev) => ({
+        ...prev,
+        data: getFilteredTurfs(prev.data),
+      }));
     }
+  }, [currentFilter, getFilteredTurfs, belongingTurfs]);
+
+  const handleSearch = useCallback(
+    async (value: string) => {
+      setCurrentSearchTerm(value);
+      await loadTurfs(value, 1);
+    },
+    [loadTurfs],
+  );
+
+  const handleFilterChange = useCallback((filter: 'all' | 'owned' | 'joined') => {
+    setCurrentFilter(filter);
   }, []);
 
   const handleJoinTurf = useCallback(
@@ -371,31 +460,12 @@ const TurfList: React.FC = () => {
   const loadMore = useCallback(async () => {
     if (!turfs.links?.next) return;
 
-    setLoading(true);
-    try {
-      const nextPage = currentPage + 1;
-      const response = await turfApi.getAll({
-        search: currentSearchTerm,
-        per_page: 12,
-        page: nextPage,
-        include: 'owner,players',
-      });
+    const nextPage = currentPage + 1;
+    await loadTurfs(currentSearchTerm, nextPage);
+  }, [turfs.links?.next, currentPage, currentSearchTerm, loadTurfs]);
 
-      setTurfs((prev) => ({
-        ...response,
-        data: [...prev.data, ...response.data],
-      }));
-      setCurrentPage(nextPage);
-    } catch (error) {
-      console.error('Load more failed:', error);
-      message.error('Failed to load more turfs');
-    } finally {
-      setLoading(false);
-    }
-  }, [turfs.links?.next, currentPage, currentSearchTerm]);
-
-  const handleClearSearch = useCallback(() => {
-    handleSearch('');
+  const handleClearSearch = useCallback(async () => {
+    await handleSearch('');
   }, [handleSearch]);
 
   return (
@@ -408,7 +478,7 @@ const TurfList: React.FC = () => {
         <TurfListHeader />
 
         {/* Search */}
-        <TurfSearch onSearch={handleSearch} loading={loading} />
+        <TurfSearch onSearch={handleSearch} onFilterChange={handleFilterChange} currentFilter={currentFilter} loading={loading} />
 
         {/* Turfs Grid */}
         <TurfGrid

@@ -695,3 +695,7 @@ body {
 .reduce-motion .turf-switcher-item:hover {
   transform: none !important;
 }
+
+.ant-card {
+  margin-bottom: 1rem;
+}

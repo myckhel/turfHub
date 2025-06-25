@@ -104,16 +104,7 @@ export const turfApi = {
       include?: string[];
     },
   ): Promise<ApiResponse<Turf[]>> => {
-    const searchParams = new URLSearchParams();
-
-    if (params?.is_active !== undefined) searchParams.append('is_active', params.is_active.toString());
-    if (params?.player_status) searchParams.append('player_status', params.player_status);
-    if (params?.include) searchParams.append('include', params.include.join(','));
-
-    const queryString = searchParams.toString();
-    const url = queryString ? `/users/${userId}/belonging-turfs?${queryString}` : `/users/${userId}/belonging-turfs`;
-
-    return api.get<Turf[]>(url);
+    return api.get<Turf[]>(`/users/${userId}/belonging-turfs`, { params });
   },
 
   // Join a turf

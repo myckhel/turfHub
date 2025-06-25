@@ -16,6 +16,7 @@ import { Avatar, Button, Card, Descriptions, Divider, message, Space, Tabs, Tag,
 import React, { useState } from 'react';
 
 import { turfApi } from '@/apis/turf';
+import { MatchSessionList } from '../../../components/MatchSessions';
 import { TurfCard } from '../../../components/ui/TurfCard';
 import { useAuth } from '../../../hooks/useAuth';
 import { useTurfStore } from '../../../stores/turf.store';
@@ -254,6 +255,12 @@ const TurfDetail: React.FC<TurfDetailProps> = ({ turf }) => {
     </Card>
   );
 
+  const renderMatchSessionsTab = () => (
+    <div className="space-y-6">
+      <MatchSessionList turfId={turf.id} showCreateButton={true} maxHeight={500} />
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-green-900">
       <div className="container mx-auto px-4 py-6">
@@ -362,6 +369,11 @@ const TurfDetail: React.FC<TurfDetailProps> = ({ turf }) => {
                 key: 'players',
                 label: `Players (${turf.players?.length || 0})`,
                 children: renderPlayersTab(),
+              },
+              {
+                key: 'match-sessions',
+                label: 'Match Sessions',
+                children: renderMatchSessionsTab(),
               },
             ]}
           />

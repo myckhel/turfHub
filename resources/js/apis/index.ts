@@ -85,9 +85,23 @@ export interface ApiError {
 export default apiClient;
 
 // Re-export API modules
+export { matchSessionApi } from './matchSession';
 export { playerApi } from './player';
 export { turfApi } from './turf';
 
 // Re-export types
+export type {
+  AddPlayerToTeamRequest,
+  CreateMatchSessionRequest,
+  GameMatch,
+  MatchSession,
+  MatchSessionFilters,
+  MatchSessionListResponse,
+  QueueLogic,
+  QueueStatus,
+  SetGameResultRequest,
+  Team,
+  UpdateMatchSessionRequest,
+} from '../types/matchSession.types';
 export type { Player } from './player';
 export type { JoinTurfRequest, Turf, TurfListResponse } from './turf';

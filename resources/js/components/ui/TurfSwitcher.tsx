@@ -64,10 +64,10 @@ const TurfSwitcher: React.FC<TurfSwitcherProps> = ({
 
   // Optimized turf fetching with proper dependency management
   useEffect(() => {
-    if (user?.id && !isLoading && belongingTurfs.length === 0) {
+    if (user?.id) {
       fetchBelongingTurfs(user.id);
     }
-  }, [user?.id, isLoading, belongingTurfs.length, fetchBelongingTurfs]);
+  }, [user?.id, fetchBelongingTurfs]);
 
   // Auto-select first turf if none selected
   useEffect(() => {

@@ -13,10 +13,10 @@ export const useTurf = () => {
 
   // Auto-fetch belonging turfs when user is authenticated
   useEffect(() => {
-    if (isAuthenticated && user?.id && belongingTurfs.length === 0 && !isLoading) {
+    if (user?.id) {
       fetchBelongingTurfs(user.id);
     }
-  }, [isAuthenticated, user?.id, belongingTurfs.length, isLoading, fetchBelongingTurfs]);
+  }, [user?.id, fetchBelongingTurfs]);
 
   // Clear turf data when user is not authenticated
   useEffect(() => {

@@ -58,6 +58,32 @@ export const routeConfigs: Record<string, RouteConfig> = {
     layout: 'dashboard',
   },
 
+  // Match Session routes
+  'app.matchsessions.index': {
+    name: 'matchsessions.index',
+    component: 'App/MatchSessions/Index',
+    roles: ['player', 'manager', 'admin'],
+    layout: 'dashboard',
+  },
+  'app.matchsessions.show': {
+    name: 'matchsessions.show',
+    component: 'App/MatchSessions/Show',
+    roles: ['player', 'manager', 'admin'],
+    layout: 'dashboard',
+  },
+  'app.matchsessions.create': {
+    name: 'matchsessions.create',
+    component: 'App/MatchSessions/Create',
+    roles: ['manager', 'admin'],
+    layout: 'dashboard',
+  },
+  'app.matchsessions.edit': {
+    name: 'matchsessions.edit',
+    component: 'App/MatchSessions/Edit',
+    roles: ['manager', 'admin'],
+    layout: 'dashboard',
+  },
+
   // Player routes
   'player.bookings': {
     name: 'player.bookings',

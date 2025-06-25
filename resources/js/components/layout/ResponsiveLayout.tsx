@@ -6,6 +6,7 @@ import {
   LogoutOutlined,
   MenuOutlined,
   SettingOutlined,
+  TeamOutlined,
   TrophyOutlined,
   UserOutlined,
 } from '@ant-design/icons';
@@ -19,6 +20,7 @@ import { usePermissions } from '../../hooks/usePermissions';
 import { useResponsive } from '../../hooks/useResponsive';
 import { useTheme } from '../../hooks/useTheme';
 import { useLayoutStore } from '../../stores';
+import { useTurfStore } from '../../stores/turf.store';
 import BottomTabNavigation from '../navigation/BottomTabNavigation';
 import MobileHeader from '../navigation/MobileHeader';
 import TurfSwitcher from '../ui/TurfSwitcher';
@@ -77,6 +79,7 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
   const { isMobile, isTablet, isDesktop } = useResponsive();
   const { user, logout } = useAuth();
   const { isTurfPlayer, isTurfManager, isTurfAdmin } = usePermissions();
+  const { selectedTurf } = useTurfStore();
   const { sidebarCollapsed, mobileMenuOpen, toggleSidebar, setMobileMenuOpen } = useLayoutStore();
 
   const layoutRef = useRef<HTMLDivElement>(null);
@@ -102,6 +105,15 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
         label: <Link href={route('web.turfs.index')}>Browse Turfs</Link>,
       },
     ];
+
+    // Add match sessions if there's a selected turf
+    if (selectedTurf) {
+      items.push({
+        key: 'match-sessions',
+        icon: <TeamOutlined />,
+        label: <Link href={route('web.turfs.match-sessions.index', { turf: selectedTurf.id })}>Match Sessions</Link>,
+      });
+    }
 
     if (isTurfPlayer()) {
       items.push(

@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\Web\TurfController;
+use App\Http\Controllers\Web\MatchSessionController;
 
 Route::get('/', function () {
   return Inertia::render('Public/Welcome');
@@ -18,6 +19,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
   Route::get('turfs/create', [TurfController::class, 'create'])->name('web.turfs.create');
   Route::get('turfs/{turf}', [TurfController::class, 'show'])->name('web.turfs.show');
   Route::get('turfs/{turf}/edit', [TurfController::class, 'edit'])->name('web.turfs.edit');
+
+  // Match Session routes (nested under turfs)
+  Route::get('turfs/{turf}/match-sessions', [MatchSessionController::class, 'index'])->name('web.turfs.match-sessions.index');
+  Route::get('turfs/{turf}/match-sessions/create', [MatchSessionController::class, 'create'])->name('web.turfs.match-sessions.create');
+  Route::get('turfs/{turf}/match-sessions/{matchSession}', [MatchSessionController::class, 'show'])->name('web.turfs.match-sessions.show');
+  Route::get('turfs/{turf}/match-sessions/{matchSession}/edit', [MatchSessionController::class, 'edit'])->name('web.turfs.match-sessions.edit');
 })->prefix('app');
 
 // Public payment callback route (for Paystack)

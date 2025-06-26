@@ -219,12 +219,20 @@ const TurfListCard: React.FC<TurfListCardProps> = ({ turf, user, selectedTurf, b
             <TeamOutlined className="mr-1" />
             Max {turf.max_players_per_team} players/team
           </div>
-          {turf.requires_membership && (
-            <div className="text-right">
-              <div className="font-medium text-yellow-400">{turf.membership_fee ? `₦${turf.membership_fee}` : 'Membership Required'}</div>
-              {turf.membership_type && <div className="text-xs text-gray-400">{turf.membership_type}</div>}
-            </div>
-          )}
+          <div className="text-right">
+            {turf.requires_membership && (
+              <div className="mb-1">
+                <div className="font-medium text-yellow-400">{turf.membership_fee ? `₦${turf.membership_fee}` : 'Membership Required'}</div>
+                {turf.membership_type && <div className="text-xs text-gray-400">{turf.membership_type}</div>}
+              </div>
+            )}
+            {turf.team_slot_fee && turf.team_slot_fee > 0 && (
+              <div className="mt-1">
+                <div className="font-medium text-blue-400">₦{turf.team_slot_fee} per slot</div>
+                <div className="text-xs text-gray-400">team fee</div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Actions */}

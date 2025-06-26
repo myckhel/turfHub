@@ -113,4 +113,51 @@ class TurfController extends Controller
 
     return response()->noContent();
   }
+
+  /**
+   * Get cost breakdown for joining a team in this turf.
+   */
+  public function getJoinCost(Turf $turf): \Illuminate\Http\JsonResponse
+  {
+    /** @var \App\Models\User $user */
+    $user = Auth::user();
+
+    $costBreakdown = $this->turfService->getJoinCostBreakdown($turf, $user);
+
+    return response()->json([
+      'success' => true,
+      'data' => $costBreakdown
+    ]);
+  }
+
+  /**
+   * Get team slot fee information for a turf.
+   */
+  public function getTeamSlotFeeInfo(Turf $turf): \Illuminate\Http\JsonResponse
+  {
+    $feeInfo = $this->turfService->getTeamSlotFeeInfo($turf);
+
+    return response()->json([
+      'success' => true,
+      'data' => $feeInfo
+    ]);
+  }
+
+  /**
+   * Process team slot fee payment.
+   */
+  public function processTeamSlotPayment(Turf $turf): \Illuminate\Http\JsonResponse
+  {
+    /** @var \App\Models\User $user */
+    $user = Auth::user();
+
+    // Check if user can join this turf (basic authorization)
+    $this->authorize('join', $turf);
+
+    $paymentResult = $this->turfService->processTeamSlotPayment($user, $turf);
+
+    $statusCode = $paymentResult['success'] ? 200 : 422;
+
+    return response()->json($paymentResult, $statusCode);
+  }
 }

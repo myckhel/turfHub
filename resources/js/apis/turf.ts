@@ -10,6 +10,7 @@ export interface Turf {
   requires_membership: boolean;
   membership_fee?: number;
   membership_type?: string;
+  team_slot_fee?: number;
   max_players_per_team: number;
   is_active: boolean;
   created_at: string;
@@ -133,6 +134,52 @@ export const turfApi = {
   // Delete a turf
   delete: async (id: number): Promise<ApiResponse<void>> => {
     return api.delete(`/turfs/${id}`);
+  },
+
+  // Get join cost breakdown
+  getJoinCost: async (
+    turfId: number,
+  ): Promise<
+    ApiResponse<{
+      membership_fee: number;
+      team_slot_fee: number;
+      total: number;
+      requires_payment: boolean;
+      breakdown_details: Array<{
+        type: string;
+        description: string;
+        amount: number;
+      }>;
+    }>
+  > => {
+    return api.get(`/turfs/${turfId}/join-cost`);
+  },
+
+  // Get team slot fee information
+  getTeamSlotFeeInfo: async (
+    turfId: number,
+  ): Promise<
+    ApiResponse<{
+      has_team_slot_fee: boolean;
+      team_slot_fee: number | null;
+      formatted_fee: string | null;
+    }>
+  > => {
+    return api.get(`/turfs/${turfId}/team-slot-fee-info`);
+  },
+
+  // Process team slot payment
+  processTeamSlotPayment: async (
+    turfId: number,
+  ): Promise<
+    ApiResponse<{
+      success: boolean;
+      message: string;
+      amount_charged: number;
+      transaction_id?: string;
+    }>
+  > => {
+    return api.post(`/turfs/${turfId}/process-team-slot-payment`);
   },
 };
 

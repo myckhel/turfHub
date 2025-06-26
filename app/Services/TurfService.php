@@ -86,6 +86,25 @@ class TurfService
       $query->where('requires_membership', $request->boolean('requires_membership'));
     }
 
+    // Filter by team slot fee requirement
+    if ($request->filled('has_team_slot_fee')) {
+      if ($request->boolean('has_team_slot_fee')) {
+        $query->whereNotNull('team_slot_fee')->where('team_slot_fee', '>', 0);
+      } else {
+        $query->where(function ($q) {
+          $q->whereNull('team_slot_fee')->orWhere('team_slot_fee', '<=', 0);
+        });
+      }
+    }
+
+    // Filter by maximum team slot fee
+    if ($request->filled('max_team_slot_fee')) {
+      $query->where(function ($q) use ($request) {
+        $q->whereNull('team_slot_fee')
+          ->orWhere('team_slot_fee', '<=', $request->max_team_slot_fee);
+      });
+    }
+
     // Search by name or location
     if ($request->filled('search')) {
       $search = $request->search;
@@ -127,6 +146,14 @@ class TurfService
       return $existingPlayer;
     }
 
+    // Check if payment is required and process if needed
+    $costBreakdown = $this->getJoinCostBreakdown($turf, $user);
+    if ($costBreakdown['requires_payment']) {
+      // If payment processing is enabled, process payments here
+      // For now, we'll assume payment has been handled separately
+      // or will be handled by the calling code
+    }
+
     // Create new player record with optional membership status
     $turfPermissionService = app(\App\Services\TurfPermissionService::class);
 
@@ -135,6 +162,11 @@ class TurfService
       'is_member' => $data['is_member'] ?? false,
       'status' => 'active'
     ];
+
+    // If membership fee was required and is being paid, mark as member
+    if ($turf->requires_membership && isset($data['pay_membership']) && $data['pay_membership']) {
+      $playerData['is_member'] = true;
+    }
 
     // Use TurfPermissionService to create player with proper role assignment
     $player = \App\Models\Player::create([
@@ -157,5 +189,137 @@ class TurfService
   {
     $turfPermissionService = app(\App\Services\TurfPermissionService::class);
     $turfPermissionService->removePlayerFromTurf($user, $turf);
+  }
+
+  /**
+   * Calculate the total cost for joining a team in this turf.
+   */
+  public function calculateTeamJoinCost(Turf $turf, bool $isMember = false): float
+  {
+    $totalCost = 0;
+
+    // Add membership fee if required and user is not already a member
+    if ($turf->requires_membership && !$isMember && $turf->membership_fee) {
+      $totalCost += $turf->membership_fee;
+    }
+
+    // Add team slot fee if required
+    if ($turf->requiresTeamSlotFee()) {
+      $totalCost += $turf->getTeamSlotFee();
+    }
+
+    return $totalCost;
+  }
+
+  /**
+   * Get team slot fee information for a turf.
+   */
+  public function getTeamSlotFeeInfo(Turf $turf): array
+  {
+    return [
+      'has_team_slot_fee' => $turf->requiresTeamSlotFee(),
+      'team_slot_fee' => $turf->getTeamSlotFee(),
+      'formatted_fee' => $turf->requiresTeamSlotFee() ?
+        number_format($turf->getTeamSlotFee(), 2) : null,
+    ];
+  }
+
+  /**
+   * Process team slot fee payment when joining a team.
+   */
+  public function processTeamSlotPayment(\App\Models\User $user, Turf $turf): array
+  {
+    if (!$turf->requiresTeamSlotFee()) {
+      return [
+        'success' => true,
+        'message' => 'No payment required for this turf.',
+        'amount_charged' => 0
+      ];
+    }
+
+    $amount = $turf->getTeamSlotFee();
+
+    // Here you would integrate with your payment system
+    // For now, we'll simulate a successful payment
+    // In a real implementation, you'd use Paystack or your payment provider
+
+    try {
+      // TODO: Integrate with actual payment processor
+      // $paymentResult = $this->processPayment($user, $amount, 'team_slot_fee', $turf);
+
+      // For now, simulate successful payment
+      $paymentResult = [
+        'success' => true,
+        'transaction_id' => 'sim_' . uniqid(),
+        'amount' => $amount
+      ];
+
+      if ($paymentResult['success']) {
+        return [
+          'success' => true,
+          'message' => 'Team slot fee payment successful.',
+          'amount_charged' => $amount,
+          'transaction_id' => $paymentResult['transaction_id']
+        ];
+      } else {
+        return [
+          'success' => false,
+          'message' => 'Payment failed. Please try again.',
+          'amount_charged' => 0
+        ];
+      }
+    } catch (\Exception $e) {
+      return [
+        'success' => false,
+        'message' => 'Payment processing error: ' . $e->getMessage(),
+        'amount_charged' => 0
+      ];
+    }
+  }
+
+  /**
+   * Get cost breakdown for joining a team in this turf.
+   */
+  public function getJoinCostBreakdown(Turf $turf, \App\Models\User $user): array
+  {
+    $breakdown = [
+      'membership_fee' => 0,
+      'team_slot_fee' => 0,
+      'total' => 0,
+      'requires_payment' => false,
+      'breakdown_details' => []
+    ];
+
+    // Check if user is already a member
+    $existingPlayer = \App\Models\Player::where('user_id', $user->id)
+      ->where('turf_id', $turf->id)
+      ->first();
+
+    $isMember = $existingPlayer && $existingPlayer->is_member;
+
+    // Add membership fee if required and user is not a member
+    if ($turf->requires_membership && !$isMember && $turf->membership_fee) {
+      $breakdown['membership_fee'] = $turf->membership_fee;
+      $breakdown['breakdown_details'][] = [
+        'type' => 'membership_fee',
+        'description' => 'Turf membership fee',
+        'amount' => $turf->membership_fee
+      ];
+    }
+
+    // Add team slot fee if required
+    if ($turf->requiresTeamSlotFee()) {
+      $breakdown['team_slot_fee'] = $turf->getTeamSlotFee();
+      $breakdown['breakdown_details'][] = [
+        'type' => 'team_slot_fee',
+        'description' => 'Team slot fee',
+        'amount' => $turf->getTeamSlotFee()
+      ];
+    }
+
+    $breakdown['total'] = $breakdown['membership_fee'] + $breakdown['team_slot_fee'];
+    $breakdown['requires_payment'] = $breakdown['total'] > 0;
+
+    return $breakdown;
   }
 }

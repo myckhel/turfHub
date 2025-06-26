@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\TurfPermissionService;
 use App\Traits\Payable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -27,6 +28,7 @@ class Turf extends Model
     'membership_fee',
     'membership_type',
     'max_players_per_team',
+    'team_slot_fee',
     'is_active',
   ];
 
@@ -40,6 +42,7 @@ class Turf extends Model
     return [
       'requires_membership' => 'boolean',
       'membership_fee' => 'decimal:2',
+      'team_slot_fee' => 'decimal:2',
       'is_active' => 'boolean',
     ];
   }
@@ -95,7 +98,7 @@ class Turf extends Model
    */
   public function admins(): \Illuminate\Support\Collection
   {
-    $turfPermissionService = app(\App\Services\TurfPermissionService::class);
+    $turfPermissionService = app(TurfPermissionService::class);
     return $turfPermissionService->getUsersWithRoleInTurf(User::TURF_ROLE_ADMIN, $this->id);
   }
 
@@ -104,7 +107,7 @@ class Turf extends Model
    */
   public function managers(): \Illuminate\Support\Collection
   {
-    $turfPermissionService = app(\App\Services\TurfPermissionService::class);
+    $turfPermissionService = app(TurfPermissionService::class);
     return $turfPermissionService->getUsersWithRoleInTurf(User::TURF_ROLE_MANAGER, $this->id);
   }
 
@@ -113,7 +116,23 @@ class Turf extends Model
    */
   public function turfPlayers(): \Illuminate\Support\Collection
   {
-    $turfPermissionService = app(\App\Services\TurfPermissionService::class);
+    $turfPermissionService = app(TurfPermissionService::class);
     return $turfPermissionService->getUsersWithRoleInTurf(User::TURF_ROLE_PLAYER, $this->id);
+  }
+
+  /**
+   * Check if this turf requires team slot fees.
+   */
+  public function requiresTeamSlotFee(): bool
+  {
+    return $this->team_slot_fee !== null && $this->team_slot_fee > 0;
+  }
+
+  /**
+   * Get the team slot fee amount.
+   */
+  public function getTeamSlotFee(): ?float
+  {
+    return $this->team_slot_fee;
   }
 }

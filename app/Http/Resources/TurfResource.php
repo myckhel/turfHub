@@ -26,6 +26,7 @@ class TurfResource extends JsonResource
       'requires_membership' => $this->requires_membership,
       'membership_fee' => $this->membership_fee,
       'membership_type' => $this->membership_type,
+      'team_slot_fee' => $this->team_slot_fee,
       'max_players_per_team' => $this->max_players_per_team,
       'is_active' => $this->is_active,
       'created_at' => $this->created_at,
@@ -61,6 +62,13 @@ class TurfResource extends JsonResource
         'admins' => $this->admins()->count(),
         'managers' => $this->managers()->count(),
         'players' => $this->turfPlayers()->count(),
+      ],
+
+      // Team slot fee information
+      'team_slot_info' => [
+        'has_team_slot_fee' => $this->requiresTeamSlotFee(),
+        'formatted_fee' => $this->requiresTeamSlotFee() ?
+          number_format($this->getTeamSlotFee(), 2) : null,
       ],
     ];
   }

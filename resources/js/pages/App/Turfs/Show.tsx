@@ -195,6 +195,25 @@ const TurfDetail: React.FC<TurfDetailProps> = ({ turf }) => {
         </Card>
       )}
 
+      {/* Team Slot Fee Information */}
+      {turf.team_slot_fee && turf.team_slot_fee > 0 && (
+        <Card title="Team Slot Fee">
+          <Descriptions column={1}>
+            <Descriptions.Item label="Fee per Team Slot">
+              <div className="flex items-center">
+                <DollarOutlined className="mr-2" />₦{turf.team_slot_fee}
+                <span className="ml-2 text-gray-500">per player when joining a team</span>
+              </div>
+            </Descriptions.Item>
+          </Descriptions>
+          <div className="mt-3 rounded border border-blue-200 bg-blue-50 p-3">
+            <Text className="text-sm text-blue-800">
+              <strong>Note:</strong> This fee is charged when you join a team in match sessions that require payment.
+            </Text>
+          </div>
+        </Card>
+      )}
+
       {/* Active Sessions */}
       {turf.active_match_sessions && turf.active_match_sessions.length > 0 && (
         <Card title="Active Match Sessions">

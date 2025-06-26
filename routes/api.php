@@ -58,6 +58,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('match-sessions', [MatchSessionController::class, 'index'])->name('turfs.match-sessions.index');
     Route::post('join', [TurfController::class, 'join'])->name('turfs.join');
     Route::delete('leave', [TurfController::class, 'leave'])->name('turfs.leave');
+
+    // Team slot fee routes
+    Route::get('join-cost', [TurfController::class, 'getJoinCost'])->name('turfs.join-cost');
+    Route::get('team-slot-fee-info', [TurfController::class, 'getTeamSlotFeeInfo'])->name('turfs.team-slot-fee-info');
+    Route::post('process-team-slot-payment', [TurfController::class, 'processTeamSlotPayment'])->name('turfs.process-team-slot-payment');
   });
 
   // Player-specific routes for the player flow

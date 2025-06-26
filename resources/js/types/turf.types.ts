@@ -7,6 +7,7 @@ export interface Turf {
   requires_membership: boolean;
   membership_fee?: number;
   membership_type?: string;
+  team_slot_fee?: number;
   max_players_per_team: number;
   is_active: boolean;
   created_at: string;

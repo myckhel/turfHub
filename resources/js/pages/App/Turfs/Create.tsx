@@ -15,6 +15,7 @@ interface TurfFormData {
   requires_membership: boolean;
   membership_fee?: number;
   membership_type?: string;
+  team_slot_fee?: number;
   max_players_per_team: number;
   is_active: boolean;
 }
@@ -24,6 +25,7 @@ const TurfCreate: React.FC = () => {
   const [form] = Form.useForm<TurfFormData>();
   const [loading, setLoading] = useState(false);
   const [requiresMembership, setRequiresMembership] = useState(false);
+  const [hasTeamSlotFee, setHasTeamSlotFee] = useState(false);
 
   const handleSubmit = async (values: TurfFormData) => {
     if (!user) {
@@ -38,6 +40,7 @@ const TurfCreate: React.FC = () => {
         owner_id: user.id,
         membership_fee: requiresMembership ? values.membership_fee : undefined,
         membership_type: requiresMembership ? values.membership_type : undefined,
+        team_slot_fee: hasTeamSlotFee ? values.team_slot_fee : undefined,
       };
 
       const response = await turfApi.create(turfData);
@@ -81,6 +84,7 @@ const TurfCreate: React.FC = () => {
               max_players_per_team: 11,
               is_active: true,
               membership_type: 'monthly',
+              has_team_slot_fee: false,
             }}
           >
             {/* Basic Information */}
@@ -185,6 +189,45 @@ const TurfCreate: React.FC = () => {
                     </Select>
                   </Form.Item>
                 </>
+              )}
+            </div>
+
+            {/* Team Slot Fee Settings */}
+            <div className="mb-6">
+              <Title level={4} className="mb-4">
+                Team Slot Fee Settings
+              </Title>
+
+              <div className="mb-4">
+                <Text className="text-sm text-gray-600">
+                  Team slot fee is charged when players join a team in match sessions that require payment.
+                </Text>
+              </div>
+
+              <Form.Item label="Enable Team Slot Fee" name="has_team_slot_fee" valuePropName="checked">
+                <Switch checkedChildren="Enabled" unCheckedChildren="Disabled" onChange={setHasTeamSlotFee} className="mb-2" />
+              </Form.Item>
+
+              {hasTeamSlotFee && (
+                <Form.Item
+                  label="Team Slot Fee"
+                  name="team_slot_fee"
+                  rules={[
+                    { required: hasTeamSlotFee, message: 'Please enter team slot fee' },
+                    { type: 'number', min: 0, message: 'Fee must be a positive number' },
+                  ]}
+                  extra="Amount charged per player when joining a team"
+                >
+                  <InputNumber
+                    prefix={<DollarOutlined />}
+                    placeholder="0.00"
+                    size="large"
+                    min={0}
+                    step={10}
+                    formatter={(value) => `₦ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                    className="w-full"
+                  />
+                </Form.Item>
               )}
             </div>
 

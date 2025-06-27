@@ -164,6 +164,8 @@ All authentication endpoints return consistent JSON responses:
 - Filter by owner (`?owner_id=1`)
 - Filter by active status (`?is_active=true`)
 - Filter by membership requirement (`?requires_membership=true`)
+- Filter by team slot fee requirement (`?has_team_slot_fee=true`)
+- Filter by maximum team slot fee (`?max_team_slot_fee=50.00`)
 - Search by name or location (`?search=stadium`)
 - Include relationships (`?include=owner,players,matchSessions`)
 
@@ -173,6 +175,66 @@ All authentication endpoints return consistent JSON responses:
 - `GET /api/turfs/{turf}` - Get specific turf
 - `PUT/PATCH /api/turfs/{turf}` - Update turf
 - `DELETE /api/turfs/{turf}` - Delete turf
+
+**Additional Turf Endpoints:**
+- `POST /api/turfs/{turf}/join` - Join a turf as a player
+- `DELETE /api/turfs/{turf}/leave` - Leave a turf
+
+**Team Slot Fee Endpoints:**
+- `GET /api/turfs/{turf}/join-cost` - Get cost breakdown for joining teams in this turf
+- `GET /api/turfs/{turf}/team-slot-fee-info` - Get team slot fee information
+- `POST /api/turfs/{turf}/process-team-slot-payment` - Process team slot fee payment
+
+**Join Cost Breakdown**
+```json
+GET /api/turfs/{turf}/join-cost
+
+Response:
+{
+  "success": true,
+  "data": {
+    "membership_fee": 0,
+    "team_slot_fee": 25.00,
+    "total": 25.00,
+    "requires_payment": true,
+    "breakdown_details": [
+      {
+        "type": "team_slot_fee",
+        "description": "Team slot fee",
+        "amount": 25.00
+      }
+    ]
+  }
+}
+```
+
+**Team Slot Fee Information**
+```json
+GET /api/turfs/{turf}/team-slot-fee-info
+
+Response:
+{
+  "success": true,
+  "data": {
+    "has_team_slot_fee": true,
+    "team_slot_fee": 25.00,
+    "formatted_fee": "25.00"
+  }
+}
+```
+
+**Process Team Slot Payment**
+```json
+POST /api/turfs/{turf}/process-team-slot-payment
+
+Response:
+{
+  "success": true,
+  "message": "Team slot fee payment successful.",
+  "amount_charged": 25.00,
+  "transaction_id": "sim_abc123"
+}
+```
 
 ---
 
@@ -198,7 +260,7 @@ All authentication endpoints return consistent JSON responses:
 - Filter by captain (`?captain_id=1`)
 - Filter by status (`?status=active_in_match`)
 - Search by name (`?search=team`)
-- Include relationships (`?include=matchSession,captain,teamPlayers`)
+- Include relationships (`?include=matchSession,captain,players`)
 
 ---
 

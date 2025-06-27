@@ -14,8 +14,10 @@ import { format } from 'date-fns';
 import React, { useCallback, useEffect, useState } from 'react';
 import { matchSessionApi } from '../../apis/matchSession';
 import { usePermissions } from '../../hooks/usePermissions';
+import type { GameMatch as GameMatchType } from '../../types/gameMatch.types';
 import type { GameMatch, MatchSession, QueueStatus, Team } from '../../types/matchSession.types';
 import { Turf } from '../../types/turf.types';
+import { OngoingGameMatch } from '../GameMatches';
 import { PlayerTeamFlow } from '../Teams';
 
 const { Title, Text } = Typography;
@@ -212,6 +214,11 @@ const MatchSessionDetails: React.FC<MatchSessionDetailsProps> = ({ turf, matchSe
 
   console.log({ queueStatus, turfId });
 
+  // Find ongoing/current game match
+  const ongoingMatch = matchSession.game_matches?.find(
+    (match) => match.status === 'in_progress' || (match.status === 'upcoming' && matchSession.is_active),
+  );
+
   // if (loading) {
   //   return (
   //     <div className="flex justify-center py-8">
@@ -290,6 +297,9 @@ const MatchSessionDetails: React.FC<MatchSessionDetailsProps> = ({ turf, matchSe
             )}
           </div>
         </Card>
+
+        {/* Ongoing Game Match */}
+        {ongoingMatch && <OngoingGameMatch gameMatch={ongoingMatch as GameMatchType} matchSession={matchSession} onMatchUpdate={loadQueueStatus} />}
 
         <Row gutter={16}>
           {/* Session Details */}

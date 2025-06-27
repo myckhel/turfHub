@@ -70,12 +70,26 @@ export interface GameMatch {
   second_team_id: number;
   first_team_score: number;
   second_team_score: number;
+  winning_team_id?: number;
+  outcome?: 'win' | 'loss' | 'draw';
   match_time: string;
-  status: 'upcoming' | 'in_progress' | 'completed';
+  status: 'upcoming' | 'in_progress' | 'completed' | 'postponed';
   created_at: string;
   updated_at: string;
   first_team?: Team;
   second_team?: Team;
+  winning_team?: Team;
+  match_events?: Array<{
+    id: number;
+    game_match_id: number;
+    type: 'goal' | 'yellow_card' | 'red_card' | 'substitution_in' | 'substitution_out';
+    minute: number;
+    player_id: number;
+    team_id: number;
+    comment?: string;
+    created_at: string;
+    updated_at: string;
+  }>;
 }
 
 export interface QueueLogic {

@@ -51,7 +51,17 @@ class MatchSessionController extends Controller
 
     return Inertia::render('App/MatchSessions/Show', [
       'turf' => new TurfResource($turf->load(['owner'])),
-      'matchSession' => $matchSession->load(['turf', 'teams', 'gameMatches', 'queueLogic']),
+      'matchSession' => $matchSession->load([
+        'turf',
+        'teams.teamPlayers.player.user',
+        'gameMatches.firstTeam',
+        'gameMatches.secondTeam',
+        'gameMatches.winningTeam',
+        'gameMatches.matchEvents.player.user',
+        'gameMatches.matchEvents.team',
+        'gameMatches.matchEvents.relatedPlayer.user',
+        'queueLogic.team'
+      ]),
     ]);
   }
 

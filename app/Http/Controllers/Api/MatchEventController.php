@@ -8,12 +8,14 @@ use App\Http\Requests\UpdateMatchEventRequest;
 use App\Http\Resources\MatchEventResource;
 use App\Models\MatchEvent;
 use App\Services\MatchEventService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 
 class MatchEventController extends Controller
 {
+    use AuthorizesRequests;
     protected MatchEventService $matchEventService;
 
     public function __construct(MatchEventService $matchEventService)
@@ -36,6 +38,8 @@ class MatchEventController extends Controller
      */
     public function store(StoreMatchEventRequest $request): MatchEventResource
     {
+        $this->authorize('create', MatchEvent::class);
+
         $matchEvent = $this->matchEventService->createMatchEvent($request->validated());
 
         return new MatchEventResource($matchEvent);
@@ -46,6 +50,8 @@ class MatchEventController extends Controller
      */
     public function show(Request $request, MatchEvent $matchEvent): MatchEventResource
     {
+        $this->authorize('view', $matchEvent);
+
         $includes = [];
         if ($request->filled('include')) {
             $includes = explode(',', $request->include);
@@ -61,6 +67,8 @@ class MatchEventController extends Controller
      */
     public function update(UpdateMatchEventRequest $request, MatchEvent $matchEvent): MatchEventResource
     {
+        $this->authorize('update', $matchEvent);
+
         $matchEvent = $this->matchEventService->updateMatchEvent($matchEvent, $request->validated());
 
         return new MatchEventResource($matchEvent);
@@ -71,6 +79,8 @@ class MatchEventController extends Controller
      */
     public function destroy(MatchEvent $matchEvent): Response
     {
+        $this->authorize('delete', $matchEvent);
+
         $this->matchEventService->deleteMatchEvent($matchEvent);
 
         return response()->noContent();

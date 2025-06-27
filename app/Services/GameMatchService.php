@@ -24,7 +24,7 @@ class GameMatchService
    */
   public function getGameMatchWithRelations(GameMatch $gameMatch, array $includes = []): GameMatch
   {
-    $allowedIncludes = ['matchSession', 'firstTeam', 'secondTeam', 'winningTeam', 'matchEvents'];
+    $allowedIncludes = ['matchSession', 'firstTeam', 'secondTeam', 'winningTeam', 'matchEvents', 'firstTeam.teamPlayers', 'secondTeam.teamPlayers', 'firstTeam.teamPlayers.player', 'secondTeam.teamPlayers.player', 'firstTeam.teamPlayers.player.user', 'secondTeam.teamPlayers.player.user'];
     $validIncludes = array_intersect($includes, $allowedIncludes);
 
     if (!empty($validIncludes)) {

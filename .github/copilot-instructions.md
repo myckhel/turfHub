@@ -18,6 +18,7 @@ You are an expert senior fullstack developer working on **TurfMate**, a progress
 - **Eloquent Relationships & Query Scopes:** Use Eloquent relationships and query scopes for reusable queries.
 - **Type Hinting & Return Types:** Use **type-hinting** and **return types** in all methods.
 - **Utilizing Observers and Events:** Leverage Laravel's model observers and events when needed for handling actions that require another action to be taken in another context.
+- **Utilize Model Observers:** Use model observers for handling post actions to be done after a model is created, updated, or deleted.
 
 ### Laravel + API + Inertia.js Data Provider Logic
 
@@ -236,13 +237,13 @@ route('user.profile', { id: user.id });
 
 ### TailwindCSS
 
+- **Avoid custom CSS:** Rely on Tailwind's utility classes instead of writing custom CSS whenever possible. This keeps your styles consistent and easier to maintain.
 - **Utility-First:** Embrace the utility-first approach. Apply small, single-purpose classes directly in your HTML/JSX.
 - **`@apply` Sparingly:** Use `@apply` in CSS/SCSS files for component-level abstractions or to group common utility patterns, but avoid overusing it, as it can negate some benefits of utility-first.
 - **Configuration:** Customize your `tailwind.config.ts` to define your project's design system (colors, spacing, fonts, etc.).
 - **Readability:** For very long lists of utility classes, consider breaking components down further or using conditional class helpers to improve readability.
 - **Responsive Design:** Use Tailwind's responsive utilities to create mobile-first designs. Use `sm:`, `md:`, `lg:`, etc., to apply styles at different breakpoints.
 - **Dark Mode:** Use Tailwind's dark mode utilities to support dark mode. Ensure your design is accessible in both light and dark themes.
-- **Avoid custom CSS:** Rely on Tailwind's utility classes instead of writing custom CSS whenever possible. This keeps your styles consistent and easier to maintain.
 
 ### @gsap/react
 

@@ -165,4 +165,12 @@ class TurfPolicy
     // User can only leave if they belong to this turf
     return $user->belongsToTurf($turf->id);
   }
+
+  /**
+   * Determine whether the user can view players.
+   */
+  public function viewPlayers(User $user, Turf $turf): bool
+  {
+    return true;
+  }
 }

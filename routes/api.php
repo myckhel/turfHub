@@ -55,6 +55,7 @@ Route::middleware('auth:sanctum')->group(function () {
   // Additional nested resource routes for better organization
   Route::prefix('turfs/{turf}')->group(function () {
     Route::get('players', [PlayerController::class, 'index'])->name('turfs.players.index');
+    Route::get('available-players', [TurfController::class, 'getAvailablePlayers'])->name('turfs.available-players');
     Route::get('match-sessions', [MatchSessionController::class, 'index'])->name('turfs.match-sessions.index');
     Route::post('join', [TurfController::class, 'join'])->name('turfs.join');
     Route::delete('leave', [TurfController::class, 'leave'])->name('turfs.leave');
@@ -78,6 +79,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
   Route::prefix('match-sessions/{matchSession}')->group(function () {
     Route::get('teams', [TeamController::class, 'index'])->name('match-sessions.teams.index');
+    Route::get('available-slots', [MatchSessionController::class, 'getAvailableSlots'])->name('match-sessions.available-slots');
     Route::get('game-matches', [GameMatchController::class, 'index'])->name('match-sessions.game-matches.index');
     Route::get('queue-logic', [QueueLogicController::class, 'index'])->name('match-sessions.queue-logic.index');
     Route::get('queue-status', [MatchSessionController::class, 'queueStatus'])->name('match-sessions.queue-status');
@@ -92,6 +94,16 @@ Route::middleware('auth:sanctum')->group(function () {
   Route::prefix('teams/{team}')->group(function () {
     Route::get('players', [TeamPlayerController::class, 'index'])->name('teams.players.index');
     Route::get('game-matches', [GameMatchController::class, 'index'])->name('teams.game-matches.index');
+
+    // Team slot management
+    Route::post('join-slot', [TeamController::class, 'joinSlot'])->name('teams.join-slot');
+    Route::delete('leave-slot', [TeamController::class, 'leaveSlot'])->name('teams.leave-slot');
+    Route::post('add-player', [TeamController::class, 'addPlayerToSlot'])->name('teams.add-player');
+    Route::delete('remove-player/{playerId}', [TeamController::class, 'removePlayerFromSlot'])->name('teams.remove-player');
+    Route::post('set-captain', [TeamController::class, 'setCaptain'])->name('teams.set-captain');
+    Route::post('process-payment', [TeamController::class, 'processSlotPayment'])->name('teams.process-payment');
+    Route::get('payment-status/{playerId}', [TeamController::class, 'getPaymentStatus'])->name('teams.payment-status');
+    Route::get('stats', [TeamController::class, 'getStats'])->name('teams.stats');
   });
 
   Route::prefix('game-matches/{gameMatch}')->group(function () {

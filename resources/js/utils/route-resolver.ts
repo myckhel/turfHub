@@ -83,72 +83,29 @@ export const routeConfigs: Record<string, RouteConfig> = {
     roles: ['manager', 'admin'],
     layout: 'dashboard',
   },
-
-  // Player routes
-  'player.bookings': {
-    name: 'player.bookings',
-    component: 'Player/Bookings/Index',
-    roles: ['player'],
-    layout: 'dashboard',
-  },
-  'player.bookings.create': {
-    name: 'player.bookings.create',
-    component: 'Player/Bookings/Create',
-    roles: ['player'],
-    layout: 'dashboard',
-  },
-  'player.matches': {
-    name: 'player.matches',
-    component: 'Player/Matches/Index',
-    roles: ['player'],
-    layout: 'dashboard',
-  },
-
-  // Manager routes
-  'manager.fields': {
-    name: 'manager.fields',
-    component: 'Manager/Fields/Index',
-    roles: ['manager', 'admin'],
-    layout: 'dashboard',
-  },
-  'manager.bookings': {
-    name: 'manager.bookings',
-    component: 'Manager/Bookings/Index',
-    roles: ['manager', 'admin'],
-    layout: 'dashboard',
-  },
-  'manager.reports': {
-    name: 'manager.reports',
-    component: 'Manager/Reports/Index',
-    roles: ['manager', 'admin'],
-    layout: 'dashboard',
-  },
-
-  // Admin routes
-  'admin.users': {
-    name: 'admin.users',
-    component: 'Admin/Users/Index',
-    roles: ['admin'],
-    layout: 'dashboard',
-  },
-  'admin.settings': {
-    name: 'admin.settings',
-    component: 'Admin/Settings/Index',
-    roles: ['admin'],
-    layout: 'dashboard',
-  },
-
-  // Profile routes
-  'profile.edit': {
-    name: 'profile.edit',
-    component: 'App/Profile/Edit',
+  // Team routes
+  'app.teams.index': {
+    name: 'teams.index',
+    component: 'App/Teams/Index',
     roles: ['player', 'manager', 'admin'],
     layout: 'dashboard',
   },
-  settings: {
-    name: 'settings',
-    component: 'App/Settings/Index',
+  'app.teams.show': {
+    name: 'teams.show',
+    component: 'App/Teams/Show',
     roles: ['player', 'manager', 'admin'],
+    layout: 'dashboard',
+  },
+  'app.teams.create': {
+    name: 'teams.create',
+    component: 'App/Teams/Create',
+    roles: ['manager', 'admin'],
+    layout: 'dashboard',
+  },
+  'app.teams.edit': {
+    name: 'teams.edit',
+    component: 'App/Teams/Edit',
+    roles: ['manager', 'admin'],
     layout: 'dashboard',
   },
 };

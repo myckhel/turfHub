@@ -9,43 +9,48 @@ import {
   UserOutlined,
 } from '@ant-design/icons';
 import { router } from '@inertiajs/react';
-import { Button, Card, Col, Descriptions, Row, Space, Spin, Table, Tag, Typography, message } from 'antd';
+import { Button, Card, Col, Descriptions, Row, Space, Table, Tag, Typography, message } from 'antd';
 import { format } from 'date-fns';
 import React, { useCallback, useEffect, useState } from 'react';
 import { matchSessionApi } from '../../apis/matchSession';
 import { usePermissions } from '../../hooks/usePermissions';
 import type { GameMatch, MatchSession, QueueStatus, Team } from '../../types/matchSession.types';
+import { Turf } from '../../types/turf.types';
+import { PlayerTeamFlow } from '../Teams';
 
 const { Title, Text } = Typography;
 
 interface MatchSessionDetailsProps {
-  turfId: number;
-  matchSessionId: number;
+  turf: Turf;
+  matchSession: MatchSession;
 }
 
-const MatchSessionDetails: React.FC<MatchSessionDetailsProps> = ({ turfId, matchSessionId }) => {
+const MatchSessionDetails: React.FC<MatchSessionDetailsProps> = ({ turf, matchSession }) => {
   const permissions = usePermissions();
   const canManageSessions = permissions.canManageSessions();
 
-  const [matchSession, setMatchSession] = useState<MatchSession | null>(null);
+  const matchSessionId = matchSession.id;
+  const turfId = turf.id;
+
+  // const [matchSession, setMatchSession] = useState<MatchSession | null>(null);
   const [queueStatus, setQueueStatus] = useState<QueueStatus | null>(null);
-  const [loading, setLoading] = useState(true);
+  // const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
 
-  const loadMatchSession = useCallback(async () => {
-    setLoading(true);
-    try {
-      const response = await matchSessionApi.getById(matchSessionId, {
-        include: 'turf,teams,gameMatches,queueLogic',
-      });
-      setMatchSession(response.data);
-    } catch (error) {
-      console.error('Failed to load match session:', error);
-      message.error('Failed to load match session details');
-    } finally {
-      setLoading(false);
-    }
-  }, [matchSessionId]);
+  // const loadMatchSession = useCallback(async () => {
+  //   setLoading(true);
+  //   try {
+  //     const response = await matchSessionApi.getById(matchSessionId, {
+  //       include: 'turf,teams,gameMatches,queueLogic',
+  //     });
+  //     setMatchSession(response.data);
+  //   } catch (error) {
+  //     console.error('Failed to load match session:', error);
+  //     message.error('Failed to load match session details');
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }, [matchSessionId]);
 
   const loadQueueStatus = useCallback(async () => {
     try {
@@ -57,9 +62,9 @@ const MatchSessionDetails: React.FC<MatchSessionDetailsProps> = ({ turfId, match
   }, [matchSessionId]);
 
   useEffect(() => {
-    loadMatchSession();
+    // loadMatchSession();
     loadQueueStatus();
-  }, [loadMatchSession, loadQueueStatus]);
+  }, [loadQueueStatus]);
 
   // Auto-refresh queue status for active sessions
   useEffect(() => {
@@ -76,7 +81,7 @@ const MatchSessionDetails: React.FC<MatchSessionDetailsProps> = ({ turfId, match
     try {
       await matchSessionApi.start(matchSession.id);
       message.success('Match session started successfully');
-      await loadMatchSession();
+      // await loadMatchSession();
       await loadQueueStatus();
     } catch (error) {
       console.error('Failed to start session:', error);
@@ -93,7 +98,7 @@ const MatchSessionDetails: React.FC<MatchSessionDetailsProps> = ({ turfId, match
     try {
       await matchSessionApi.stop(matchSession.id);
       message.success('Match session stopped successfully');
-      await loadMatchSession();
+      // await loadMatchSession();
       await loadQueueStatus();
     } catch (error) {
       console.error('Failed to stop session:', error);
@@ -140,7 +145,7 @@ const MatchSessionDetails: React.FC<MatchSessionDetailsProps> = ({ turfId, match
       render: (record: Team) => (
         <div className="flex items-center gap-1">
           <UserOutlined />
-          <Text>{record.players?.length || 0} / 6</Text>
+          <Text>{record.teamPlayers?.length || 0} / 6</Text>
         </div>
       ),
     },
@@ -205,15 +210,15 @@ const MatchSessionDetails: React.FC<MatchSessionDetailsProps> = ({ turfId, match
     },
   ];
 
-  console.log({ queueStatus });
+  console.log({ queueStatus, turfId });
 
-  if (loading) {
-    return (
-      <div className="flex justify-center py-8">
-        <Spin size="large" />
-      </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="flex justify-center py-8">
+  //       <Spin size="large" />
+  //     </div>
+  //   );
+  // }
 
   if (!matchSession) {
     return (
@@ -248,6 +253,20 @@ const MatchSessionDetails: React.FC<MatchSessionDetailsProps> = ({ turfId, match
               <Space>
                 <Button icon={<EditOutlined />} onClick={handleEditSession} disabled={matchSession.status === 'completed'}>
                   Edit Session
+                </Button>
+
+                <Button
+                  icon={<TeamOutlined />}
+                  onClick={() =>
+                    router.visit(
+                      route('web.turfs.match-sessions.teams.index', {
+                        turf: turfId,
+                        matchSession: matchSessionId,
+                      }),
+                    )
+                  }
+                >
+                  Manage Teams
                 </Button>
 
                 {matchSession.status === 'scheduled' && (
@@ -330,6 +349,17 @@ const MatchSessionDetails: React.FC<MatchSessionDetailsProps> = ({ turfId, match
             )}
           </Col>
         </Row>
+
+        {/* Player Team Flow - For players to join teams */}
+        {!canManageSessions && (
+          <PlayerTeamFlow
+            matchSessionId={matchSessionId}
+            onJoinSuccess={() => {
+              // loadMatchSession();
+              loadQueueStatus();
+            }}
+          />
+        )}
 
         {/* Teams */}
         <Card title="Teams" className="mb-6">

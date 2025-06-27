@@ -18,155 +18,185 @@ use Illuminate\Http\Response;
 
 class MatchSessionController extends Controller
 {
-    use AuthorizesRequests;
+  use AuthorizesRequests;
 
-    protected MatchSessionService $matchSessionService;
+  protected MatchSessionService $matchSessionService;
 
-    public function __construct(MatchSessionService $matchSessionService)
-    {
-        $this->matchSessionService = $matchSessionService;
+  public function __construct(MatchSessionService $matchSessionService)
+  {
+    $this->matchSessionService = $matchSessionService;
+  }
+
+  /**
+   * Display a listing of the resource.
+   */
+  public function index(Request $request): AnonymousResourceCollection
+  {
+    $this->authorize('viewAny', MatchSession::class);
+
+    $matchSessions = $this->matchSessionService->getMatchSessions($request);
+
+    return MatchSessionResource::collection($matchSessions);
+  }
+
+  /**
+   * Store a newly created resource in storage.
+   */
+  public function store(StoreMatchSessionRequest $request): MatchSessionResource
+  {
+    $this->authorize('create', MatchSession::class);
+
+    $matchSession = $this->matchSessionService->createMatchSessionWithTeams($request->validated());
+
+    return new MatchSessionResource($matchSession);
+  }
+
+  /**
+   * Display the specified resource.
+   */
+  public function show(Request $request, MatchSession $matchSession): MatchSessionResource
+  {
+    $this->authorize('view', $matchSession);
+
+    $includes = [];
+    if ($request->filled('include')) {
+      $includes = explode(',', $request->include);
     }
 
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(Request $request): AnonymousResourceCollection
-    {
-        $this->authorize('viewAny', MatchSession::class);
+    $matchSession = $this->matchSessionService->getMatchSessionWithRelations($matchSession, $includes);
 
-        $matchSessions = $this->matchSessionService->getMatchSessions($request);
+    return new MatchSessionResource($matchSession);
+  }
 
-        return MatchSessionResource::collection($matchSessions);
+  /**
+   * Update the specified resource in storage.
+   */
+  public function update(UpdateMatchSessionRequest $request, MatchSession $matchSession): MatchSessionResource
+  {
+    $this->authorize('update', $matchSession);
+
+    $matchSession = $this->matchSessionService->updateMatchSession($matchSession, $request->validated());
+
+    return new MatchSessionResource($matchSession);
+  }
+
+  /**
+   * Remove the specified resource from storage.
+   */
+  public function destroy(MatchSession $matchSession): Response
+  {
+    $this->authorize('delete', $matchSession);
+
+    $this->matchSessionService->deleteMatchSession($matchSession);
+
+    return response()->noContent();
+  }
+
+  /**
+   * Add a player to a team in the match session.
+   */
+  public function addPlayerToTeam(AddPlayerToTeamRequest $request, MatchSession $matchSession): JsonResponse
+  {
+    $this->authorize('addPlayersToTeam', $matchSession);
+
+    try {
+      $this->matchSessionService->addPlayerToTeam(
+        $matchSession,
+        $request->validated('team_id'),
+        $request->validated('player_id')
+      );
+
+      return response()->json(['message' => 'Player added to team successfully']);
+    } catch (\InvalidArgumentException $e) {
+      return response()->json(['error' => $e->getMessage()], 400);
     }
+  }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreMatchSessionRequest $request): MatchSessionResource
-    {
-        $this->authorize('create', MatchSession::class);
+  /**
+   * Start a match session.
+   */
+  public function start(MatchSession $matchSession): MatchSessionResource
+  {
+    $this->authorize('start', $matchSession);
 
-        $matchSession = $this->matchSessionService->createMatchSessionWithTeams($request->validated());
+    $matchSession = $this->matchSessionService->startMatchSession($matchSession);
 
-        return new MatchSessionResource($matchSession);
-    }
+    return new MatchSessionResource($matchSession);
+  }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Request $request, MatchSession $matchSession): MatchSessionResource
-    {
-        $this->authorize('view', $matchSession);
+  /**
+   * Stop a match session.
+   */
+  public function stop(MatchSession $matchSession): MatchSessionResource
+  {
+    $this->authorize('stop', $matchSession);
 
-        $includes = [];
-        if ($request->filled('include')) {
-            $includes = explode(',', $request->include);
-        }
+    $matchSession = $this->matchSessionService->stopMatchSession($matchSession);
 
-        $matchSession = $this->matchSessionService->getMatchSessionWithRelations($matchSession, $includes);
+    return new MatchSessionResource($matchSession);
+  }
 
-        return new MatchSessionResource($matchSession);
-    }
+  /**
+   * Set result for a game match and trigger queue logic.
+   */
+  public function setGameResult(SetGameResultRequest $request, MatchSession $matchSession): MatchSessionResource
+  {
+    $this->authorize('setMatchResult', $matchSession);
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateMatchSessionRequest $request, MatchSession $matchSession): MatchSessionResource
-    {
-        $this->authorize('update', $matchSession);
+    $matchSession = $this->matchSessionService->setGameMatchResult(
+      $matchSession,
+      $request->validated('game_match_id'),
+      [
+        'first_team_score' => $request->validated('first_team_score'),
+        'second_team_score' => $request->validated('second_team_score'),
+      ]
+    );
 
-        $matchSession = $this->matchSessionService->updateMatchSession($matchSession, $request->validated());
+    return new MatchSessionResource($matchSession);
+  }
 
-        return new MatchSessionResource($matchSession);
-    }
+  /**
+   * Get queue status for a match session.
+   */
+  public function queueStatus(MatchSession $matchSession): JsonResponse
+  {
+    $this->authorize('view', $matchSession);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(MatchSession $matchSession): Response
-    {
-        $this->authorize('delete', $matchSession);
+    $queueStatus = $this->matchSessionService->getQueueStatus($matchSession);
 
-        $this->matchSessionService->deleteMatchSession($matchSession);
+    return response()->json([
+      'data' => $queueStatus,
+      'message' => 'Queue status retrieved successfully'
+    ]);
+  }
 
-        return response()->noContent();
-    }
+  /**
+   * Get available team slots for a match session.
+   */
+  public function getAvailableSlots(MatchSession $matchSession): JsonResponse
+  {
+    $this->authorize('view', $matchSession);
 
-    /**
-     * Add a player to a team in the match session.
-     */
-    public function addPlayerToTeam(AddPlayerToTeamRequest $request, MatchSession $matchSession): JsonResponse
-    {
-        $this->authorize('addPlayersToTeam', $matchSession);
+    $teams = $matchSession->teams()
+      ->with(['teamPlayers.player.user', 'captain'])
+      ->get();
 
-        try {
-            $this->matchSessionService->addPlayerToTeam(
-                $matchSession,
-                $request->validated('team_id'),
-                $request->validated('player_id')
-            );
+    $totalSlots = $matchSession->max_teams * 6; // 6 players per team
+    $occupiedSlots = $teams->sum(function ($team) {
+      return $team->teamPlayers->count();
+    });
+    $availableSlots = $totalSlots - $occupiedSlots;
 
-            return response()->json(['message' => 'Player added to team successfully']);
-        } catch (\InvalidArgumentException $e) {
-            return response()->json(['error' => $e->getMessage()], 400);
-        }
-    }
+    $response = [
+      'teams' => \App\Http\Resources\TeamResource::collection($teams),
+      'total_slots' => $totalSlots,
+      'available_slots' => $availableSlots,
+      'slot_fee' => $matchSession->turf->team_slot_fee ?? 0,
+    ];
 
-    /**
-     * Start a match session.
-     */
-    public function start(MatchSession $matchSession): MatchSessionResource
-    {
-        $this->authorize('start', $matchSession);
-
-        $matchSession = $this->matchSessionService->startMatchSession($matchSession);
-
-        return new MatchSessionResource($matchSession);
-    }
-
-    /**
-     * Stop a match session.
-     */
-    public function stop(MatchSession $matchSession): MatchSessionResource
-    {
-        $this->authorize('stop', $matchSession);
-
-        $matchSession = $this->matchSessionService->stopMatchSession($matchSession);
-
-        return new MatchSessionResource($matchSession);
-    }
-
-    /**
-     * Set result for a game match and trigger queue logic.
-     */
-    public function setGameResult(SetGameResultRequest $request, MatchSession $matchSession): MatchSessionResource
-    {
-        $this->authorize('setMatchResult', $matchSession);
-
-        $matchSession = $this->matchSessionService->setGameMatchResult(
-            $matchSession,
-            $request->validated('game_match_id'),
-            [
-                'first_team_score' => $request->validated('first_team_score'),
-                'second_team_score' => $request->validated('second_team_score'),
-            ]
-        );
-
-        return new MatchSessionResource($matchSession);
-    }
-
-    /**
-     * Get queue status for a match session.
-     */
-    public function queueStatus(MatchSession $matchSession): JsonResponse
-    {
-        $this->authorize('view', $matchSession);
-
-        $queueStatus = $this->matchSessionService->getQueueStatus($matchSession);
-
-        return response()->json([
-            'data' => $queueStatus,
-            'message' => 'Queue status retrieved successfully'
-        ]);
-    }
+    return response()->json([
+      'data' => $response,
+      'message' => 'Available slots retrieved successfully'
+    ]);
+  }
 }

@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\JsonResponse;
 
 class TurfController extends Controller
 {
@@ -159,5 +160,23 @@ class TurfController extends Controller
     $statusCode = $paymentResult['success'] ? 200 : 422;
 
     return response()->json($paymentResult, $statusCode);
+  }
+
+  /**
+   * Get available players for team selection.
+   */
+  public function getAvailablePlayers(Turf $turf): JsonResponse
+  {
+    $this->authorize('viewPlayers', $turf);
+
+    $players = $turf->players()
+      ->with('user')
+      ->where('status', 'active')
+      ->get();
+
+    return response()->json([
+      'data' => \App\Http\Resources\PlayerResource::collection($players),
+      'message' => 'Available players retrieved successfully'
+    ]);
   }
 }

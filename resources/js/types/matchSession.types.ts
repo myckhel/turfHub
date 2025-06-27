@@ -40,7 +40,7 @@ export interface Team {
     name: string;
     email: string;
   };
-  players?: TeamPlayer[];
+  teamPlayers?: TeamPlayer[];
 }
 
 export interface TeamPlayer {

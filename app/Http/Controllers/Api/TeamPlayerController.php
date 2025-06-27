@@ -26,9 +26,9 @@ class TeamPlayerController extends Controller
      */
     public function index(Request $request): AnonymousResourceCollection
     {
-        $teamPlayers = $this->teamPlayerService->getTeamPlayers($request);
+        $players = $this->teamPlayerService->getTeamPlayers($request);
 
-        return TeamPlayerResource::collection($teamPlayers);
+        return TeamPlayerResource::collection($players);
     }
 
     /**

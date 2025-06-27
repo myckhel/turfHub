@@ -53,7 +53,7 @@ export const usePermissions = () => {
     canRemovePlayers: () => turfPermissions.canRemovePlayers,
     canManageSessions: () => turfPermissions.canManageSessions,
     canCreateTeams: () => turfPermissions.canCreateTeams,
-    canManageTeams: () => turfPermissions.canManageTeams,
+    canManageTeams: () => turfPermissions.canCreateTeams,
     canViewTurfAnalytics: () => turfPermissions.canViewAnalytics,
     canManageTurfPayments: () => turfPermissions.canManagePayments,
 

@@ -16,8 +16,7 @@ class GameMatchPolicy
     return $gameMatch->matchSession->turf
       ->players()
       ->where('user_id', $user->id)
-      ->exists() ||
-      $user->hasAnyTurfRole([User::TURF_ROLE_ADMIN, User::TURF_ROLE_MANAGER], $gameMatch->matchSession->turf_id);
+      ->exists();
   }
 
   /**

@@ -4,6 +4,8 @@ export const pwaConfig: Partial<VitePWAOptions> = {
   registerType: 'autoUpdate',
   srcDir: 'resources/js/sw',
   filename: 'sw.ts',
+  strategies: 'injectManifest',
+  injectRegister: false, // We'll handle registration manually
   includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'logo.svg', 'favicon.svg'],
   manifest: {
     name: 'TurfMate - Sports Facility Management',

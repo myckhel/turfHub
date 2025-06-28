@@ -70,6 +70,25 @@
         @viteReactRefresh
         @vite(['resources/js/app.tsx', "resources/js/pages/{$page['component']}.tsx"])
         @inertiaHead
+
+        {{-- PWA Manifest --}}
+        <link rel="manifest" href="/build/manifest.webmanifest">
+
+        {{-- Service Worker Registration --}}
+        <script>
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('/build/sw.js', {
+                        scope: '/',
+                        updateViaCache: 'none'
+                    }).then((registration) => {
+                        console.log('SW registered: ', registration);
+                    }).catch((registrationError) => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+                });
+            }
+        </script>
     </head>
     <body class="font-sans antialiased">
         @inertia

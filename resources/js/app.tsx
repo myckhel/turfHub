@@ -13,11 +13,6 @@ import { resolveComponent, routeConfigs } from './utils/route-resolver';
 
 const appName = import.meta.env.VITE_APP_NAME || 'TurfMate';
 
-// Initialize PWA
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js');
-}
-
 // Theme initialization component
 const ThemeInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const initializeTheme = useThemeStore((state) => state.initializeTheme);

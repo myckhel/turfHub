@@ -285,7 +285,8 @@ class MatchSessionService
    */
   private function buildMatchSessionQuery(Request $request): Builder
   {
-    $query = MatchSession::query();
+    // starting from last 3 days
+    $query = MatchSession::query()->where('session_date', '>=', now()->subDays(3))->orderBy('session_date', 'asc');
 
     // Filter by turf
     if ($request->filled('turf_id')) {

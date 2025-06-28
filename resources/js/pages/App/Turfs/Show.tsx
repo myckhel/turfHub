@@ -219,7 +219,12 @@ const TurfDetail: React.FC<TurfDetailProps> = ({ turf }) => {
         <Card title="Active Match Sessions">
           <div className="space-y-3">
             {turf.active_match_sessions.map((session) => (
-              <Card key={session.id} size="small" className="border-green-200 bg-green-50">
+              <Card
+                key={session.id}
+                size="small"
+                className="cursor-pointer border-green-200 bg-green-50 transition-all hover:border-green-300 hover:bg-green-100 hover:shadow-md"
+                onClick={() => router.visit(route('web.turfs.match-sessions.show', { matchSession: session.id, turf: turf.id }))}
+              >
                 <div className="flex items-center justify-between">
                   <div>
                     <Text strong>{session.name}</Text>

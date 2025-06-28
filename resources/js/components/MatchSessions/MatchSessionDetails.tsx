@@ -11,7 +11,7 @@ import {
 import { router } from '@inertiajs/react';
 import { Button, Card, Col, Descriptions, Row, Space, Table, Tag, Typography, message } from 'antd';
 import { format } from 'date-fns';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { matchSessionApi } from '../../apis/matchSession';
 import { usePermissions } from '../../hooks/usePermissions';
 import type { GameMatch as GameMatchType } from '../../types/gameMatch.types';
@@ -35,28 +35,7 @@ const MatchSessionDetails: React.FC<MatchSessionDetailsProps> = ({ turf, matchSe
   const matchSessionId = matchSession.id;
   const turfId = turf.id;
 
-  // const [matchSession, setMatchSession] = useState<MatchSession | null>(null);
-  // const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
-
-  // const loadMatchSession = useCallback(async () => {
-  //   setLoading(true);
-  //   try {
-  //     const response = await matchSessionApi.getById(matchSessionId, {
-  //       include: 'turf,teams,gameMatches,queueLogic',
-  //     });
-  //     setMatchSession(response.data);
-  //   } catch (error) {
-  //     console.error('Failed to load match session:', error);
-  //     message.error('Failed to load match session details');
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // }, [matchSessionId]);
-
-  useEffect(() => {
-    // loadMatchSession();
-  }, []);
 
   const handleStartSession = async () => {
     if (!matchSession) return;

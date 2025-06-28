@@ -121,6 +121,21 @@ class QueueLogicService
         'status' => 'waiting',
         'reason_for_current_position' => 'loss',
       ]);
+
+    // next team in the queue gets next_to_play status
+    $this->updateNextTeamsToPlay($matchSession, 1);
+  }
+
+  private function updateNextTeamsToPlay(MatchSession $matchSession, int $numOfTeams = 1): void
+  {
+    $matchSession->queueLogic()
+      ->where('status', 'waiting')
+      ->orderBy('queue_position')
+      ->limit($numOfTeams)
+      ->update([
+        'status' => 'next_to_play',
+        'reason_for_current_position' => 'next_team_in_queue',
+      ]);
   }
 
   /**
@@ -128,13 +143,25 @@ class QueueLogicService
    */
   private function handleDrawResult(MatchSession $matchSession, int $firstTeamId, int $secondTeamId): void
   {
-    // Both teams step out and wait for random selection
-    $matchSession->queueLogic()
+    // Both teams step out and determine teams queue position at the end of the queue in random order
+    $teams = $matchSession->queueLogic()
       ->whereIn('team_id', [$firstTeamId, $secondTeamId])
-      ->update([
-        'status' => 'played_waiting_draw_resolution',
-        'reason_for_current_position' => 'draw_waiting_other_match',
+      ->get();
+
+    $maxPosition = $matchSession->queueLogic()->max('queue_position');
+
+    // Shuffle the teams to randomize their order
+    $shuffledTeams = $teams->shuffle()->values();
+
+    foreach ($shuffledTeams as $i => $team) {
+      $team->update([
+        'status' => 'waiting',
+        'reason_for_current_position' => 'draw',
+        'queue_position' => $maxPosition + $i + 1, // Assign to next available positions
       ]);
+    }
+
+    $this->updateNextTeamsToPlay($matchSession, 2);
   }
 
   /**

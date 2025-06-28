@@ -3,7 +3,6 @@ import { Badge, Button, Card, Col, Descriptions, InputNumber, Row, Space, Tag, T
 import { format } from 'date-fns';
 import React, { useCallback, useEffect, useState } from 'react';
 import { gameMatchApi } from '../../apis/gameMatch';
-import { matchSessionApi } from '../../apis/matchSession';
 import { usePermissions } from '../../hooks/usePermissions';
 import type { GameMatch } from '../../types/gameMatch.types';
 import type { MatchSession } from '../../types/matchSession.types';
@@ -83,11 +82,6 @@ const OngoingGameMatch: React.FC<OngoingGameMatchProps> = ({ gameMatch, matchSes
       });
 
       // Then use the match session API to set the result (this will trigger queue logic)
-      await matchSessionApi.setGameResult(matchSession.id, {
-        game_match_id: currentMatch.id,
-        first_team_score: firstTeamScore,
-        second_team_score: secondTeamScore,
-      });
 
       message.success('Match result set successfully');
       setIsEditingScore(false);

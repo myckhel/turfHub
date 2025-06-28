@@ -89,7 +89,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('start', [MatchSessionController::class, 'start'])->name('match-sessions.start');
     Route::post('stop', [MatchSessionController::class, 'stop'])->name('match-sessions.stop');
     Route::post('add-player-to-team', [MatchSessionController::class, 'addPlayerToTeam'])->name('match-sessions.add-player-to-team');
-    Route::post('set-game-result', [MatchSessionController::class, 'setGameResult'])->name('match-sessions.set-game-result');
   });
 
   Route::prefix('teams/{team}')->group(function () {

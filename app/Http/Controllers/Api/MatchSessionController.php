@@ -137,25 +137,6 @@ class MatchSessionController extends Controller
   }
 
   /**
-   * Set result for a game match and trigger queue logic.
-   */
-  public function setGameResult(SetGameResultRequest $request, MatchSession $matchSession): MatchSessionResource
-  {
-    $this->authorize('setMatchResult', $matchSession);
-
-    $matchSession = $this->matchSessionService->setGameMatchResult(
-      $matchSession,
-      $request->validated('game_match_id'),
-      [
-        'first_team_score' => $request->validated('first_team_score'),
-        'second_team_score' => $request->validated('second_team_score'),
-      ]
-    );
-
-    return new MatchSessionResource($matchSession);
-  }
-
-  /**
    * Get queue status for a match session.
    */
   public function queueStatus(MatchSession $matchSession): JsonResponse

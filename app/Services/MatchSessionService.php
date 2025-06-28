@@ -172,18 +172,12 @@ class MatchSessionService
   }
 
   /**
-   * Set the result of a game match and trigger queue logic.
+   * Process the result of a game match and determine the next game.
    */
-  public function setGameMatchResult(MatchSession $matchSession, int $gameMatchId, array $resultData): MatchSession
+  public function postMatchCompleted(MatchSession $matchSession, GameMatch $gameMatch): MatchSession
   {
-    $gameMatch = $matchSession->gameMatches()->findOrFail($gameMatchId);
 
     // Update game match with result
-    $gameMatch->update([
-      'first_team_score' => $resultData['first_team_score'],
-      'second_team_score' => $resultData['second_team_score'],
-      'status' => 'completed',
-    ]);
 
     // Determine winner and update teams
     $this->processGameResult($gameMatch);
@@ -196,7 +190,7 @@ class MatchSessionService
       $this->createNextGameMatch($matchSession);
     }
 
-    return $matchSession->load(['teams', 'queueLogic', 'gameMatches']);
+    return $matchSession;
   }
 
   /**

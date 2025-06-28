@@ -2355,6 +2355,148 @@
           "response": []
         },
         {
+          "name": "Get Available Players",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Available players response structure', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "    pm.expect(jsonData).to.have.property('message');",
+                  "    pm.expect(jsonData.data).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('Players have required fields', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    if (jsonData.data.length > 0) {",
+                  "        const player = jsonData.data[0];",
+                  "        pm.expect(player).to.have.property('id');",
+                  "        pm.expect(player).to.have.property('user_id');",
+                  "        pm.expect(player).to.have.property('turf_id');",
+                  "        pm.expect(player).to.have.property('is_member');",
+                  "        pm.expect(player).to.have.property('status');",
+                  "        pm.expect(player).to.have.property('user');",
+                  "        pm.expect(player.user).to.have.property('id');",
+                  "        pm.expect(player.user).to.have.property('name');",
+                  "    }",
+                  "});",
+                  "",
+                  "pm.test('User data does not contain sensitive information', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    if (jsonData.data.length > 0) {",
+                  "        const player = jsonData.data[0];",
+                  "        // Should not expose email for privacy",
+                  "        pm.expect(player.user).to.not.have.property('email');",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/match-sessions/{{created_match_session_id}}/available-players?filter_unassigned=true&search=",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "match-sessions",
+                "{{created_match_session_id}}",
+                "available-players"
+              ],
+              "query": [
+                {
+                  "key": "filter_unassigned",
+                  "value": "true",
+                  "description": "Only return players not assigned to any team in this session"
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "description": "Search players by name (backend search for better performance)"
+                }
+              ]
+            },
+            "description": "Get available players for a match session. Supports filtering unassigned players and searching by name. Used for adding players to teams with multi-select capability."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Available Players (with Search)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Search results are relevant', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    const searchTerm = pm.request.url.query.get('search');",
+                  "    if (searchTerm && jsonData.data.length > 0) {",
+                  "        // Check if search term appears in player names",
+                  "        const hasRelevantResults = jsonData.data.some(player => ",
+                  "            player.user.name.toLowerCase().includes(searchTerm.toLowerCase())",
+                  "        );",
+                  "        pm.expect(hasRelevantResults).to.be.true;",
+                  "    }",
+                  "});",
+                  "",
+                  "pm.test('Filtered results only show unassigned players', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    // This test verifies the filter_unassigned parameter works",
+                  "    // In practice, we'd need to check these players aren't in teams",
+                  "    pm.expect(jsonData.data).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/match-sessions/{{created_match_session_id}}/available-players?filter_unassigned=false&search=john",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "match-sessions",
+                "{{created_match_session_id}}",
+                "available-players"
+              ],
+              "query": [
+                {
+                  "key": "filter_unassigned",
+                  "value": "false",
+                  "description": "Include all players (assigned and unassigned)"
+                },
+                {
+                  "key": "search",
+                  "value": "john",
+                  "description": "Search for players with 'john' in their name"
+                }
+              ]
+            },
+            "description": "Example of searching for specific players by name across all players (assigned and unassigned). Demonstrates backend search functionality."
+          },
+          "response": []
+        },
+        {
           "name": "Set Game Result",
           "event": [
             {

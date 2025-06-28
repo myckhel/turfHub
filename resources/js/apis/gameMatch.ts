@@ -40,6 +40,11 @@ export const gameMatchApi = {
   delete: async (id: number): Promise<ApiResponse<void>> => {
     return api.delete(`/game-matches/${id}`);
   },
+
+  // Get game matches for a specific match session
+  getByMatchSession: async (matchSessionId: number, params?: Omit<GameMatchFilters, 'match_session_id'>): Promise<GameMatchListResponse> => {
+    return gameMatchApi.getAll({ ...params, match_session_id: matchSessionId });
+  },
 };
 
 /**

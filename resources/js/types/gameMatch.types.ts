@@ -63,6 +63,7 @@ export interface MatchEvent {
   team?: {
     id: number;
     name: string;
+    color?: string;
   };
   related_player?: {
     id: number;

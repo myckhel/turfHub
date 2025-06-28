@@ -8,15 +8,15 @@ import {
   TrophyOutlined,
 } from '@ant-design/icons';
 import { router } from '@inertiajs/react';
-import { Button, Card, Col, Descriptions, Row, Space, Table, Tag, Typography, message } from 'antd';
+import { Button, Card, Col, Descriptions, Row, Space, Tag, Typography, message } from 'antd';
 import { format } from 'date-fns';
-import React, { useState } from 'react';
+import React, { memo, useState } from 'react';
 import { matchSessionApi } from '../../apis/matchSession';
 import { usePermissions } from '../../hooks/usePermissions';
 import type { GameMatch as GameMatchType } from '../../types/gameMatch.types';
-import type { GameMatch, MatchSession } from '../../types/matchSession.types';
+import type { MatchSession } from '../../types/matchSession.types';
 import { Turf } from '../../types/turf.types';
-import { OngoingGameMatch } from '../GameMatches';
+import { GameMatchesTable, OngoingGameMatch } from '../GameMatches';
 import { PlayerTeamFlow } from '../Teams';
 import { MatchSessionStandings, QueueStatus } from './index';
 
@@ -90,55 +90,6 @@ const MatchSessionDetails: React.FC<MatchSessionDetailsProps> = ({ turf, matchSe
         return 'default';
     }
   };
-
-  const handleTeamClick = (teamId: number) => {
-    router.visit(
-      route('web.turfs.match-sessions.teams.show', {
-        turf: turfId,
-        matchSession: matchSessionId,
-        team: teamId,
-      }),
-    );
-  };
-
-  const matchesColumns = [
-    {
-      title: 'Match #',
-      dataIndex: 'id',
-      key: 'id',
-      render: (id: number) => `Match #${id}`,
-    },
-    {
-      title: 'Teams',
-      key: 'teams',
-      render: (record: GameMatch) => (
-        <Text>
-          {record.first_team?.name} vs {record.second_team?.name}
-        </Text>
-      ),
-    },
-    {
-      title: 'Score',
-      key: 'score',
-      render: (record: GameMatch) => (
-        <Text strong>
-          {record.first_team_score} - {record.second_team_score}
-        </Text>
-      ),
-    },
-    {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
-      render: (status: string) => <Tag color={getStatusColor(status)}>{status.toUpperCase()}</Tag>,
-    },
-    {
-      title: 'Time',
-      dataIndex: 'match_time',
-      key: 'match_time',
-      render: (time: string) => format(new Date(time), 'HH:mm'),
-    },
-  ];
 
   // Find ongoing/current game match
   const ongoingMatch = matchSession.game_matches?.find(
@@ -292,16 +243,17 @@ const MatchSessionDetails: React.FC<MatchSessionDetailsProps> = ({ turf, matchSe
         />
 
         {/* Game Matches */}
-        <Card title="Match History">
-          {matchSession.game_matches && matchSession.game_matches.length > 0 ? (
-            <Table dataSource={matchSession.game_matches} columns={matchesColumns} rowKey="id" pagination={false} size="middle" />
-          ) : (
-            <Text type="secondary">No matches played yet</Text>
-          )}
-        </Card>
+        <GameMatchesTable
+          matchSessionId={matchSessionId}
+          turfId={turfId}
+          title="Match History"
+          className="mb-6"
+          autoRefresh={matchSession.is_active}
+          refreshInterval={15000}
+        />
       </div>
     </div>
   );
 };
 
-export default MatchSessionDetails;
+export default memo(MatchSessionDetails);

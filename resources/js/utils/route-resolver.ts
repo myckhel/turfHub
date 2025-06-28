@@ -108,6 +108,14 @@ export const routeConfigs: Record<string, RouteConfig> = {
     roles: ['manager', 'admin'],
     layout: 'dashboard',
   },
+
+  // Game Match routes
+  'app.gamematches.show': {
+    name: 'gamematches.show',
+    component: 'App/GameMatches/Show',
+    roles: ['player', 'manager', 'admin'],
+    layout: 'dashboard',
+  },
 };
 
 export const resolveComponent = (name: string) => {

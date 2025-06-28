@@ -1,0 +1,83 @@
+/* Game Matches Table Styles */
+.game-matches-table .ant-table-tbody > tr:hover {
+  cursor: pointer;
+}
+
+.game-matches-table .ant-table {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.game-matches-table .ant-table-thead > tr > th {
+  background: rgba(24, 144, 255, 0.1);
+  border-bottom: 1px solid rgba(24, 144, 255, 0.2);
+  font-weight: 600;
+}
+
+.game-matches-table .ant-table-tbody > tr > td {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease;
+}
+
+/* Dark mode support */
+[data-theme='dark'] .game-matches-table .ant-table-thead > tr > th {
+  background: rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+[data-theme='dark'] .game-matches-table .ant-table-tbody > tr > td {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+[data-theme='dark'] .game-matches-table .ant-table-tbody > tr:hover > td {
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .game-matches-table .ant-table-thead > tr > th,
+  .game-matches-table .ant-table-tbody > tr > td {
+    padding: 8px 4px;
+    font-size: 12px;
+  }
+
+  .game-matches-table .ant-table-thead > tr > th:first-child,
+  .game-matches-table .ant-table-tbody > tr > td:first-child {
+    padding-left: 8px;
+  }
+
+  .game-matches-table .ant-table-thead > tr > th:last-child,
+  .game-matches-table .ant-table-tbody > tr > td:last-child {
+    padding-right: 8px;
+  }
+}
+
+/* Score animation for live matches */
+@keyframes scorePulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.game-matches-table .live-score {
+  animation: scorePulse 2s infinite ease-in-out;
+}
+
+/* Team color indicators */
+.team-color-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+}
+
+.team-color-indicator:hover {
+  transform: scale(1.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}

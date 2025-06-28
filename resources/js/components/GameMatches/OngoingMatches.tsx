@@ -8,21 +8,26 @@ import OngoingGameMatch from './OngoingGameMatch';
 
 const { Title, Text } = Typography;
 
-interface OngoingMatchData {
-  gameMatch: GameMatch;
-  matchSession: MatchSession;
-}
-
 interface OngoingMatchesProps {
-  turfId: number;
-  turf?: { id: number; name: string };
+  // Provide matchSession or matchSessionId for specific session
+  matchSession?: MatchSession;
+  matchSessionId?: number;
   autoRefresh?: boolean;
   refreshInterval?: number;
   showEmptyState?: boolean;
+  title?: string;
 }
 
-const OngoingMatches: React.FC<OngoingMatchesProps> = ({ turfId, turf, autoRefresh = true, refreshInterval = 30000, showEmptyState = true }) => {
-  const [ongoingMatches, setOngoingMatches] = useState<OngoingMatchData[]>([]);
+const OngoingMatches: React.FC<OngoingMatchesProps> = ({
+  matchSession,
+  matchSessionId,
+  autoRefresh = true,
+  refreshInterval = 30000,
+  showEmptyState = true,
+  title,
+}) => {
+  const [ongoingMatches, setOngoingMatches] = useState<GameMatch[]>([]);
+  const [currentMatchSession, setCurrentMatchSession] = useState<MatchSession | undefined>(matchSession);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -35,25 +40,30 @@ const OngoingMatches: React.FC<OngoingMatchesProps> = ({ turfId, turf, autoRefre
           setLoading(true);
         }
 
-        // Get active match sessions for this turf
-        const activeSessionsResponse = await matchSessionApi.getActiveTurfSessions(turfId);
+        let sessionToUse = matchSession || currentMatchSession;
 
-        if (activeSessionsResponse.data?.length > 0) {
-          const matches: OngoingMatchData[] = [];
-
-          // Check each active session for ongoing matches
-          for (const session of activeSessionsResponse.data) {
-            try {
-              const ongoingMatchResponse = await matchSessionApi.getCurrentOngoingMatch(session.id);
-              if (ongoingMatchResponse.data) {
-                matches.push(ongoingMatchResponse.data);
-              }
-            } catch (error) {
-              console.error(`Failed to get ongoing match for session ${session.id}:`, error);
-            }
+        // If no matchSession prop and we have matchSessionId, fetch the session
+        if (!sessionToUse && matchSessionId) {
+          try {
+            const sessionResponse = await matchSessionApi.getById(matchSessionId);
+            sessionToUse = sessionResponse.data;
+            setCurrentMatchSession(sessionToUse);
+          } catch (error) {
+            console.error(`Failed to fetch match session ${matchSessionId}:`, error);
+            setOngoingMatches([]);
+            return;
           }
+        }
 
-          setOngoingMatches(matches);
+        if (sessionToUse) {
+          // Get ongoing match for specific session
+          try {
+            const ongoingMatchResponse = await matchSessionApi.getCurrentOngoingMatch(sessionToUse.id);
+            setOngoingMatches(ongoingMatchResponse.data);
+          } catch (error) {
+            console.error(`Failed to get ongoing match for session ${sessionToUse.id}:`, error);
+            setOngoingMatches([]);
+          }
         } else {
           setOngoingMatches([]);
         }
@@ -65,12 +75,19 @@ const OngoingMatches: React.FC<OngoingMatchesProps> = ({ turfId, turf, autoRefre
         setRefreshing(false);
       }
     },
-    [turfId],
+    [matchSession, matchSessionId, currentMatchSession],
   );
 
   useEffect(() => {
     loadOngoingMatches();
   }, [loadOngoingMatches]);
+
+  // Update currentMatchSession when matchSession prop changes
+  useEffect(() => {
+    if (matchSession) {
+      setCurrentMatchSession(matchSession);
+    }
+  }, [matchSession]);
 
   // Auto-refresh ongoing matches
   useEffect(() => {
@@ -136,7 +153,7 @@ const OngoingMatches: React.FC<OngoingMatchesProps> = ({ turfId, turf, autoRefre
         <div className="flex items-center justify-between">
           <div>
             <Title level={3} className="mb-1">
-              🔴 Live Matches {turf?.name && `- ${turf.name}`}
+              {title || '🔴 Live Matches'}
             </Title>
             <Text type="secondary">
               {ongoingMatches.length} ongoing match{ongoingMatches.length !== 1 ? 'es' : ''}
@@ -152,14 +169,19 @@ const OngoingMatches: React.FC<OngoingMatchesProps> = ({ turfId, turf, autoRefre
       </Card>
 
       {/* Ongoing Matches */}
-      {ongoingMatches.map((matchData) => (
-        <OngoingGameMatch
-          key={`${matchData.gameMatch.id}-${matchData.matchSession.id}`}
-          gameMatch={matchData.gameMatch}
-          matchSession={matchData.matchSession}
-          onMatchUpdate={handleMatchUpdate}
-        />
-      ))}
+      {ongoingMatches.map((gameMatch) => {
+        const sessionForMatch = matchSession || currentMatchSession;
+        if (!sessionForMatch) return null;
+
+        return (
+          <OngoingGameMatch
+            key={`${gameMatch.id}-${sessionForMatch.id}`}
+            gameMatch={gameMatch}
+            matchSession={sessionForMatch}
+            onMatchUpdate={handleMatchUpdate}
+          />
+        );
+      })}
 
       {/* Divider after ongoing matches */}
       <Divider />

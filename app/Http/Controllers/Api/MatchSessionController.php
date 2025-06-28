@@ -7,7 +7,9 @@ use App\Http\Requests\AddPlayerToTeamRequest;
 use App\Http\Requests\SetGameResultRequest;
 use App\Http\Requests\StoreMatchSessionRequest;
 use App\Http\Requests\UpdateMatchSessionRequest;
+use App\Http\Resources\GameMatchResource;
 use App\Http\Resources\MatchSessionResource;
+use App\Http\Resources\PlayerResource;
 use App\Models\MatchSession;
 use App\Services\MatchSessionService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -223,8 +225,20 @@ class MatchSessionController extends Controller
     $players = $query->get();
 
     return response()->json([
-      'data' => \App\Http\Resources\PlayerResource::collection($players),
+      'data' => PlayerResource::collection($players),
       'message' => 'Available players retrieved successfully'
+    ]);
+  }
+
+  public function getGameMatches(Request $request, MatchSession $matchSession): JsonResponse
+  {
+    $this->authorize('view', $matchSession);
+
+    $gameMatches = $this->matchSessionService->getGameMatches($request, $matchSession);
+
+    return response()->json([
+      'data' => GameMatchResource::collection($gameMatches),
+      'message' => 'Game matches retrieved successfully'
     ]);
   }
 }

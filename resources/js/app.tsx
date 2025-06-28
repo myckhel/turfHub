@@ -62,28 +62,6 @@ createInertiaApp({
     const page = await resolveComponent(name);
     const routeName = name.toLowerCase().replace(/\//g, '.');
 
-    // Check route access permissions
-    const config = routeConfigs[routeName];
-    if (config?.roles || config?.permissions) {
-      // const { user } = useAuthStore.getState();
-      // if (!user) {
-      //   // Redirect to login if not authenticated
-      //   window.location.href = route('login');
-      //   return page;
-      // }
-      // Check role access
-      // if (config.roles && !config.roles.some((role) => user.roles?.includes(role))) {
-      //   // Redirect to unauthorized page or dashboard
-      //   // window.location.href = route('dashboard');
-      //   return page;
-      // }
-      // // Check permission access
-      // if (config.permissions && !config.permissions.some((permission) => user.permissions?.includes(permission))) {
-      //   // window.location.href = route('dashboard');
-      //   return page;
-      // }
-    }
-
     // Add layout to page component
     const pageModule = page as { default: React.ComponentType & { layout?: (page: React.ReactElement) => React.ReactElement } };
     const PageComponent = pageModule.default;

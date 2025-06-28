@@ -2,8 +2,8 @@ import { CalendarOutlined } from '@ant-design/icons';
 import { Head, router } from '@inertiajs/react';
 import { Button, Card, Space, Typography } from 'antd';
 import React, { memo } from 'react';
-import { OngoingMatches } from '../../../components/GameMatches';
 import { MatchSessionList } from '../../../components/MatchSessions';
+import TurfLiveSessions from '../../../components/TurfLiveSessions';
 import { usePermissions } from '../../../hooks/usePermissions';
 import type { Turf } from '../../../types/turf.types';
 
@@ -52,14 +52,8 @@ const Index: React.FC<IndexProps> = ({ turf }) => {
             </Card>
           )}
 
-          {/* Ongoing Matches Section */}
-          <OngoingMatches
-            turfId={turf?.data.id}
-            turf={{ id: turf?.data.id, name: turf?.data.name }}
-            autoRefresh={true}
-            refreshInterval={30000}
-            showEmptyState={false}
-          />
+          {/* Live Sessions Section */}
+          <TurfLiveSessions turfId={turf?.data.id} turf={{ id: turf?.data.id, name: turf?.data.name }} autoRefresh={true} refreshInterval={30000} />
 
           {/* Match Sessions List */}
           <MatchSessionList turfId={turf?.data.id} showCreateButton={false} maxHeight={600} />

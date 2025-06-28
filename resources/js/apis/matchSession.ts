@@ -1,4 +1,4 @@
-import type { GameMatch } from '../types/gameMatch.types';
+import type { GameMatchListResponse } from '../types/gameMatch.types';
 import type {
   AddPlayerToTeamRequest,
   CreateMatchSessionRequest,
@@ -91,36 +91,15 @@ export const matchSessionApi = {
   },
 
   // Get current ongoing game match for a match session
-  getCurrentOngoingMatch: async (matchSessionId: number): Promise<ApiResponse<{ gameMatch: GameMatch; matchSession: MatchSession } | null>> => {
-    try {
-      const [gameMatchesResponse, matchSessionResponse] = await Promise.all([
-        api.get(`/match-sessions/${matchSessionId}/game-matches`, {
-          params: {
-            status: 'in_progress',
-            per_page: 1,
-            include:
-              'firstTeam.teamPlayers.player.user,secondTeam.teamPlayers.player.user,winningTeam,matchEvents.player.user,matchEvents.team,matchEvents.relatedPlayer.user',
-          },
-        }),
-        api.get(`/match-sessions/${matchSessionId}`),
-      ]);
-
-      const gameMatch = gameMatchesResponse.data?.length > 0 ? gameMatchesResponse.data[0] : null;
-
-      if (gameMatch) {
-        return {
-          data: {
-            gameMatch,
-            matchSession: matchSessionResponse.data,
-          },
-        } as ApiResponse<{ gameMatch: GameMatch; matchSession: MatchSession }>;
-      }
-
-      return { data: null } as ApiResponse<null>;
-    } catch (error) {
-      console.error('Failed to get current ongoing match:', error);
-      return { data: null } as ApiResponse<null>;
-    }
+  getCurrentOngoingMatch: (matchSessionId: number): Promise<GameMatchListResponse> => {
+    return api.get(`/match-sessions/${matchSessionId}/game-matches`, {
+      params: {
+        status: 'in_progress',
+        per_page: 1,
+        include:
+          'firstTeam.teamPlayers.player.user,secondTeam.teamPlayers.player.user,winningTeam,matchEvents.player.user,matchEvents.team,matchEvents.relatedPlayer.user',
+      },
+    });
   },
 };
 

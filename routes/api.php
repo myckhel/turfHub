@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\TeamController;
 use App\Http\Controllers\Api\TeamPlayerController;
 use App\Http\Controllers\Api\TurfController;
 use App\Http\Controllers\Api\UserController;
+use App\Models\MatchSession;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -32,7 +33,7 @@ Route::get('/health', function () {
       'connected' => DB::connection()->getPdo() ? true : false,
     ],
     'cache' => [
-      'working' => Cache::put('health_check', true, 10) && \Cache::get('health_check') === true,
+      'working' => Cache::put('health_check', true, 10) && Cache::get('health_check') === true,
     ],
   ], 200);
 })->name('health');
@@ -105,7 +106,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('teams', [TeamController::class, 'index'])->name('match-sessions.teams.index');
     Route::get('available-slots', [MatchSessionController::class, 'getAvailableSlots'])->name('match-sessions.available-slots');
     Route::get('available-players', [MatchSessionController::class, 'getAvailablePlayers'])->name('match-sessions.available-players');
-    Route::get('game-matches', [GameMatchController::class, 'index'])->name('match-sessions.game-matches.index');
+    Route::get('game-matches', [MatchSessionController::class, 'getGameMatches'])->name('match-sessions.game-matches.index');
     Route::get('queue-logic', [QueueLogicController::class, 'index'])->name('match-sessions.queue-logic.index');
     Route::get('queue-status', [MatchSessionController::class, 'queueStatus'])->name('match-sessions.queue-status');
 

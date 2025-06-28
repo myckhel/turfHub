@@ -13,10 +13,12 @@ use Illuminate\Http\Request;
 class MatchSessionService
 {
   protected QueueLogicService $queueLogicService;
+  protected GameMatchService $gameMatchService;
 
-  public function __construct(QueueLogicService $queueLogicService)
+  public function __construct(QueueLogicService $queueLogicService, GameMatchService $gameMatchService)
   {
     $this->queueLogicService = $queueLogicService;
+    $this->gameMatchService = $gameMatchService;
   }
 
   /**
@@ -342,5 +344,11 @@ class MatchSessionService
     }
 
     return $query;
+  }
+
+  function getGameMatches(Request $request, MatchSession $matchSession): LengthAwarePaginator
+  {
+    $request->merge(['match_session_id' => $matchSession->id]);
+    return $this->gameMatchService->getGameMatches($request);
   }
 }

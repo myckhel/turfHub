@@ -13,6 +13,7 @@
     "binkode/laravel-paystack": "^1.4",
     "inertiajs/inertia-laravel": "^2.0",
     "laravel/framework": "^12.0",
+    "laravel/octane": "^2.10",
     "laravel/sanctum": "^4.0",
     "laravel/telescope": "^5.9",
     "laravel/tinker": "^2.10.1",
@@ -59,12 +60,30 @@
     ],
     "dev": [
       "Composer\\Config::disableProcessTimeout",
-      "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1\" \"php artisan pail --timeout=0\" --names=server,queue,logs,vite --kill-others"
+      "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"php artisan octane:start --watch --workers=2\" \"php artisan queue:listen --tries=1\" \"php artisan pail --timeout=0\" \"yarn dev\" --names=octane,queue,logs,vite --kill-others"
+    ],
+    "dev:octane": [
+      "php artisan octane:start --watch --workers=2 --max-requests=250 --port=8000"
+    ],
+    "dev:octane:https": [
+      "php artisan octane:start --watch --workers=2 --max-requests=250 --port=443 --https"
     ],
     "dev:ssr": [
       "npm run build:ssr",
       "Composer\\Config::disableProcessTimeout",
-      "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1\" \"php artisan pail --timeout=0\" \"php artisan inertia:start-ssr\" --names=server,queue,logs,ssr --kill-others"
+      "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"php artisan octane:start --workers=2\" \"php artisan queue:listen --tries=1\" \"php artisan pail --timeout=0\" \"php artisan inertia:start-ssr\" --names=octane,queue,logs,ssr --kill-others"
+    ],
+    "production": [
+      "php artisan octane:start --workers=auto --max-requests=1000 --port=8000"
+    ],
+    "octane:reload": [
+      "php artisan octane:reload"
+    ],
+    "octane:stop": [
+      "php artisan octane:stop"
+    ],
+    "octane:status": [
+      "php artisan octane:status"
     ],
     "test": [
       "@php artisan config:clear --ansi",

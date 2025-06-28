@@ -11,7 +11,31 @@ use App\Http\Controllers\Api\TeamPlayerController;
 use App\Http\Controllers\Api\TurfController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
+
+// Health check endpoint for Octane monitoring
+Route::get('/health', function () {
+  return response()->json([
+    'status' => 'ok',
+    'timestamp' => now()->toISOString(),
+    'service' => 'TurfMate API',
+    'version' => config('app.version', '1.0.0'),
+    'octane' => [
+      'server' => config('octane.server'),
+      'php_version' => PHP_VERSION,
+      'memory_usage' => memory_get_usage(true),
+      'memory_peak' => memory_get_peak_usage(true),
+    ],
+    'database' => [
+      'connected' => DB::connection()->getPdo() ? true : false,
+    ],
+    'cache' => [
+      'working' => Cache::put('health_check', true, 10) && \Cache::get('health_check') === true,
+    ],
+  ], 200);
+})->name('health');
 
 // Public authentication routes
 Route::prefix('auth')->group(function () {

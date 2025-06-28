@@ -11,14 +11,15 @@ import {
 import { router } from '@inertiajs/react';
 import { Button, Card, Col, Descriptions, Row, Space, Table, Tag, Typography, message } from 'antd';
 import { format } from 'date-fns';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { matchSessionApi } from '../../apis/matchSession';
 import { usePermissions } from '../../hooks/usePermissions';
 import type { GameMatch as GameMatchType } from '../../types/gameMatch.types';
-import type { GameMatch, MatchSession, QueueStatus, Team } from '../../types/matchSession.types';
+import type { GameMatch, MatchSession, Team } from '../../types/matchSession.types';
 import { Turf } from '../../types/turf.types';
 import { OngoingGameMatch } from '../GameMatches';
 import { PlayerTeamFlow } from '../Teams';
+import { QueueStatus } from './index';
 
 const { Title, Text } = Typography;
 
@@ -35,7 +36,6 @@ const MatchSessionDetails: React.FC<MatchSessionDetailsProps> = ({ turf, matchSe
   const turfId = turf.id;
 
   // const [matchSession, setMatchSession] = useState<MatchSession | null>(null);
-  const [queueStatus, setQueueStatus] = useState<QueueStatus | null>(null);
   // const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
 
@@ -54,27 +54,9 @@ const MatchSessionDetails: React.FC<MatchSessionDetailsProps> = ({ turf, matchSe
   //   }
   // }, [matchSessionId]);
 
-  const loadQueueStatus = useCallback(async () => {
-    try {
-      const response = await matchSessionApi.getQueueStatus(matchSessionId);
-      setQueueStatus(response.data);
-    } catch (error) {
-      console.error('Failed to load queue status:', error);
-    }
-  }, [matchSessionId]);
-
   useEffect(() => {
     // loadMatchSession();
-    loadQueueStatus();
-  }, [loadQueueStatus]);
-
-  // Auto-refresh queue status for active sessions
-  useEffect(() => {
-    if (matchSession?.is_active) {
-      const interval = setInterval(loadQueueStatus, 10000); // Refresh every 10 seconds
-      return () => clearInterval(interval);
-    }
-  }, [matchSession?.is_active, loadQueueStatus]);
+  }, []);
 
   const handleStartSession = async () => {
     if (!matchSession) return;
@@ -84,7 +66,8 @@ const MatchSessionDetails: React.FC<MatchSessionDetailsProps> = ({ turf, matchSe
       await matchSessionApi.start(matchSession.id);
       message.success('Match session started successfully');
       // await loadMatchSession();
-      await loadQueueStatus();
+      // Trigger refresh in QueueStatus component via key change or other method
+      window.location.reload(); // Temporary solution, ideally use state management
     } catch (error) {
       console.error('Failed to start session:', error);
       message.error('Failed to start match session');
@@ -101,7 +84,8 @@ const MatchSessionDetails: React.FC<MatchSessionDetailsProps> = ({ turf, matchSe
       await matchSessionApi.stop(matchSession.id);
       message.success('Match session stopped successfully');
       // await loadMatchSession();
-      await loadQueueStatus();
+      // Trigger refresh in QueueStatus component via key change or other method
+      window.location.reload(); // Temporary solution, ideally use state management
     } catch (error) {
       console.error('Failed to stop session:', error);
       message.error('Failed to stop match session');
@@ -129,14 +113,37 @@ const MatchSessionDetails: React.FC<MatchSessionDetailsProps> = ({ turf, matchSe
     }
   };
 
+  const handleTeamClick = (teamId: number) => {
+    router.visit(
+      route('web.turfs.match-sessions.teams.show', {
+        turf: turfId,
+        matchSession: matchSessionId,
+        team: teamId,
+      }),
+    );
+  };
+
   const teamsColumns = [
     {
       title: 'Team Name',
       dataIndex: 'name',
       key: 'name',
       render: (name: string, record: Team) => (
-        <div>
-          <Text strong>{name}</Text>
+        <div
+          className="cursor-pointer transition-colors hover:text-blue-600"
+          onClick={() => handleTeamClick(record.id)}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              handleTeamClick(record.id);
+            }
+          }}
+        >
+          <Text strong className="hover:text-blue-600">
+            {name}
+          </Text>
           {record.captain && <div className="text-xs text-gray-500">Captain: {record.captain.name}</div>}
         </div>
       ),
@@ -211,8 +218,6 @@ const MatchSessionDetails: React.FC<MatchSessionDetailsProps> = ({ turf, matchSe
       render: (time: string) => format(new Date(time), 'HH:mm'),
     },
   ];
-
-  console.log({ queueStatus, turfId });
 
   // Find ongoing/current game match
   const ongoingMatch = matchSession.game_matches?.find(
@@ -299,7 +304,9 @@ const MatchSessionDetails: React.FC<MatchSessionDetailsProps> = ({ turf, matchSe
         </Card>
 
         {/* Ongoing Game Match */}
-        {ongoingMatch && <OngoingGameMatch gameMatch={ongoingMatch as GameMatchType} matchSession={matchSession} onMatchUpdate={loadQueueStatus} />}
+        {ongoingMatch && (
+          <OngoingGameMatch gameMatch={ongoingMatch as GameMatchType} matchSession={matchSession} onMatchUpdate={() => window.location.reload()} />
+        )}
 
         <Row gutter={16}>
           {/* Session Details */}
@@ -331,32 +338,15 @@ const MatchSessionDetails: React.FC<MatchSessionDetailsProps> = ({ turf, matchSe
 
           {/* Queue Status */}
           <Col span={24} md={12}>
-            {queueStatus && (
-              <Card title="Queue Status" className="mb-6">
-                {/* {queueStatus.current_match && (
-                  <div className="mb-4 rounded border border-green-200 bg-green-50 p-3">
-                    <Text strong>Current Match:</Text>
-                    <div className="mt-1">
-                      {queueStatus.current_match.first_team.name} vs {queueStatus.current_match.second_team.name}
-                    </div>
-                  </div>
-                )} */}
-
-                <div className="space-y-2">
-                  {queueStatus.map((team) => (
-                    <div key={team.id} className="flex items-center justify-between rounded border p-2">
-                      <div>
-                        <Text strong>{team.team?.name}</Text>
-                        <div className="text-xs text-gray-500">Position: {team.queue_position}</div>
-                      </div>
-                      <Tag color={team.status === 'playing' ? 'green' : team.status === 'next_to_play' ? 'blue' : 'default'}>
-                        {team.status.replace('_', ' ').toUpperCase()}
-                      </Tag>
-                    </div>
-                  ))}
-                </div>
-              </Card>
-            )}
+            <QueueStatus
+              matchSessionId={matchSessionId}
+              turfId={turfId}
+              isActive={matchSession.is_active}
+              autoRefresh={true}
+              refreshInterval={10000}
+              showTitle={true}
+              className="mb-6"
+            />
           </Col>
         </Row>
 
@@ -366,7 +356,7 @@ const MatchSessionDetails: React.FC<MatchSessionDetailsProps> = ({ turf, matchSe
             matchSessionId={matchSessionId}
             onJoinSuccess={() => {
               // loadMatchSession();
-              loadQueueStatus();
+              window.location.reload(); // Temporary solution, ideally use state management
             }}
           />
         )}

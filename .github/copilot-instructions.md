@@ -1,4 +1,4 @@
-## 🧱 Copilot Instruction Guide for Full-Stack (Laravel + Inertia.js + React + TS + AntD + @gsap/react + Workbox pwa)
+## 🧱 Copilot Instruction Guide for Full-Stack (Laravel + Inertia.js + React + Zustand + TS + AntD + @gsap/react + Workbox pwa)
 
 You are an expert senior fullstack developer working on **TurfMate**, a progressive web app for managing mini football turf sessions (match queueing, team creation, session management).
 
@@ -206,6 +206,7 @@ const handleJoinTurf = async (turfId: number) => {
 - **Selectors:** Use selectors (functions that derive data from the store state) to access and compute derived state in your components. This helps in optimizing re-renders.
 - **Middleware:** Utilize Zustand middleware (e.g., `persist` for local storage, `devtools` for Redux DevTools integration, `immer` for immutable state updates) as needed.
 - **Actions:** Define actions as functions within your store that encapsulate state update logic.
+- **Features State** Define feature-specific state slices within your Zustand store. For example, have a `matchSessionStore` for match session-related state and actions.
 
 ### Laravel Inertia Ziggy Navigation
 

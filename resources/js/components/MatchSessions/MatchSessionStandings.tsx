@@ -10,6 +10,7 @@ interface MatchSessionStandingsProps {
   teams: Team[];
   matchSessionId: number;
   turfId: number;
+  maxPlayersPerTeam: number;
   className?: string;
 }
 
@@ -21,7 +22,7 @@ interface StandingsTeam extends Team {
   form: string[];
 }
 
-const MatchSessionStandings: React.FC<MatchSessionStandingsProps> = ({ teams, matchSessionId, turfId, className }) => {
+const MatchSessionStandings: React.FC<MatchSessionStandingsProps> = ({ teams, matchSessionId, turfId, maxPlayersPerTeam, className }) => {
   const calculateStandings = (teams: Team[]): StandingsTeam[] => {
     const standings = teams.map((team) => {
       const points = team.wins * 3 + team.draws * 1; // 3 points for win, 1 for draw
@@ -201,7 +202,9 @@ const MatchSessionStandings: React.FC<MatchSessionStandingsProps> = ({ teams, ma
       render: (record: StandingsTeam) => (
         <div className="flex items-center justify-center gap-1">
           <UserOutlined />
-          <Text>{record.teamPlayers?.length || 0}/6</Text>
+          <Text>
+            {record.teamPlayers?.length || 0}/{maxPlayersPerTeam}
+          </Text>
         </div>
       ),
     },

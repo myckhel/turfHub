@@ -109,11 +109,11 @@ class PlayerService
     }
 
     return $matchSession->teams()
-      ->with(['teamPlayers.player.user', 'captain', 'matchSession'])
+      ->with(['teamPlayers.player.user', 'captain', 'matchSession.turf'])
       ->get()
-      ->filter(function ($team) {
-        // Return teams that have available slots (assuming max 6 players per team)
-        return $team->teamPlayers->count() < 6;
+      ->filter(function ($team) use ($matchSession) {
+        // Return teams that have available slots using match session's max players per team setting
+        return $team->teamPlayers->count() < $matchSession->max_players_per_team;
       });
   }
 
@@ -150,8 +150,8 @@ class PlayerService
         $team = $this->findOrCreateAvailableTeam($matchSession, $player);
       }
 
-      // Verify team has space (max 6 players per team)
-      if ($team->teamPlayers->count() >= 6) {
+      // Verify team has space using match session's max players per team setting
+      if ($team->teamPlayers->count() >= $matchSession->max_players_per_team) {
         throw new \InvalidArgumentException('Team is full');
       }
 
@@ -279,11 +279,13 @@ class PlayerService
    */
   private function findOrCreateAvailableTeam(MatchSession $matchSession, Player $player): Team
   {
+    $maxPlayersPerTeam = $matchSession->max_players_per_team;
+
     // Try to find a team with available slots
     $availableTeam = $matchSession->teams()
-      ->whereHas('teamPlayers', function ($query) {
-        $query->havingRaw('COUNT(*) < 6');
-      }, '<', 6)
+      ->whereHas('teamPlayers', function ($query) use ($maxPlayersPerTeam) {
+        $query->havingRaw('COUNT(*) < ?', [$maxPlayersPerTeam]);
+      }, '<', $maxPlayersPerTeam)
       ->orWhereDoesntHave('teamPlayers')
       ->first();
 
@@ -383,7 +385,7 @@ class PlayerService
     // If specific team provided, check if it has space
     if ($team) {
       $currentPlayers = $team->teamPlayers->count();
-      if ($currentPlayers >= 6) {
+      if ($currentPlayers >= $matchSession->max_players_per_team) {
         return [
           'can_join' => false,
           'reason' => 'Team is full',
@@ -392,15 +394,17 @@ class PlayerService
 
       return [
         'can_join' => true,
-        'available_slots' => 6 - $currentPlayers,
+        'available_slots' => $matchSession->max_players_per_team - $currentPlayers,
       ];
     }
 
+    $maxPlayersPerTeam = $matchSession->max_players_per_team;
+
     // Check if any team has space or if new teams can be created
     $availableTeams = $matchSession->teams()
-      ->whereHas('teamPlayers', function ($query) {
-        $query->havingRaw('COUNT(*) < 6');
-      }, '<', 6)
+      ->whereHas('teamPlayers', function ($query) use ($maxPlayersPerTeam) {
+        $query->havingRaw('COUNT(*) < ?', [$maxPlayersPerTeam]);
+      }, '<', $maxPlayersPerTeam)
       ->orWhereDoesntHave('teamPlayers')
       ->count();
 

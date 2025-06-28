@@ -283,7 +283,13 @@ const MatchSessionDetails: React.FC<MatchSessionDetailsProps> = ({ turf, matchSe
         )}
 
         {/* Standings */}
-        <MatchSessionStandings teams={matchSession.teams || []} matchSessionId={matchSessionId} turfId={turfId} className="mb-6" />
+        <MatchSessionStandings
+          teams={matchSession.teams || []}
+          matchSessionId={matchSessionId}
+          turfId={turfId}
+          maxPlayersPerTeam={matchSession.max_players_per_team}
+          className="mb-6"
+        />
 
         {/* Game Matches */}
         <Card title="Match History">

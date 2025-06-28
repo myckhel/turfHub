@@ -111,8 +111,8 @@ class TeamService
       ->where('turf_id', $team->matchSession->turf_id)
       ->firstOrFail();
 
-    // Check if team is full (max 6 players per team)
-    if ($team->teamPlayers()->count() >= 6) {
+    // Check if team is full using match session's max players per team setting
+    if ($team->teamPlayers()->count() >= $team->matchSession->max_players_per_team) {
       throw new \InvalidArgumentException('Team is full');
     }
 
@@ -177,8 +177,8 @@ class TeamService
       throw new \InvalidArgumentException('Player does not belong to this turf');
     }
 
-    // Check if team is full
-    if ($team->teamPlayers()->count() >= 6) {
+    // Check if team is full using match session's max players per team setting
+    if ($team->teamPlayers()->count() >= $team->matchSession->max_players_per_team) {
       throw new \InvalidArgumentException('Team is full');
     }
 

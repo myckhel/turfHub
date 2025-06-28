@@ -106,7 +106,7 @@ const TeamDetailsComponent: React.FC<TeamDetailsProps> = memo(({ team, matchSess
   };
 
   const playerCount = team.teamPlayers?.length || 0;
-  const maxPlayers = 6;
+  const maxPlayers = matchSession.max_players_per_team;
   const isTeamFull = playerCount >= maxPlayers;
   const canJoin = !isTeamFull; // TODO: Add logic to check if current user is already in a team
 

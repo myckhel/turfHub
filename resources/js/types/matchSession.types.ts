@@ -7,6 +7,7 @@ export interface MatchSession {
   start_time: string;
   end_time: string;
   max_teams: number;
+  max_players_per_team: number;
   status: 'scheduled' | 'active' | 'completed' | 'cancelled';
   is_active: boolean;
   created_at: string;

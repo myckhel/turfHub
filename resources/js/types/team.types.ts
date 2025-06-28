@@ -101,4 +101,5 @@ export interface AvailableTeamSlotsResponse {
   total_slots: number;
   available_slots: number;
   slot_fee: number;
+  max_players_per_team: number;
 }

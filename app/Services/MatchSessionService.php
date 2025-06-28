@@ -49,6 +49,14 @@ class MatchSessionService
    */
   public function createMatchSession(array $data): MatchSession
   {
+    // If max_players_per_team is not provided, use the turf's value
+    if (!isset($data['max_players_per_team']) && isset($data['turf_id'])) {
+      $turf = \App\Models\Turf::find($data['turf_id']);
+      if ($turf) {
+        $data['max_players_per_team'] = $turf->max_players_per_team;
+      }
+    }
+
     return MatchSession::create($data);
   }
 
@@ -103,14 +111,20 @@ class MatchSessionService
     $team = $matchSession->teams()->findOrFail($teamId);
     $player = Player::findOrFail($playerId);
 
+    // Load turf relationship if not already loaded
+    if (!$matchSession->relationLoaded('turf')) {
+      $matchSession->load('turf');
+    }
+
     // Verify player belongs to the same turf
     if ($player->turf_id !== $matchSession->turf_id) {
       throw new \InvalidArgumentException('Player does not belong to this turf');
     }
 
-    // Check if team is full (assuming max 6 players per team)
-    if ($team->teamPlayers()->count() >= 6) {
-      throw new \InvalidArgumentException('Team is full');
+    // Check if team is full using match session's max players per team setting
+    $maxPlayersPerTeam = $matchSession->max_players_per_team;
+    if ($team->teamPlayers()->count() >= $maxPlayersPerTeam) {
+      throw new \InvalidArgumentException("Team is full (max {$maxPlayersPerTeam} players allowed)");
     }
 
     // Check if player is already in a team for this session

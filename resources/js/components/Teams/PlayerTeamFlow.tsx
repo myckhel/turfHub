@@ -162,7 +162,7 @@ const PlayerTeamFlow: React.FC<PlayerTeamFlowProps> = memo(({ matchSessionId, on
             <Row gutter={[16, 16]}>
               {teams.map((team) => {
                 const playerCount = team.teamPlayers?.length || 0;
-                const maxPlayers = 6;
+                const maxPlayers = availableSlots.max_players_per_team;
                 const isTeamFull = playerCount >= maxPlayers;
                 const slotsLeft = maxPlayers - playerCount;
 
@@ -247,7 +247,7 @@ const PlayerTeamFlow: React.FC<PlayerTeamFlowProps> = memo(({ matchSessionId, on
                   <strong>Team:</strong> {selectedTeam.name}
                 </div>
                 <div>
-                  <strong>Current Players:</strong> {selectedTeam.teamPlayers?.length || 0} / 6
+                  <strong>Current Players:</strong> {selectedTeam.teamPlayers?.length || 0} / {availableSlots.max_players_per_team}
                 </div>
                 <div>
                   <strong>Status:</strong>

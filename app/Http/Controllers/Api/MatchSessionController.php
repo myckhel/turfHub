@@ -162,7 +162,7 @@ class MatchSessionController extends Controller
       ->with(['teamPlayers.player.user', 'captain'])
       ->get();
 
-    $totalSlots = $matchSession->max_teams * 6; // 6 players per team
+    $totalSlots = $matchSession->max_teams * $matchSession->max_players_per_team;
     $occupiedSlots = $teams->sum(function ($team) {
       return $team->teamPlayers->count();
     });
@@ -173,6 +173,7 @@ class MatchSessionController extends Controller
       'total_slots' => $totalSlots,
       'available_slots' => $availableSlots,
       'slot_fee' => $matchSession->turf->team_slot_fee ?? 0,
+      'max_players_per_team' => $matchSession->max_players_per_team,
     ];
 
     return response()->json([

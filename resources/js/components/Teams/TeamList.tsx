@@ -89,7 +89,7 @@ const TeamList: React.FC<TeamListProps> = memo(({ teams, matchSession, turf, sho
 
   const TeamCard = memo(({ team }: { team: TeamDetails }) => {
     const playerCount = team.teamPlayers?.length || 0;
-    const maxPlayers = 6;
+    const maxPlayers = matchSession.max_players_per_team;
     const isTeamFull = playerCount >= maxPlayers;
 
     // Collect action buttons in an array
@@ -234,7 +234,7 @@ const TeamList: React.FC<TeamListProps> = memo(({ teams, matchSession, turf, sho
           teamId={selectedTeam.id}
           matchSessionId={matchSession.id}
           currentPlayerCount={selectedTeam.teamPlayers?.length || 0}
-          maxPlayers={6}
+          maxPlayers={matchSession.max_players_per_team}
         />
       )}
     </>

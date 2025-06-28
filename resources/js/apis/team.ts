@@ -1,8 +1,8 @@
+import type { Player } from '../types/player.types';
 import type {
   AddPlayerToTeamSlotRequest,
   AvailableTeamSlotsResponse,
   JoinTeamSlotRequest,
-  Player,
   ProcessTeamSlotPaymentRequest,
   TeamDetails,
   TeamSlotPaymentResponse,
@@ -75,6 +75,14 @@ export const teamApi = {
   // Get available players for a turf (for admin/manager selection)
   getAvailablePlayers: async (turfId: number): Promise<ApiResponse<Player[]>> => {
     return api.get(`/turfs/${turfId}/available-players`);
+  },
+
+  // Get available players for a match session with filtering options
+  getAvailablePlayersForSession: async (
+    matchSessionId: number,
+    params?: { filter_unassigned?: boolean; search?: string },
+  ): Promise<ApiResponse<Player[]>> => {
+    return api.get(`/match-sessions/${matchSessionId}/available-players`, { params });
   },
 
   // Set team captain

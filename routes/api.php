@@ -80,6 +80,7 @@ Route::middleware('auth:sanctum')->group(function () {
   Route::prefix('match-sessions/{matchSession}')->group(function () {
     Route::get('teams', [TeamController::class, 'index'])->name('match-sessions.teams.index');
     Route::get('available-slots', [MatchSessionController::class, 'getAvailableSlots'])->name('match-sessions.available-slots');
+    Route::get('available-players', [MatchSessionController::class, 'getAvailablePlayers'])->name('match-sessions.available-players');
     Route::get('game-matches', [GameMatchController::class, 'index'])->name('match-sessions.game-matches.index');
     Route::get('queue-logic', [QueueLogicController::class, 'index'])->name('match-sessions.queue-logic.index');
     Route::get('queue-status', [MatchSessionController::class, 'queueStatus'])->name('match-sessions.queue-status');

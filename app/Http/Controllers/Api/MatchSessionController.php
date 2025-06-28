@@ -199,4 +199,50 @@ class MatchSessionController extends Controller
       'message' => 'Available slots retrieved successfully'
     ]);
   }
+
+  /**
+   * Get available players for a match session.
+   * Can filter unassigned players and search by name.
+   */
+  public function getAvailablePlayers(Request $request, MatchSession $matchSession): JsonResponse
+  {
+    $this->authorize('view', $matchSession);
+
+    $query = $matchSession->turf->players()->with('user');
+
+    // Filter by unassigned players if requested
+    if ($request->boolean('filter_unassigned', false)) {
+      // Get players that are NOT in any team for this match session
+      $assignedPlayerIds = $matchSession->teams()
+        ->with('teamPlayers')
+        ->get()
+        ->pluck('teamPlayers')
+        ->flatten()
+        ->pluck('player_id')
+        ->unique()
+        ->toArray();
+
+      if (!empty($assignedPlayerIds)) {
+        $query->whereNotIn('id', $assignedPlayerIds);
+      }
+    }
+
+    // Search by player name if provided
+    if ($request->filled('search')) {
+      $searchTerm = $request->input('search');
+      $query->whereHas('user', function ($userQuery) use ($searchTerm) {
+        $userQuery->where('name', 'LIKE', "%{$searchTerm}%");
+      });
+    }
+
+    // Only include active players
+    $query->where('status', 'active');
+
+    $players = $query->get();
+
+    return response()->json([
+      'data' => \App\Http\Resources\PlayerResource::collection($players),
+      'message' => 'Available players retrieved successfully'
+    ]);
+  }
 }

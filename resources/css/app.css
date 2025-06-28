@@ -699,3 +699,111 @@ body {
 .ant-card {
   margin-bottom: 1rem;
 }
+
+/* Standings Table Styles */
+.standings-table .ant-table-thead > tr > th {
+  background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+  color: white;
+  font-weight: 600;
+  border: none;
+  text-align: center;
+}
+
+/* Dark mode header */
+.dark .standings-table .ant-table-thead > tr > th {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  color: #f1f5f9;
+}
+
+/* Position-based row styling for light mode */
+.standings-table .ant-table-tbody > tr.standings-first > td {
+  background-color: rgba(254, 240, 138, 0.3) !important; /* yellow-200 with opacity */
+}
+
+.standings-table .ant-table-tbody > tr.standings-second > td {
+  background-color: rgba(226, 232, 240, 0.5) !important; /* slate-200 with opacity */
+}
+
+.standings-table .ant-table-tbody > tr.standings-third > td {
+  background-color: rgba(254, 215, 170, 0.4) !important; /* orange-200 with opacity */
+}
+
+/* Position-based row styling for dark mode */
+.dark .standings-table .ant-table-tbody > tr.standings-first > td {
+  background-color: rgba(161, 98, 7, 0.2) !important; /* yellow-700 with opacity */
+}
+
+.dark .standings-table .ant-table-tbody > tr.standings-second > td {
+  background-color: rgba(71, 85, 105, 0.3) !important; /* slate-600 with opacity */
+}
+
+.dark .standings-table .ant-table-tbody > tr.standings-third > td {
+  background-color: rgba(194, 65, 12, 0.2) !important; /* orange-700 with opacity */
+}
+
+/* Hover effects for light mode */
+.standings-table .ant-table-tbody > tr:hover > td {
+  background-color: rgba(59, 130, 246, 0.05) !important;
+}
+
+.standings-table .ant-table-tbody > tr.standings-first:hover > td {
+  background-color: rgba(254, 240, 138, 0.5) !important;
+}
+
+.standings-table .ant-table-tbody > tr.standings-second:hover > td {
+  background-color: rgba(226, 232, 240, 0.7) !important;
+}
+
+.standings-table .ant-table-tbody > tr.standings-third:hover > td {
+  background-color: rgba(254, 215, 170, 0.6) !important;
+}
+
+/* Hover effects for dark mode */
+.dark .standings-table .ant-table-tbody > tr:hover > td {
+  background-color: rgba(59, 130, 246, 0.1) !important;
+}
+
+.dark .standings-table .ant-table-tbody > tr.standings-first:hover > td {
+  background-color: rgba(161, 98, 7, 0.3) !important;
+}
+
+.dark .standings-table .ant-table-tbody > tr.standings-second:hover > td {
+  background-color: rgba(71, 85, 105, 0.4) !important;
+}
+
+.dark .standings-table .ant-table-tbody > tr.standings-third:hover > td {
+  background-color: rgba(194, 65, 12, 0.3) !important;
+}
+
+.standings-table .ant-table-cell {
+  padding: 8px 4px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+/* Dark mode cell borders */
+.dark .standings-table .ant-table-cell {
+  border-bottom: 1px solid #374151;
+}
+
+.standings-table .ant-table-cell:first-child {
+  padding-left: 16px;
+}
+
+.standings-table .ant-table-cell:last-child {
+  padding-right: 16px;
+}
+
+@media (max-width: 768px) {
+  .standings-table .ant-table-cell {
+    padding: 6px 2px;
+    font-size: 12px;
+  }
+
+  .standings-table .ant-table-cell:first-child {
+    padding-left: 8px;
+  }
+
+  .standings-table .ant-table-cell:last-child {
+    padding-right: 8px;
+  }
+}

@@ -6,7 +6,6 @@ import {
   PlayCircleOutlined,
   TeamOutlined,
   TrophyOutlined,
-  UserOutlined,
 } from '@ant-design/icons';
 import { router } from '@inertiajs/react';
 import { Button, Card, Col, Descriptions, Row, Space, Table, Tag, Typography, message } from 'antd';
@@ -15,11 +14,11 @@ import React, { useState } from 'react';
 import { matchSessionApi } from '../../apis/matchSession';
 import { usePermissions } from '../../hooks/usePermissions';
 import type { GameMatch as GameMatchType } from '../../types/gameMatch.types';
-import type { GameMatch, MatchSession, Team } from '../../types/matchSession.types';
+import type { GameMatch, MatchSession } from '../../types/matchSession.types';
 import { Turf } from '../../types/turf.types';
 import { OngoingGameMatch } from '../GameMatches';
 import { PlayerTeamFlow } from '../Teams';
-import { QueueStatus } from './index';
+import { MatchSessionStandings, QueueStatus } from './index';
 
 const { Title, Text } = Typography;
 
@@ -101,63 +100,6 @@ const MatchSessionDetails: React.FC<MatchSessionDetailsProps> = ({ turf, matchSe
       }),
     );
   };
-
-  const teamsColumns = [
-    {
-      title: 'Team Name',
-      dataIndex: 'name',
-      key: 'name',
-      render: (name: string, record: Team) => (
-        <div
-          className="cursor-pointer transition-colors hover:text-blue-600"
-          onClick={() => handleTeamClick(record.id)}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              handleTeamClick(record.id);
-            }
-          }}
-        >
-          <Text strong className="hover:text-blue-600">
-            {name}
-          </Text>
-          {record.captain && <div className="text-xs text-gray-500">Captain: {record.captain.name}</div>}
-        </div>
-      ),
-    },
-    {
-      title: 'Players',
-      key: 'players',
-      render: (record: Team) => (
-        <div className="flex items-center gap-1">
-          <UserOutlined />
-          <Text>{record.teamPlayers?.length || 0} / 6</Text>
-        </div>
-      ),
-    },
-    {
-      title: 'Stats',
-      key: 'stats',
-      render: (record: Team) => (
-        <Space>
-          <Tag color="green">W: {record.wins}</Tag>
-          <Tag color="red">L: {record.losses}</Tag>
-          <Tag color="blue">D: {record.draws}</Tag>
-        </Space>
-      ),
-    },
-    {
-      title: 'Goals',
-      key: 'goals',
-      render: (record: Team) => (
-        <Text>
-          {record.goals_for} - {record.goals_against}
-        </Text>
-      ),
-    },
-  ];
 
   const matchesColumns = [
     {
@@ -340,14 +282,8 @@ const MatchSessionDetails: React.FC<MatchSessionDetailsProps> = ({ turf, matchSe
           />
         )}
 
-        {/* Teams */}
-        <Card title="Teams" className="mb-6">
-          {matchSession.teams && matchSession.teams.length > 0 ? (
-            <Table dataSource={matchSession.teams} columns={teamsColumns} rowKey="id" pagination={false} size="middle" />
-          ) : (
-            <Text type="secondary">No teams created yet</Text>
-          )}
-        </Card>
+        {/* Standings */}
+        <MatchSessionStandings teams={matchSession.teams || []} matchSessionId={matchSessionId} turfId={turfId} className="mb-6" />
 
         {/* Game Matches */}
         <Card title="Match History">

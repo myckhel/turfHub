@@ -2,7 +2,7 @@ import { ArrowLeftOutlined, CalendarOutlined, ClockCircleOutlined, TrophyOutline
 import { router, usePage } from '@inertiajs/react';
 import { Button, Card, Col, Descriptions, Row, Space, Tag, Timeline, Typography } from 'antd';
 import { format } from 'date-fns';
-import React from 'react';
+import React, { memo } from 'react';
 import { AppLayout } from '../../../components/layout/AppLayout';
 import type { GameMatch } from '../../../types/gameMatch.types';
 import type { PageProps } from '../../../types/global.types';
@@ -297,4 +297,4 @@ const Show: React.FC = () => {
   );
 };
 
-export default Show;
+export default memo(Show);

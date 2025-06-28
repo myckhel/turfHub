@@ -1,16 +1,15 @@
 import { CrownOutlined, PlusOutlined, TeamOutlined, TrophyOutlined, UserAddOutlined, UserOutlined } from '@ant-design/icons';
 import { router } from '@inertiajs/react';
-import { Avatar, Badge, Button, Card, Col, Empty, Modal, Row, Select, Space, Tag, Typography, message } from 'antd';
+import { Avatar, Badge, Button, Card, Col, Empty, Row, Space, Tag, Typography, message } from 'antd';
 import React, { memo, useCallback, useState } from 'react';
 import { teamApi } from '../../apis/team';
 import { usePermissions } from '../../hooks/usePermissions';
 import type { MatchSession } from '../../types/matchSession.types';
-import { Player } from '../../types/player.types';
 import type { TeamDetails } from '../../types/team.types';
 import type { Turf } from '../../types/turf.types';
+import AddPlayerModal from './AddPlayerModal';
 
 const { Text } = Typography;
-const { Option } = Select;
 
 interface TeamListProps {
   teams: TeamDetails[];
@@ -26,8 +25,6 @@ const TeamList: React.FC<TeamListProps> = memo(({ teams, matchSession, turf, sho
   const [loading, setLoading] = useState<{ [key: string]: boolean }>({});
   const [addPlayerModalVisible, setAddPlayerModalVisible] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState<TeamDetails | null>(null);
-  const [availablePlayers, setAvailablePlayers] = useState<Player[]>([]);
-  const [selectedPlayer, setSelectedPlayer] = useState<number | null>(null);
 
   const handleJoinTeam = useCallback(
     async (teamId: number) => {
@@ -66,42 +63,14 @@ const TeamList: React.FC<TeamListProps> = memo(({ teams, matchSession, turf, sho
       if (!team) return;
 
       setSelectedTeam(team);
-
-      try {
-        const response = await teamApi.getAvailablePlayers(turf.id);
-        setAvailablePlayers(response.data);
-        setAddPlayerModalVisible(true);
-      } catch (error) {
-        console.error('Failed to load available players:', error);
-        message.error('Failed to load available players');
-      }
+      setAddPlayerModalVisible(true);
     },
-    [teams, turf.id],
+    [teams],
   );
 
-  const handleConfirmAddPlayer = useCallback(async () => {
-    if (!selectedTeam || !selectedPlayer) return;
-
-    setLoading((prev) => ({ ...prev, 'add-player': true }));
-
-    try {
-      await teamApi.addPlayerToSlot({
-        team_id: selectedTeam.id,
-        player_id: selectedPlayer,
-      });
-
-      message.success('Player added to team successfully!');
-      setAddPlayerModalVisible(false);
-      setSelectedTeam(null);
-      setSelectedPlayer(null);
-      onTeamUpdate?.();
-    } catch (error) {
-      console.error('Failed to add player:', error);
-      message.error('Failed to add player to team');
-    } finally {
-      setLoading((prev) => ({ ...prev, 'add-player': false }));
-    }
-  }, [selectedTeam, selectedPlayer, onTeamUpdate]);
+  const handleAddPlayerSuccess = useCallback(() => {
+    onTeamUpdate?.();
+  }, [onTeamUpdate]);
 
   const getTeamStatusColor = (status: string) => {
     switch (status) {
@@ -254,52 +223,20 @@ const TeamList: React.FC<TeamListProps> = memo(({ teams, matchSession, turf, sho
       </Row>
 
       {/* Add Player Modal */}
-      <Modal
-        title={`Add Player to ${selectedTeam?.name}`}
-        open={addPlayerModalVisible}
-        onOk={handleConfirmAddPlayer}
-        onCancel={() => {
-          setAddPlayerModalVisible(false);
-          setSelectedTeam(null);
-          setSelectedPlayer(null);
-        }}
-        confirmLoading={loading['add-player']}
-        okButtonProps={{
-          disabled: !selectedPlayer,
-        }}
-      >
-        <div className="space-y-4">
-          <div>
-            <Text strong>Select a player to add:</Text>
-            <Select
-              className="mt-2 w-full"
-              placeholder="Choose a player"
-              value={selectedPlayer}
-              onChange={setSelectedPlayer}
-              showSearch
-              filterOption={(input, option) => option?.children?.toString().toLowerCase().includes(input.toLowerCase()) ?? false}
-            >
-              {availablePlayers.map((player) => (
-                <Option key={player.id} value={player.id}>
-                  <div className="flex items-center gap-2">
-                    <Avatar size="small" src={player.user.avatar}>
-                      {player.user.name.charAt(0).toUpperCase()}
-                    </Avatar>
-                    <span>{player.user.name}</span>
-                    <Text type="secondary">({player.user.email})</Text>
-                  </div>
-                </Option>
-              ))}
-            </Select>
-          </div>
-
-          {selectedTeam && (
-            <div className="rounded bg-gray-50 p-3">
-              <Text type="secondary">Current team size: {selectedTeam.teamPlayers?.length || 0} / 6 players</Text>
-            </div>
-          )}
-        </div>
-      </Modal>
+      {selectedTeam && (
+        <AddPlayerModal
+          open={addPlayerModalVisible}
+          onCancel={() => {
+            setAddPlayerModalVisible(false);
+            setSelectedTeam(null);
+          }}
+          onSuccess={handleAddPlayerSuccess}
+          teamId={selectedTeam.id}
+          matchSessionId={matchSession.id}
+          currentPlayerCount={selectedTeam.teamPlayers?.length || 0}
+          maxPlayers={6}
+        />
+      )}
     </>
   );
 });

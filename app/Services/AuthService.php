@@ -24,6 +24,8 @@ class AuthService
       'name' => $data['name'],
       'email' => $data['email'],
       'password' => Hash::make($data['password']),
+      // TODO remove later
+      'email_verified_at' => now()
     ]);
 
     event(new Registered($user));

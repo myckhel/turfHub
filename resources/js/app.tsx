@@ -7,7 +7,6 @@ import { AppLayout } from './components/layout/AppLayout';
 import { GuestLayout } from './components/layout/GuestLayout';
 import ResponsiveLayout from './components/layout/ResponsiveLayout';
 import { PageTransition } from './components/shared/GSAPAnimations';
-import ThemeToggle from './components/ui/ThemeToggle';
 import { useThemeStore } from './stores/theme.store';
 import { resolveComponent, routeConfigs } from './utils/route-resolver';
 
@@ -36,7 +35,7 @@ const getLayout = (routeName: string, page: React.ReactElement) => {
     case 'auth':
       return (
         <PageTransition>
-          <ResponsiveLayout activeTab="home" headerRightContent={<ThemeToggle size="small" />} backgroundVariant="gradient">
+          <ResponsiveLayout activeTab="home" backgroundVariant="gradient">
             {wrappedPage}
           </ResponsiveLayout>
         </PageTransition>
@@ -44,7 +43,7 @@ const getLayout = (routeName: string, page: React.ReactElement) => {
     case 'dashboard':
       return (
         <PageTransition>
-          <ResponsiveLayout activeTab="home" headerRightContent={<ThemeToggle size="small" />} backgroundVariant="gradient">
+          <ResponsiveLayout activeTab="home" backgroundVariant="gradient">
             {wrappedPage}
           </ResponsiveLayout>
         </PageTransition>

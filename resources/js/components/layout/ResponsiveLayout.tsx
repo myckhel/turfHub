@@ -1,5 +1,6 @@
 import {
   AppstoreOutlined,
+  ArrowLeftOutlined,
   BellOutlined,
   CalendarOutlined,
   DashboardOutlined,
@@ -12,7 +13,7 @@ import {
 } from '@ant-design/icons';
 import { useGSAP } from '@gsap/react';
 import { Link } from '@inertiajs/react';
-import { Layout as AntLayout, Avatar, Badge, Button, Dropdown, Menu } from 'antd';
+import { Layout as AntLayout, Avatar, Badge, Button, Drawer, Dropdown, Menu } from 'antd';
 import { gsap } from 'gsap';
 import React, { useEffect, useRef } from 'react';
 import { useAuth } from '../../hooks/useAuth';
@@ -21,8 +22,7 @@ import { useResponsive } from '../../hooks/useResponsive';
 import { useTheme } from '../../hooks/useTheme';
 import { useLayoutStore } from '../../stores';
 import { useTurfStore } from '../../stores/turf.store';
-import BottomTabNavigation from '../navigation/BottomTabNavigation';
-import MobileHeader from '../navigation/MobileHeader';
+import ThemeToggle from '../ui/ThemeToggle';
 import TurfSwitcher from '../ui/TurfSwitcher';
 
 const { Content, Header, Sider } = AntLayout;
@@ -36,8 +36,6 @@ interface ResponsiveLayoutProps {
   subtitle?: string;
   /** Show back button in header */
   showBackButton?: boolean;
-  /** Show bottom navigation on mobile */
-  showBottomNav?: boolean;
   /** Show header */
   showHeader?: boolean;
   /** Custom header content */
@@ -63,7 +61,6 @@ interface ResponsiveLayoutProps {
 export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
   activeTab = 'home',
   showBackButton = false,
-  showBottomNav = true,
   showHeader = true,
   headerContent,
   headerRightContent,
@@ -76,7 +73,7 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
   className = '',
 }) => {
   const { reducedMotion } = useTheme();
-  const { isMobile, isTablet, isDesktop } = useResponsive();
+  const { isMobile, isTablet } = useResponsive();
   const { user, logout } = useAuth();
   const { isTurfPlayer, isTurfManager, isTurfAdmin } = usePermissions();
   const { selectedTurf } = useTurfStore();
@@ -88,8 +85,33 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
   // Responsive layout logic
   const shouldCollapse = isMobile || isTablet;
   const actuallyCollapsed = shouldCollapse || sidebarCollapsed;
-  const useDesktopLayout = isDesktop;
+  const useDesktopLayout = !isMobile;
   const useMobileLayout = isMobile;
+
+  // Mobile sidebar as drawer
+  const MobileSidebar = () => (
+    <Drawer
+      title={
+        <Link href={route('dashboard')} className="flex items-center space-x-2">
+          <div
+            className="flex h-8 w-8 items-center justify-center rounded-lg shadow-lg"
+            style={{ background: 'linear-gradient(135deg, var(--color-turf-green), var(--color-turf-light))' }}
+          >
+            <span className="text-sm font-bold text-white">TH</span>
+          </div>
+          <span className="turf-brand-text text-lg font-bold">TurfMate</span>
+        </Link>
+      }
+      placement="left"
+      open={mobileMenuOpen}
+      onClose={() => setMobileMenuOpen(false)}
+      width={280}
+      className="turf-mobile-sidebar"
+      headerStyle={{ borderBottom: '1px solid var(--color-medium-gray)' }}
+    >
+      <Menu mode="inline" items={getMenuItems()} className="turf-sidebar-menu border-r-0" onClick={() => setMobileMenuOpen(false)} />
+    </Drawer>
+  );
 
   // Menu items based on role
   const getMenuItems = () => {
@@ -255,6 +277,9 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
       className={`${getBackgroundStyles()} ${safeArea ? 'safe-area-inset-top safe-area-inset-bottom' : ''} ${className}`}
       style={background ? { background, minHeight: '100vh' } : { minHeight: '100vh' }}
     >
+      {/* Mobile Sidebar Drawer */}
+      {useMobileLayout && <MobileSidebar />}
+
       {/* Desktop Sidebar */}
       {useDesktopLayout && (
         <Sider
@@ -263,7 +288,7 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
           collapsed={actuallyCollapsed}
           breakpoint="lg"
           collapsedWidth={80}
-          className="turf-sidebar transition-transform duration-300"
+          className="turf-sidebar fixed top-16 left-0 z-40 h-[calc(100vh-4rem)] transition-transform duration-300"
           width={280}
         >
           {/* Logo */}
@@ -280,29 +305,44 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
           </div>
 
           {/* Navigation Menu */}
-          <Menu mode="inline" items={getMenuItems()} className="turf-sidebar-menu border-r-0" style={{ height: 'calc(100vh - 64px)' }} />
+          <Menu mode="inline" items={getMenuItems()} className="turf-sidebar-menu border-r-0" style={{ height: 'calc(100vh - 128px)' }} />
         </Sider>
       )}
 
-      {/* Mobile sidebar overlay */}
-      {isMobile && mobileMenuOpen && (
-        <div className="bg-opacity-50 fixed inset-0 z-40 bg-black backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)} />
-      )}
-
       <AntLayout>
-        {/* Desktop Header or Mobile Header */}
-        {useDesktopLayout && showHeader && (
-          <Header className="turf-header flex items-center justify-between border-b px-4">
-            {/* Left side - Menu trigger */}
+        {/* Enhanced Header for both desktop and mobile */}
+        {showHeader && (
+          <Header className="turf-header fixed top-0 z-50 flex w-full items-center justify-between border-b px-4 shadow-sm backdrop-blur-md">
+            {/* Left side - Menu trigger and navigation */}
             <div className="flex items-center space-x-4">
-              <Button type="text" icon={<MenuOutlined />} onClick={toggleSidebar} className="turf-header-btn flex items-center justify-center" />
+              {useMobileLayout ? (
+                <Button
+                  type="text"
+                  icon={<MenuOutlined />}
+                  onClick={() => setMobileMenuOpen(true)}
+                  className="turf-header-btn flex items-center justify-center"
+                />
+              ) : (
+                <Button type="text" icon={<MenuOutlined />} onClick={toggleSidebar} className="turf-header-btn flex items-center justify-center" />
+              )}
+
+              {/* Back button for mobile */}
+              {useMobileLayout && showBackButton && (
+                <Button type="text" icon={<ArrowLeftOutlined />} onClick={onBackPress} className="turf-header-btn flex items-center justify-center" />
+              )}
+
+              {/* TurfSwitcher */}
               <div className="flex items-center space-x-4">
-                <TurfSwitcher size="middle" placement="bottomLeft" />
+                <TurfSwitcher size={isMobile ? 'small' : 'middle'} placement="bottomLeft" />
               </div>
             </div>
 
-            {/* Right side - User menu */}
-            <div className="flex items-center space-x-4">
+            {/* Right side - Actions and user menu */}
+            <div className="flex items-center space-x-2 md:space-x-4">
+              {/* Theme toggle */}
+              <ThemeToggle size={isMobile ? 'small' : 'medium'} />
+
+              {/* Header right content */}
               {headerRightContent}
 
               {/* Notifications */}
@@ -319,33 +359,25 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
               {/* User dropdown */}
               <Dropdown menu={{ items: userMenuItems }} placement="bottomRight" arrow>
                 <div className="turf-user-dropdown flex cursor-pointer items-center space-x-2 rounded-lg px-2 py-1">
-                  <Avatar size="small" src={user?.avatar} icon={<UserOutlined />} />
-                  <span className="turf-brand-text text-sm font-medium">{user?.name}</span>
+                  <Avatar size={isMobile ? 'small' : 'default'} src={user?.avatar} icon={<UserOutlined />} />
+                  {!isMobile && <span className="turf-brand-text text-sm font-medium">{user?.name}</span>}
                 </div>
               </Dropdown>
             </div>
           </Header>
         )}
 
-        {/* Mobile Header */}
-        {useMobileLayout && showHeader && (
-          <MobileHeader showBackButton={showBackButton} onBackPress={onBackPress} rightContent={headerRightContent} />
-        )}
-
         {/* Custom Header Content */}
-        {headerContent && <div className="turf-header-content sticky top-0 z-30 backdrop-blur-xl">{headerContent}</div>}
+        {headerContent && <div className="turf-header-content sticky top-16 z-30 backdrop-blur-xl">{headerContent}</div>}
 
         {/* Main Content */}
         <Content
           ref={contentRef}
-          className={`turf-content flex-1 ${contentPadding ? 'px-4 py-6' : ''} ${showBottomNav && useMobileLayout ? 'pb-24' : contentPadding ? 'pb-6' : ''} ${useMobileLayout ? 'min-h-[calc(100vh-theme(spacing.16))]' : 'min-h-screen'} transition-all duration-300 ease-out`}
+          className={`turf-content flex-1 ${showHeader ? 'pt-16' : ''} ${useDesktopLayout && !actuallyCollapsed ? 'ml-[280px]' : useDesktopLayout && actuallyCollapsed ? 'ml-[80px]' : ''} ${useMobileLayout ? 'min-h-[calc(100vh-theme(spacing.16))]' : 'min-h-screen'} transition-all duration-300 ease-out`}
         >
           <div className={useDesktopLayout ? 'mx-auto max-w-full' : 'mx-auto max-w-screen-xl'}>{children}</div>
         </Content>
       </AntLayout>
-
-      {/* Bottom Navigation - Mobile Only */}
-      {showBottomNav && useMobileLayout && <BottomTabNavigation activeTab={activeTab} />}
     </AntLayout>
   );
 };

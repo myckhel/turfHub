@@ -1,6 +1,7 @@
+import { MenuOutlined } from '@ant-design/icons';
 import { Link } from '@inertiajs/react';
 import { Button, Layout } from 'antd';
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import ThemeToggle from '../ui/ThemeToggle';
 
 const { Header, Content, Footer } = Layout;
@@ -10,10 +11,43 @@ interface GuestLayoutProps {
 }
 
 export const GuestLayout: React.FC<GuestLayoutProps> = ({ children }) => {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
+
+  const closeMobileMenu = () => {
+    setMobileMenuOpen(false);
+  };
+
+  // Close mobile menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node)) {
+        closeMobileMenu();
+      }
+    };
+
+    if (mobileMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [mobileMenuOpen]);
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    closeMobileMenu();
+  }, []);
+
   return (
     <Layout className="min-h-screen bg-white dark:bg-gray-900">
       {/* Header */}
-      <Header className="turf-header border-b px-4 md:px-8">
+      <Header className="turf-header fixed top-0 z-50 w-full border-b px-4 shadow-sm backdrop-blur-md md:px-8">
         <div className="mx-auto flex h-full max-w-7xl items-center justify-between">
           {/* Logo */}
           <Link href={route('welcome')} className="flex items-center space-x-2 transition-transform hover:scale-105">
@@ -26,8 +60,8 @@ export const GuestLayout: React.FC<GuestLayoutProps> = ({ children }) => {
             <span className="turf-brand-text text-xl font-bold">TurfMate</span>
           </Link>
 
-          {/* Navigation */}
-          <nav className="hidden items-center space-x-8 md:flex">
+          {/* Desktop Navigation */}
+          <nav className="hidden items-center space-x-6 md:flex">
             <Link href={route('welcome')} className="turf-nav-link transition-colors hover:opacity-80">
               Home
             </Link>
@@ -42,11 +76,11 @@ export const GuestLayout: React.FC<GuestLayoutProps> = ({ children }) => {
             </Link>
           </nav>
 
-          {/* Auth buttons and Theme Toggle */}
-          <div className="flex items-center space-x-4">
+          {/* Desktop Auth buttons and Theme Toggle */}
+          <div className="hidden items-center space-x-3 md:flex">
             <ThemeToggle size="small" />
             <Link href={route('login')}>
-              <Button type="text" className="turf-auth-link hidden transition-colors hover:opacity-80 sm:inline-flex">
+              <Button type="text" className="turf-auth-link transition-colors hover:opacity-80">
                 Sign In
               </Button>
             </Link>
@@ -63,11 +97,75 @@ export const GuestLayout: React.FC<GuestLayoutProps> = ({ children }) => {
               </Button>
             </Link>
           </div>
+
+          {/* Mobile Menu Button */}
+          <div className="flex items-center space-x-2 md:hidden">
+            <ThemeToggle size="small" />
+            <Button type="text" icon={<MenuOutlined />} onClick={toggleMobileMenu} className="turf-nav-link p-2" aria-label="Toggle mobile menu" />
+          </div>
         </div>
+
+        {/* Mobile Navigation Dropdown */}
+        {mobileMenuOpen && (
+          <div ref={mobileMenuRef} className="absolute top-full left-0 w-full border-t bg-white shadow-lg md:hidden dark:bg-gray-800">
+            <div className="flex flex-col space-y-1 p-4">
+              {/* Mobile Navigation Links */}
+              <Link
+                href={route('welcome')}
+                className="turf-nav-link block rounded-lg px-3 py-2 transition-colors hover:bg-gray-100 hover:opacity-80 dark:hover:bg-gray-700"
+                onClick={closeMobileMenu}
+              >
+                Home
+              </Link>
+              <Link
+                href={route('welcome')}
+                className="turf-nav-link block rounded-lg px-3 py-2 transition-colors hover:bg-gray-100 hover:opacity-80 dark:hover:bg-gray-700"
+                onClick={closeMobileMenu}
+              >
+                About
+              </Link>
+              <Link
+                href={route('welcome')}
+                className="turf-nav-link block rounded-lg px-3 py-2 transition-colors hover:bg-gray-100 hover:opacity-80 dark:hover:bg-gray-700"
+                onClick={closeMobileMenu}
+              >
+                Pricing
+              </Link>
+              <Link
+                href={route('welcome')}
+                className="turf-nav-link block rounded-lg px-3 py-2 transition-colors hover:bg-gray-100 hover:opacity-80 dark:hover:bg-gray-700"
+                onClick={closeMobileMenu}
+              >
+                Contact
+              </Link>
+
+              {/* Mobile Auth Buttons */}
+              <div className="mt-4 flex flex-col space-y-2 border-t pt-4">
+                <Link href={route('login')} onClick={closeMobileMenu}>
+                  <Button type="text" className="turf-auth-link w-full transition-colors hover:opacity-80">
+                    Sign In
+                  </Button>
+                </Link>
+                <Link href={route('register')} onClick={closeMobileMenu}>
+                  <Button
+                    type="primary"
+                    className="w-full border-none shadow-lg transition-all duration-200 hover:shadow-xl"
+                    style={{
+                      background: 'linear-gradient(135deg, var(--color-turf-green), var(--color-turf-light))',
+                      color: 'white',
+                    }}
+                  >
+                    Get Started
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
       </Header>
 
-      {/* Main Content */}
-      <Content className="flex-1 bg-white dark:bg-gray-900">{children}</Content>
+      {/* Main Content - Add top padding to account for fixed header */}
+      <Content className="flex-1 bg-white pt-16 dark:bg-gray-900">{children}</Content>
 
       {/* Footer */}
       <Footer className="turf-footer text-white">

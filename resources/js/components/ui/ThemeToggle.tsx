@@ -58,18 +58,18 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
   const getSizeConfig = () => {
     const sizes = {
       small: {
-        buttonSize: 'w-8 h-8',
-        iconSize: 'text-sm',
+        buttonSize: 'w-9 h-9',
+        iconSize: 'text-base',
         fontSize: 'text-xs',
       },
       medium: {
-        buttonSize: 'w-10 h-10',
-        iconSize: 'text-base',
+        buttonSize: 'w-11 h-11',
+        iconSize: 'text-lg',
         fontSize: 'text-sm',
       },
       large: {
         buttonSize: 'w-12 h-12',
-        iconSize: 'text-lg',
+        iconSize: 'text-xl',
         fontSize: 'text-base',
       },
     };
@@ -87,29 +87,33 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
         className={`
           ${sizeConfig.buttonSize}
           rounded-full
-          bg-slate-200 dark:bg-slate-700
-          hover:bg-slate-300 dark:hover:bg-slate-600
+          bg-slate-200/80 dark:bg-slate-700/80
+          hover:bg-slate-300/90 dark:hover:bg-slate-600/90
           text-slate-700 dark:text-slate-300
           flex items-center justify-center
           transition-all duration-300 ease-out
           focus-visible:ring-2 focus-visible:ring-turf-green focus-visible:ring-offset-2
-          spring-bounce touch-target
+          active:scale-95
+          touch-manipulation
           relative overflow-hidden
+          backdrop-blur-sm
+          border border-slate-300/50 dark:border-slate-600/50
+          shadow-sm hover:shadow-md
         `}
         aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
       >
         {/* Background gradient animation */}
         <div
           className={`
-            absolute inset-0 rounded-full opacity-0 transition-opacity duration-300
-            ${isDark 
-              ? 'bg-gradient-to-br from-blue-500 to-purple-600' 
-              : 'bg-gradient-to-br from-yellow-400 to-orange-500'
+            absolute inset-0 rounded-full transition-opacity duration-300
+            ${isDark
+              ? 'bg-gradient-to-br from-blue-500/30 to-purple-600/30'
+              : 'bg-gradient-to-br from-yellow-400/30 to-orange-500/30'
             }
-            ${isDark ? 'opacity-20' : 'opacity-20'}
+            ${isDark ? 'opacity-100' : 'opacity-100'}
           `}
         />
-        
+
         {/* Icon container */}
         <div
           ref={iconRef}
@@ -128,7 +132,7 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
       </button>
 
       {showLabel && (
-        <span 
+        <span
           className={`
             ${sizeConfig.fontSize}
             font-medium

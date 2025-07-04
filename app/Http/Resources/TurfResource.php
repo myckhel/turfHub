@@ -15,7 +15,6 @@ class TurfResource extends JsonResource
   public function toArray(Request $request): array
   {
     $user = $request->user();
-    $turfPermissionService = app(\App\Services\TurfPermissionService::class);
 
     return [
       'id' => $this->id,
@@ -39,11 +38,11 @@ class TurfResource extends JsonResource
       'match_sessions' => MatchSessionResource::collection($this->whenLoaded('matchSessions')),
       'active_match_sessions' => MatchSessionResource::collection($this->whenLoaded('activeMatchSessions')),
 
-      // Permission information for the current user
-      'user_permissions' => $this->when($user, function () use ($user, $turfPermissionService) {
 
-        // Clear any cached permissions to ensure fresh check
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+      // Permission information for the current user
+      'user_permissions' => $this->when($user, function () use ($user) {
+        // Create a fresh instance of the service for each turf to avoid context pollution
+        $turfPermissionService = new \App\Services\TurfPermissionService();
 
         return [
           'can_manage_turf' => $turfPermissionService->userCanInTurf($user, 'manage turf settings', $this->id),

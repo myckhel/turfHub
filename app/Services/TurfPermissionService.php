@@ -168,14 +168,45 @@ class TurfPermissionService
    */
   public function userCanInTurf(User $user, string $permission, int $turfId): bool
   {
-    $currentTeamId = getPermissionsTeamId();
-    setPermissionsTeamId($turfId);
+    // $currentTeamId = getPermissionsTeamId();
+    // setPermissionsTeamId($turfId);
 
-    try {
-      return $user->can($permission);
-    } finally {
-      setPermissionsTeamId($currentTeamId);
+    // try {
+    //   return $user->can($permission);
+    // } finally {
+    //   setPermissionsTeamId($currentTeamId);
+
+    // For now, use role-based permission checking directly
+    // since we're having issues with Spatie's permission system
+
+    // Get the user's role in this turf
+    if ($user->hasRoleOnTurf(User::TURF_ROLE_ADMIN, $turfId)) {
+      // Admins can do everything
+      return true;
     }
+
+    if ($user->hasRoleOnTurf(User::TURF_ROLE_MANAGER, $turfId)) {
+      // Managers can do most things except manage turf settings
+      $managerPermissions = [
+        'invite players',
+        'remove players',
+        'manage match sessions',
+        'create teams',
+        'view turf analytics'
+      ];
+      return in_array($permission, $managerPermissions);
+    }
+
+    if ($user->hasRoleOnTurf(User::TURF_ROLE_PLAYER, $turfId)) {
+      // Players have limited permissions
+      $playerPermissions = [
+        'create teams' // Players can usually create teams
+      ];
+      return in_array($permission, $playerPermissions);
+    }
+
+    // No role = no permissions
+    return false;
   }
 
   /**

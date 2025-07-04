@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
@@ -95,15 +96,24 @@ class User extends Authenticatable implements MustVerifyEmail
   public function hasRoleOnTurf(string $role, int $turfId): bool
   {
     // Set the turf context and check role
-    $currentTeamId = getPermissionsTeamId();
-    setPermissionsTeamId($turfId);
+    // $currentTeamId = getPermissionsTeamId();
+    // setPermissionsTeamId($turfId);
 
-    $hasRole = $this->hasRole($role);
+    // $hasRole = $this->hasRole($role);
 
-    // Restore previous team context
-    setPermissionsTeamId($currentTeamId);
+    // // Restore previous team context
+    // setPermissionsTeamId($currentTeamId);
 
-    return $hasRole;
+    // return $hasRole;
+
+    // Direct database query to avoid Spatie permission caching issues
+    return DB::table('model_has_roles')
+      ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
+      ->where('model_has_roles.model_id', $this->id)
+      ->where('model_has_roles.model_type', get_class($this))
+      ->where('model_has_roles.turf_id', $turfId)
+      ->where('roles.name', $role)
+      ->exists();
   }
 
   /**

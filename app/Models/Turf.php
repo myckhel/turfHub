@@ -4,15 +4,17 @@ namespace App\Models;
 
 use App\Services\TurfPermissionService;
 use App\Traits\Payable;
+use Bavix\Wallet\Traits\HasWallet;
+use Bavix\Wallet\Interfaces\Wallet;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-class Turf extends Model
+class Turf extends Model implements Wallet
 {
-  use HasFactory, Payable;
+  use HasFactory, Payable, HasWallet;
 
   /**
    * The attributes that are mass assignable.
@@ -134,5 +136,31 @@ class Turf extends Model
   public function getTeamSlotFee(): ?float
   {
     return $this->team_slot_fee;
+  }
+
+  /**
+   * Get the bank accounts associated with this turf.
+   */
+  public function bankAccounts(): \Illuminate\Database\Eloquent\Relations\MorphMany
+  {
+    return $this->morphMany(BankAccount::class, 'accountable');
+  }
+
+  /**
+   * Get the active bank accounts for this turf.
+   */
+  public function activeBankAccounts(): \Illuminate\Database\Eloquent\Relations\MorphMany
+  {
+    return $this->bankAccounts()->where('is_active', true);
+  }
+
+  /**
+   * Get the primary bank account for this turf.
+   */
+  public function primaryBankAccount(): \Illuminate\Database\Eloquent\Relations\MorphOne
+  {
+    return $this->morphOne(BankAccount::class, 'accountable')
+      ->where('is_active', true)
+      ->orderBy('created_at', 'asc');
   }
 }

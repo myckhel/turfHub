@@ -2,6 +2,7 @@ import { CreditCardOutlined, MoneyCollectOutlined, TeamOutlined, UserAddOutlined
 import { Alert, Button, Card, Col, Divider, List, Modal, Radio, Row, Space, Spin, Tag, Typography, message } from 'antd';
 import React, { memo, useCallback, useEffect, useState } from 'react';
 import { teamApi } from '../../apis/team';
+import { walletApi, type WalletBalance } from '../../apis/wallet';
 import type { AvailableTeamSlotsResponse, TeamDetails } from '../../types/team.types';
 
 const { Title, Text } = Typography;
@@ -18,6 +19,8 @@ const PlayerTeamFlow: React.FC<PlayerTeamFlowProps> = memo(({ matchSessionId, on
   const [selectedTeam, setSelectedTeam] = useState<TeamDetails | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<'paystack' | 'wallet'>('paystack');
   const [joinLoading, setJoinLoading] = useState(false);
+  const [walletBalance, setWalletBalance] = useState<WalletBalance | null>(null);
+  const [walletLoading, setWalletLoading] = useState(false);
 
   const loadAvailableSlots = useCallback(async () => {
     setLoading(true);
@@ -32,17 +35,53 @@ const PlayerTeamFlow: React.FC<PlayerTeamFlowProps> = memo(({ matchSessionId, on
     }
   }, [matchSessionId]);
 
+  const loadWalletBalance = useCallback(async () => {
+    try {
+      setWalletLoading(true);
+      const response = await walletApi.getBalance();
+      setWalletBalance(response.data);
+    } catch (error) {
+      console.error('Failed to load wallet balance:', error);
+      // Don't show error message for wallet balance as it's optional
+    } finally {
+      setWalletLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     loadAvailableSlots();
-  }, [loadAvailableSlots]);
+    loadWalletBalance();
+  }, [loadAvailableSlots, loadWalletBalance]);
 
-  const handleJoinTeam = useCallback((team: TeamDetails) => {
-    setSelectedTeam(team);
-    setJoinModalVisible(true);
-  }, []);
+  const handleJoinTeam = useCallback(
+    (team: TeamDetails) => {
+      setSelectedTeam(team);
+      setJoinModalVisible(true);
+      // If we don't have wallet balance, try to load it when modal opens
+      if (!walletBalance && !walletLoading) {
+        loadWalletBalance();
+      }
+    },
+    [walletBalance, walletLoading, loadWalletBalance],
+  );
 
   const handleConfirmJoin = useCallback(async () => {
     if (!selectedTeam) return;
+
+    // Validate wallet balance if wallet payment is selected
+    if (paymentMethod === 'wallet' && availableSlots && availableSlots.slot_fee > 0) {
+      if (!walletBalance) {
+        message.error('Unable to load wallet balance. Please try again.');
+        return;
+      }
+
+      if (walletBalance.balance < availableSlots.slot_fee) {
+        message.error(
+          `Insufficient wallet balance. You need ₦${availableSlots.slot_fee.toLocaleString()} but only have ₦${walletBalance.balance.toLocaleString()}`,
+        );
+        return;
+      }
+    }
 
     setJoinLoading(true);
 
@@ -71,13 +110,18 @@ const PlayerTeamFlow: React.FC<PlayerTeamFlowProps> = memo(({ matchSessionId, on
       setSelectedTeam(null);
       onJoinSuccess?.();
       await loadAvailableSlots();
+
+      // Refresh wallet balance if wallet payment was used
+      if (paymentMethod === 'wallet') {
+        await loadWalletBalance();
+      }
     } catch (error) {
       console.error('Failed to join team:', error);
       message.error('Failed to join team. Please try again.');
     } finally {
       setJoinLoading(false);
     }
-  }, [selectedTeam, paymentMethod, availableSlots, onJoinSuccess, loadAvailableSlots]);
+  }, [selectedTeam, paymentMethod, availableSlots, walletBalance, onJoinSuccess, loadAvailableSlots, loadWalletBalance]);
 
   const getTeamStatusColor = (status: string) => {
     switch (status) {
@@ -314,17 +358,45 @@ const PlayerTeamFlow: React.FC<PlayerTeamFlowProps> = memo(({ matchSessionId, on
                           </div>
                         </div>
                       </Radio>
-                      <Radio value="wallet" className="w-full">
+                      <Radio value="wallet" className="w-full" disabled={walletBalance ? walletBalance.balance < slot_fee : false}>
                         <div className="flex items-center gap-2">
                           <WalletOutlined className="text-green-500" />
-                          <div>
+                          <div className="flex-1">
                             <div className="font-medium">Wallet Balance</div>
-                            <div className="text-xs text-gray-500">Use your wallet balance (if available)</div>
+                            <div className="flex items-center gap-2 text-xs text-gray-500">
+                              {walletLoading ? (
+                                <Spin size="small" />
+                              ) : walletBalance ? (
+                                <>
+                                  <span>Available: {walletBalance.formatted_balance}</span>
+                                  {walletBalance.balance < slot_fee && <Tag color="red">Insufficient</Tag>}
+                                </>
+                              ) : (
+                                <span>Unable to load balance</span>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </Radio>
                     </Space>
                   </Radio.Group>
+
+                  {paymentMethod === 'wallet' && walletBalance && walletBalance.balance < slot_fee && (
+                    <Alert
+                      message="Insufficient Wallet Balance"
+                      description={
+                        <div>
+                          <p>
+                            You need ₦{slot_fee.toLocaleString()} but only have {walletBalance.formatted_balance}.
+                          </p>
+                          <p>Please top up your wallet or use card payment.</p>
+                        </div>
+                      }
+                      type="warning"
+                      showIcon
+                      className="mt-2"
+                    />
+                  )}
                 </div>
               </>
             )}

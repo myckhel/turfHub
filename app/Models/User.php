@@ -3,6 +3,8 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Bavix\Wallet\Traits\HasWallet;
+use Bavix\Wallet\Interfaces\Wallet;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -12,10 +14,10 @@ use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable implements MustVerifyEmail, Wallet
 {
   /** @use HasFactory<\Database\Factories\UserFactory> */
-  use HasApiTokens, HasFactory, Notifiable, HasRoles;
+  use HasApiTokens, HasFactory, Notifiable, HasRoles, HasWallet;
 
   /**
    * User role constants for turf-specific roles
@@ -234,5 +236,31 @@ class User extends Authenticatable implements MustVerifyEmail
   public function successfulPayments(): HasMany
   {
     return $this->payments()->where('status', \App\Models\Payment::STATUS_SUCCESS);
+  }
+
+  /**
+   * Get the bank accounts associated with this user.
+   */
+  public function bankAccounts(): \Illuminate\Database\Eloquent\Relations\MorphMany
+  {
+    return $this->morphMany(BankAccount::class, 'accountable');
+  }
+
+  /**
+   * Get the active bank accounts for this user.
+   */
+  public function activeBankAccounts(): \Illuminate\Database\Eloquent\Relations\MorphMany
+  {
+    return $this->bankAccounts()->where('is_active', true);
+  }
+
+  /**
+   * Get the primary bank account for this user.
+   */
+  public function primaryBankAccount(): \Illuminate\Database\Eloquent\Relations\MorphOne
+  {
+    return $this->morphOne(BankAccount::class, 'accountable')
+      ->where('is_active', true)
+      ->orderBy('created_at', 'asc');
   }
 }

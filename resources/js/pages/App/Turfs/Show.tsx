@@ -18,7 +18,9 @@ import React, { useState } from 'react';
 import { turfApi } from '@/apis/turf';
 import { MatchSessionList } from '../../../components/MatchSessions';
 import { TurfCard } from '../../../components/ui/TurfCard';
+import TurfWalletBalanceDisplay from '../../../components/wallet/TurfWalletBalanceDisplay';
 import { useAuth } from '../../../hooks/useAuth';
+import { usePermissions } from '../../../hooks/usePermissions';
 import { useTurfStore } from '../../../stores/turf.store';
 import type { Turf } from '../../../types/turf.types';
 
@@ -49,6 +51,7 @@ interface TurfDetailProps {
 const TurfDetail: React.FC<TurfDetailProps> = ({ turf }) => {
   const { user } = useAuth();
   const { selectedTurf, setSelectedTurf, belongingTurfs, fetchBelongingTurfs } = useTurfStore();
+  const { canManageTurfPayments, turfPermissions } = usePermissions();
 
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
@@ -56,6 +59,7 @@ const TurfDetail: React.FC<TurfDetailProps> = ({ turf }) => {
   const isMember = belongingTurfs.some((t) => t.id === turf.id);
   const isSelected = selectedTurf?.id === turf.id;
   const isOwner = turf.owner_id === user?.id;
+  const canViewTurfWallet = isOwner || turfPermissions.isOwner || canManageTurfPayments();
 
   const handleJoinTurf = async () => {
     if (!user) {
@@ -309,6 +313,13 @@ const TurfDetail: React.FC<TurfDetailProps> = ({ turf }) => {
                 </div>
               </div>
               <div className="text-right">
+                {/* Turf Wallet Balance - Only for admins/owners */}
+                {canViewTurfWallet && (
+                  <div className="mb-3">
+                    <TurfWalletBalanceDisplay turfId={turf.id} turfName={turf.name} showToggle={true} compact={false} />
+                  </div>
+                )}
+
                 {turf.is_active ? (
                   <Tag color="green" className="mb-2">
                     <CheckCircleOutlined className="mr-1" />

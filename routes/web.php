@@ -6,6 +6,7 @@ use App\Http\Controllers\Web\TurfController;
 use App\Http\Controllers\Web\MatchSessionController;
 use App\Http\Controllers\Web\TeamController;
 use App\Http\Controllers\Web\GameMatchController;
+use App\Http\Controllers\Web\WalletController;
 
 Route::get('/', function () {
   return Inertia::render('Public/Welcome');
@@ -21,6 +22,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
   Route::get('turfs/create', [TurfController::class, 'create'])->name('web.turfs.create');
   Route::get('turfs/{turf}', [TurfController::class, 'show'])->name('web.turfs.show');
   Route::get('turfs/{turf}/edit', [TurfController::class, 'edit'])->name('web.turfs.edit');
+
+  // Wallet routes
+  Route::get('wallet', [WalletController::class, 'index'])->name('web.wallet.index');
 
   // Match Session routes (nested under turfs)
   Route::get('turfs/{turf}/match-sessions', [MatchSessionController::class, 'index'])->name('web.turfs.match-sessions.index');

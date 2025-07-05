@@ -254,19 +254,76 @@ class TeamService
       throw new \InvalidArgumentException('No team slot fee required for this turf');
     }
 
+    $user = \App\Models\User::findOrFail($userId);
     $player = \App\Models\Player::where('user_id', $userId)
       ->where('turf_id', $turf->id)
       ->firstOrFail();
 
-    // For now, return a mock payment response
-    // This would integrate with actual payment service (Paystack)
-    return [
-      'payment_id' => 'pay_' . uniqid(),
-      'amount' => $teamSlotFee,
-      'status' => 'pending',
-      'payment_url' => $redirectUrl ? $redirectUrl . '?payment_id=pay_' . uniqid() : null,
-      'reference' => 'ref_' . uniqid(),
-    ];
+    // Check if player is already in a team slot for this session
+    $existingTeamPlayer = \App\Models\TeamPlayer::whereHas('team', function ($query) use ($team) {
+      $query->where('match_session_id', $team->match_session_id);
+    })
+      ->where('player_id', $player->id)
+      ->first();
+
+    if ($existingTeamPlayer) {
+      throw new \InvalidArgumentException('Player is already in a team for this session');
+    }
+
+    if ($paymentMethod === 'wallet') {
+      // Process wallet payment
+      $walletService = app(\App\Services\WalletService::class);
+
+      $result = $walletService->processWalletPayment(
+        $user,
+        $turf,
+        $teamSlotFee,
+        "Team slot payment for {$turf->name} - Session {$team->matchSession->id}",
+        [
+          'team_id' => $team->id,
+          'match_session_id' => $team->match_session_id,
+          'position' => $position,
+          'payment_type' => \App\Models\Payment::TYPE_TEAM_JOINING_FEE
+        ]
+      );
+
+      if ($result['success']) {
+        // Add player to team slot after successful payment
+        $this->addPlayerToTeamSlot($team, $player->id, $position);
+
+        return [
+          'success' => true,
+          'payment_method' => 'wallet',
+          'payment_id' => $result['payment']->id,
+          'amount' => $teamSlotFee,
+          'status' => 'success',
+          'message' => 'Payment successful via wallet',
+          'new_wallet_balance' => $result['payer_balance'],
+          'formatted_balance' => '₦' . number_format($result['payer_balance'], 2),
+          'team_slot_added' => true
+        ];
+      } else {
+        return [
+          'success' => false,
+          'payment_method' => 'wallet',
+          'status' => 'failed',
+          'message' => $result['message']
+        ];
+      }
+    } else {
+      // Process Paystack payment (existing logic)
+      // This would integrate with PaymentController for Paystack payments
+      return [
+        'success' => true,
+        'payment_method' => 'paystack',
+        'payment_id' => 'pay_' . uniqid(),
+        'amount' => $teamSlotFee,
+        'status' => 'pending',
+        'payment_url' => $redirectUrl ? $redirectUrl . '?payment_id=pay_' . uniqid() : null,
+        'reference' => 'ref_' . uniqid(),
+        'message' => 'Paystack payment initiated'
+      ];
+    }
   }
 
   /**

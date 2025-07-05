@@ -1730,6 +1730,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@paystack/inline-js@npm:^2.22.6":
+  version: 2.22.6
+  resolution: "@paystack/inline-js@npm:2.22.6"
+  checksum: 10c0/83f8aef1af5816e38980f96a80e897e9ce01382a1e8c33b4783ebe12b802c421613b540e3b620ea19b29d672a4f1f23496b5840a8c6ad96ec915626b362b13ac
+  languageName: node
+  linkType: hard
+
 "@pkgjs/parseargs@npm:^0.11.0":
   version: 0.11.0
   resolution: "@pkgjs/parseargs@npm:0.11.0"
@@ -6626,6 +6633,7 @@ __metadata:
     "@eslint/js": "npm:^9.19.0"
     "@gsap/react": "npm:^2.1.2"
     "@inertiajs/react": "npm:^2.0.0"
+    "@paystack/inline-js": "npm:^2.22.6"
     "@rollup/rollup-linux-x64-gnu": "npm:4.9.5"
     "@tailwindcss/oxide-linux-x64-gnu": "npm:^4.0.1"
     "@tailwindcss/vite": "npm:^4.0.6"

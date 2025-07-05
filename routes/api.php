@@ -39,7 +39,7 @@ Route::get('/health', function () {
 })->name('health');
 
 // Public authentication routes
-Route::prefix('auth')->group(function () {
+Route::prefix('auth')->name('api.')->group(function () {
   Route::post('/register', [AuthController::class, 'register']);
   Route::post('/login', [AuthController::class, 'login']);
   Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
@@ -50,7 +50,7 @@ Route::prefix('auth')->group(function () {
 });
 
 // Protected routes requiring authentication
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware('auth:sanctum')->name('api.')->group(function () {
   // Auth routes
   Route::prefix('auth')->group(function () {
     Route::get('/user', [AuthController::class, 'user']);
@@ -126,7 +126,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('add-player', [TeamController::class, 'addPlayerToSlot'])->name('teams.add-player');
     Route::delete('remove-player/{playerId}', [TeamController::class, 'removePlayerFromSlot'])->name('teams.remove-player');
     Route::post('set-captain', [TeamController::class, 'setCaptain'])->name('teams.set-captain');
-    Route::post('process-payment', [TeamController::class, 'processSlotPayment'])->name('teams.process-payment');
+    Route::post('process-payment', [TeamController::class, 'processSlotPayment'])
+      ->middleware('wallet.balance')
+      ->name('teams.process-payment');
     Route::get('payment-status/{playerId}', [TeamController::class, 'getPaymentStatus'])->name('teams.payment-status');
     Route::get('stats', [TeamController::class, 'getStats'])->name('teams.stats');
   });
@@ -149,6 +151,36 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('suggested-amount', [App\Http\Controllers\Api\PaymentController::class, 'suggestedAmount'])->name('suggested-amount');
     Route::get('{payment}', [App\Http\Controllers\Api\PaymentController::class, 'show'])->name('show');
     Route::post('{payment}/cancel', [App\Http\Controllers\Api\PaymentController::class, 'cancel'])->name('cancel');
+  });
+
+  // Wallet routes
+  Route::prefix('wallet')->name('wallet.')->group(function () {
+    Route::get('balance', [App\Http\Controllers\Api\WalletController::class, 'getBalance'])->name('balance');
+    Route::get('transactions', [App\Http\Controllers\Api\WalletController::class, 'getTransactions'])->name('transactions');
+    Route::post('deposit', [App\Http\Controllers\Api\WalletController::class, 'deposit'])->name('deposit');
+    Route::post('withdraw', [App\Http\Controllers\Api\WalletController::class, 'withdraw'])
+      ->middleware('wallet.balance')
+      ->name('withdraw');
+    Route::post('verify-transfer', [App\Http\Controllers\Api\WalletController::class, 'verifyTransfer'])->name('verify-transfer');
+
+    // Turf wallet routes
+    Route::get('turf/{turfId}/balance', [App\Http\Controllers\Api\WalletController::class, 'getTurfBalance'])->name('turf.balance');
+    Route::get('turf/{turfId}/transactions', [App\Http\Controllers\Api\WalletController::class, 'getTurfTransactions'])->name('turf.transactions');
+  });
+
+  // Bank account routes
+  Route::prefix('bank-accounts')->name('bank-accounts.')->group(function () {
+    Route::get('banks', [App\Http\Controllers\Api\BankAccountController::class, 'getBanks'])->name('banks');
+    Route::post('verify-account', [App\Http\Controllers\Api\BankAccountController::class, 'verifyAccount'])->name('verify-account');
+
+    // User bank accounts
+    Route::get('user', [App\Http\Controllers\Api\BankAccountController::class, 'getUserBankAccounts'])->name('user.index');
+    Route::post('user', [App\Http\Controllers\Api\BankAccountController::class, 'addUserBankAccount'])->name('user.store');
+    Route::delete('user/{bankAccountId}', [App\Http\Controllers\Api\BankAccountController::class, 'removeUserBankAccount'])->name('user.destroy');
+
+    // Turf bank accounts
+    Route::get('turf/{turfId}', [App\Http\Controllers\Api\BankAccountController::class, 'getTurfBankAccounts'])->name('turf.index');
+    Route::post('turf/{turfId}', [App\Http\Controllers\Api\BankAccountController::class, 'addTurfBankAccount'])->name('turf.store');
   });
 
   Route::prefix('match-sessions/{matchSession}')->group(function () {

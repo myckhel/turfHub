@@ -1,4 +1,5 @@
 // Global types for the application
+export * from './wallet.types';
 
 export interface User {
   id: number;

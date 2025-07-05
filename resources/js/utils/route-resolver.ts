@@ -116,6 +116,14 @@ export const routeConfigs: Record<string, RouteConfig> = {
     roles: ['player', 'manager', 'admin'],
     layout: 'dashboard',
   },
+
+  // Wallet routes
+  'app.wallet.index': {
+    name: 'wallet.index',
+    component: 'App/Wallet/Index',
+    roles: ['player', 'manager', 'admin'],
+    layout: 'dashboard',
+  },
 };
 
 export const resolveComponent = (name: string) => {

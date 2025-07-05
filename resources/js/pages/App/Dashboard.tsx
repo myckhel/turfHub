@@ -3,6 +3,7 @@ import { router } from '@inertiajs/react';
 import { Button, Card, Space, Typography } from 'antd';
 import React from 'react';
 import { SelectedTurfCard } from '../../components/ui';
+import WalletBalanceDisplay from '../../components/wallet/WalletBalanceDisplay';
 import { useAuth } from '../../hooks/useAuth';
 import { useTurfStore } from '../../stores/turf.store';
 
@@ -12,12 +13,22 @@ const Dashboard: React.FC = () => {
   const { user } = useAuth();
   const { selectedTurf } = useTurfStore();
 
+  const handleWalletClick = () => {
+    router.visit(route('web.wallet.index'));
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-green-900 p-6">
       <div className="mx-auto max-w-4xl">
-        <Title level={2} className="mb-6 text-center text-white">
-          Welcome back, {user?.name}!
-        </Title>
+        <div className="mb-6 flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
+          <Title level={2} className="mb-0 text-center text-white sm:text-left">
+            Welcome back, {user?.name}!
+          </Title>
+
+          <div className="flex items-center">
+            <WalletBalanceDisplay showToggle={true} compact={false} onClick={handleWalletClick} />
+          </div>
+        </div>
 
         <SelectedTurfCard buttonText="View Turf" />
 

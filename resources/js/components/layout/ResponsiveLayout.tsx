@@ -10,6 +10,7 @@ import {
   TeamOutlined,
   TrophyOutlined,
   UserOutlined,
+  WalletOutlined,
 } from '@ant-design/icons';
 import { useGSAP } from '@gsap/react';
 import { Link } from '@inertiajs/react';
@@ -121,6 +122,11 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = memo(
           key: 'turfs',
           icon: <AppstoreOutlined />,
           label: <Link href={route('web.turfs.index')}>Browse Turfs</Link>,
+        },
+        {
+          key: 'wallet',
+          icon: <WalletOutlined />,
+          label: <Link href={route('web.wallet.index')}>My Wallet</Link>,
         },
       ];
 

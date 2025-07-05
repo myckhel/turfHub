@@ -29,6 +29,7 @@
     "dependencies": {
         "@gsap/react": "^2.1.2",
         "@inertiajs/react": "^2.0.0",
+        "@paystack/inline-js": "^2.22.6",
         "@tailwindcss/vite": "^4.0.6",
         "@types/react": "^19.0.3",
         "@types/react-dom": "^19.0.2",

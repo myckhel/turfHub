@@ -1,6 +1,6 @@
 import { WalletOutlined } from '@ant-design/icons';
 import { Card, Typography } from 'antd';
-import React, { memo } from 'react';
+import React from 'react';
 import WalletDashboard from '../../../components/wallet/WalletDashboard';
 
 const { Title } = Typography;
@@ -27,4 +27,4 @@ const WalletIndex: React.FC = () => {
   );
 };
 
-export default memo(WalletIndex);
+export default WalletIndex;

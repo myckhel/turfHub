@@ -1,7 +1,7 @@
 import { CalendarOutlined } from '@ant-design/icons';
 import { Head, router } from '@inertiajs/react';
 import { Button, Card, Space, Typography } from 'antd';
-import React, { memo } from 'react';
+import React from 'react';
 import { MatchSessionList } from '../../../components/MatchSessions';
 import TurfLiveSessions from '../../../components/TurfLiveSessions';
 import { usePermissions } from '../../../hooks/usePermissions';
@@ -63,4 +63,4 @@ const Index: React.FC<IndexProps> = ({ turf }) => {
   );
 };
 
-export default memo(Index);
+export default Index;

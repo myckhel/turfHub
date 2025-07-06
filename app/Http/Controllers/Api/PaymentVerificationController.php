@@ -217,39 +217,4 @@ class PaymentVerificationController extends Controller
       ], 500);
     }
   }
-
-  /**
-   * Cleanup expired team slot reservations.
-   * This should be called periodically via a scheduled task.
-   * Todo move to dedicated service function and call from console command
-   */
-  public function cleanupExpiredReservations(): JsonResponse
-  {
-    try {
-      $expiredCount = TeamPlayer::expired()->count();
-
-      if ($expiredCount > 0) {
-        TeamPlayer::expired()->delete();
-
-        Log::info('Cleaned up expired team slot reservations', [
-          'expired_count' => $expiredCount
-        ]);
-      }
-
-      return response()->json([
-        'success' => true,
-        'message' => "Cleaned up {$expiredCount} expired reservations",
-        'expired_count' => $expiredCount
-      ]);
-    } catch (\Exception $e) {
-      Log::error('Failed to cleanup expired reservations', [
-        'error' => $e->getMessage()
-      ]);
-
-      return response()->json([
-        'success' => false,
-        'message' => 'Failed to cleanup expired reservations: ' . $e->getMessage()
-      ], 500);
-    }
-  }
 }

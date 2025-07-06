@@ -10,3 +10,6 @@ Artisan::command('inspire', function () {
 
 // Schedule Telescope data pruning
 Schedule::command('telescope:prune')->daily();
+
+// Schedule team slot cleanup every 5 minutes
+Schedule::command('team-slots:cleanup-expired')->everyFiveMinutes();

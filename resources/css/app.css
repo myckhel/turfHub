@@ -326,375 +326,137 @@ body {
   background-color: #1a1a1a; /* Even darker for dark mode */
 }
 
-/* ResponsiveLayout Theme Styles */
+/* Enhanced Header Styling - Sticky headers with primary colors */
+.turf-header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1000 !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.turf-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: inherit;
+  z-index: -1;
+}
+
+/* Enhanced Sidebar Styling */
 .turf-sidebar {
-  background-color: var(--color-light-gray);
+  position: fixed !important;
+  left: 0 !important;
+  top: 0 !important;
+  height: 100vh !important;
+  z-index: 900 !important;
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.dark .turf-sidebar {
-  background-color: var(--color-deep-slate);
+.turf-sidebar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, var(--color-turf-green), rgba(34, 197, 94, 0.95));
+  z-index: -1;
 }
 
-.turf-sidebar-menu {
+/* Enhanced Mobile Sidebar */
+.turf-mobile-sidebar .ant-drawer-header {
+  background: var(--color-turf-green) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.turf-mobile-sidebar .ant-drawer-body {
+  background: linear-gradient(180deg, var(--color-turf-green), rgba(34, 197, 94, 0.95)) !important;
+  padding: 0 !important;
+}
+
+/* Menu Styling Updates */
+.turf-sidebar-menu.ant-menu-dark {
   background: transparent !important;
 }
 
-.turf-sidebar-menu .ant-menu-item {
-  color: var(--color-light-slate);
-  border-radius: 8px;
-  margin: 4px 8px;
+.turf-sidebar-menu.ant-menu-dark .ant-menu-item {
+  background: transparent !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+  border-radius: 8px !important;
+  margin: 4px 8px !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
-.dark .turf-sidebar-menu .ant-menu-item {
-  color: var(--color-medium-gray);
-}
-
-.turf-sidebar-menu .ant-menu-item:hover {
-  background-color: rgba(46, 125, 50, 0.1) !important;
-  color: var(--color-turf-green) !important;
-}
-
-.turf-sidebar-menu .ant-menu-item-selected {
-  background-color: var(--color-turf-green) !important;
+.turf-sidebar-menu.ant-menu-dark .ant-menu-item:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
   color: white !important;
+  transform: translateX(4px);
 }
 
-.turf-sidebar-menu .ant-menu-item-selected:hover {
-  background-color: var(--color-turf-light) !important;
+.turf-sidebar-menu.ant-menu-dark .ant-menu-item-selected {
+  background: rgba(255, 255, 255, 0.2) !important;
   color: white !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.turf-sidebar-menu .ant-menu-item a {
-  color: inherit;
-  text-decoration: none;
+.turf-sidebar-menu.ant-menu-dark .ant-menu-item a {
+  color: inherit !important;
+  text-decoration: none !important;
 }
 
-.turf-header-btn {
-  color: var(--color-light-slate);
-}
-
-.dark .turf-header-btn {
-  color: var(--color-medium-gray);
-}
-
-.turf-header-btn:hover {
-  background-color: rgba(46, 125, 50, 0.1) !important;
-  color: var(--color-turf-green) !important;
-}
-
-.turf-user-dropdown {
-  transition: background-color 0.2s ease;
-}
-
-.turf-user-dropdown:hover {
-  background-color: rgba(46, 125, 50, 0.1);
-}
-
-.turf-content {
-  background-color: var(--color-light-gray);
-}
-
-.dark .turf-content {
-  background-color: var(--color-deep-slate);
-}
-
-/* ResponsiveLayout Background Variants */
+/* Layout Background Variants */
 .turf-layout-bg {
-  background-color: white;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
 }
 
 .dark .turf-layout-bg {
-  background-color: var(--color-deep-slate);
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
 }
 
 .turf-layout-gradient {
-  background: linear-gradient(135deg, white, var(--color-light-gray), white);
+  background:
+    linear-gradient(135deg, rgba(27, 94, 32, 0.02) 0%, rgba(46, 125, 50, 0.05) 50%, rgba(27, 94, 32, 0.02) 100%),
+    linear-gradient(45deg, #f8fafc 0%, #e2e8f0 100%);
 }
 
 .dark .turf-layout-gradient {
-  background: linear-gradient(135deg, var(--color-deep-slate), #1a1a1a, var(--color-deep-slate));
+  background:
+    linear-gradient(135deg, rgba(27, 94, 32, 0.1) 0%, rgba(46, 125, 50, 0.15) 50%, rgba(27, 94, 32, 0.1) 100%),
+    linear-gradient(45deg, #1e293b 0%, #0f172a 100%);
 }
 
 .turf-layout-pattern {
-  background-color: white;
-  background-image: radial-gradient(circle at 1px 1px, rgba(0, 0, 0, 0.05) 1px, transparent 0);
+  background-image: radial-gradient(circle at 2px 2px, rgba(27, 94, 32, 0.15) 1px, transparent 0);
   background-size: 20px 20px;
+  background-color: #f8fafc;
 }
 
 .dark .turf-layout-pattern {
-  background-color: var(--color-deep-slate);
-  background-image: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.05) 1px, transparent 0);
+  background-image: radial-gradient(circle at 2px 2px, rgba(46, 125, 50, 0.2) 1px, transparent 0);
   background-size: 20px 20px;
+  background-color: #1e293b;
 }
 
-/* Enhanced TurfSwitcher Component Styles */
-.turf-switcher-button {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  border-radius: 12px !important;
-  position: relative;
-  overflow: hidden;
-}
-
-.turf-switcher-button::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, rgba(27, 94, 32, 0.05), rgba(59, 140, 183, 0.05));
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
-}
-
-.turf-switcher-button:hover::before {
-  opacity: 1;
-}
-
-.turf-switcher-button:hover {
-  background-color: rgba(27, 94, 32, 0.08) !important;
-  transform: translateY(-1px) scale(1.02);
-  box-shadow:
-    0 6px 20px rgba(27, 94, 32, 0.15),
-    0 2px 6px rgba(0, 0, 0, 0.1) !important;
-}
-
-.dark .turf-switcher-button:hover {
-  background-color: rgba(93, 173, 226, 0.12) !important;
-  box-shadow:
-    0 6px 20px rgba(93, 173, 226, 0.2),
-    0 2px 6px rgba(0, 0, 0, 0.3) !important;
-}
-
-.turf-switcher-button:active {
-  transform: translateY(0) scale(0.98);
-  box-shadow: 0 2px 8px rgba(27, 94, 32, 0.2) !important;
-}
-
-.dark .turf-switcher-button:active {
-  box-shadow: 0 2px 8px rgba(93, 173, 226, 0.25) !important;
-}
-
-/* Compact variant */
-.turf-switcher-button.compact-button {
-  border-radius: 50% !important;
-  backdrop-filter: blur(8px);
-}
-
-.turf-switcher-button.compact-button:hover {
-  transform: rotate(180deg) scale(1.1);
-  transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-}
-
-/* Enhanced Dropdown Styles */
-.turf-switcher-dropdown {
-  border-radius: 16px !important;
-  border: none !important;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  box-shadow:
-    0 20px 40px rgba(0, 0, 0, 0.15),
-    0 8px 16px rgba(0, 0, 0, 0.1),
-    0 0 0 1px rgba(255, 255, 255, 0.1) !important;
-  overflow: hidden;
-  min-width: 280px;
-  max-height: 400px;
-  overflow-y: auto;
-}
-
-.dark .turf-switcher-dropdown {
-  background: rgba(30, 41, 59, 0.95) !important;
-  border-color: rgba(255, 255, 255, 0.1) !important;
-  box-shadow:
-    0 20px 40px rgba(0, 0, 0, 0.4),
-    0 8px 16px rgba(0, 0, 0, 0.2),
-    0 0 0 1px rgba(255, 255, 255, 0.1) !important;
-}
-
-.turf-switcher-dropdown.compact-dropdown {
-  min-width: 200px;
-  border-radius: 12px !important;
-}
-
-/* Enhanced Menu Item Styles */
-.turf-switcher-item {
-  border-radius: 10px !important;
-  margin: 6px 8px !important;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  position: relative;
-  cursor: pointer;
-  user-select: none;
-}
-
-.turf-switcher-item::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, rgba(27, 94, 32, 0.1), rgba(46, 125, 50, 0.1));
-  opacity: 0;
-  transition: opacity 0.2s ease;
-  border-radius: 10px;
-  pointer-events: none;
-}
-
-.turf-switcher-item:hover::before {
-  opacity: 1;
-}
-
-.turf-switcher-item:hover {
-  background-color: rgba(27, 94, 32, 0.08) !important;
-  transform: translateX(4px) scale(1.01);
-  box-shadow: 0 4px 12px rgba(27, 94, 32, 0.1);
-}
-
-.dark .turf-switcher-item:hover {
-  background-color: rgba(93, 173, 226, 0.12) !important;
-  box-shadow: 0 4px 12px rgba(93, 173, 226, 0.15);
-}
-
-.turf-switcher-item:focus,
-.turf-switcher-item:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 2px var(--color-turf-green);
-}
-
-.turf-switcher-item[aria-selected='true'] {
-  background-color: rgba(27, 94, 32, 0.1) !important;
-  border-left: 3px solid var(--color-turf-green);
-  padding-left: 9px;
-}
-
-.dark .turf-switcher-item[aria-selected='true'] {
-  background-color: rgba(27, 94, 32, 0.2) !important;
-  border-left-color: var(--color-turf-light);
-}
-
-/* Enhanced Selected Indicator */
-.turf-switcher-selected-indicator {
-  background: radial-gradient(circle, var(--color-turf-green), var(--color-turf-light)) !important;
-  animation: pulseGlow 2s infinite ease-in-out;
-  box-shadow: 0 0 8px var(--color-turf-green);
-}
-
-.dark .turf-switcher-selected-indicator {
-  background: radial-gradient(circle, var(--color-turf-light), var(--color-turf-green)) !important;
-  box-shadow: 0 0 8px var(--color-turf-light);
-}
-
-@keyframes pulseGlow {
-  0%,
-  100% {
-    opacity: 1;
-    transform: scale(1);
-    box-shadow: 0 0 8px var(--color-turf-green);
-  }
-  50% {
-    opacity: 0.7;
-    transform: scale(1.1);
-    box-shadow:
-      0 0 12px var(--color-turf-green),
-      0 0 4px var(--color-turf-green);
-  }
-}
-
-.dark .turf-switcher-selected-indicator {
-  animation: pulseGlowDark 2s infinite ease-in-out;
-}
-
-@keyframes pulseGlowDark {
-  0%,
-  100% {
-    opacity: 1;
-    transform: scale(1);
-    box-shadow: 0 0 8px var(--color-turf-light);
-  }
-  50% {
-    opacity: 0.7;
-    transform: scale(1.1);
-    box-shadow:
-      0 0 12px var(--color-turf-light),
-      0 0 4px var(--color-turf-light);
-  }
-}
-
-/* Status indicators */
-.turf-switcher-item .status-indicator {
-  transition: all 0.2s ease;
-}
-
-.turf-switcher-item:hover .status-indicator {
-  transform: scale(1.2);
-  box-shadow: 0 0 4px currentColor;
-}
-
-/* Scrollbar for dropdown */
-.turf-switcher-dropdown::-webkit-scrollbar {
-  width: 4px;
-}
-
-.turf-switcher-dropdown::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.turf-switcher-dropdown::-webkit-scrollbar-thumb {
-  background: rgba(155, 155, 155, 0.3);
-  border-radius: 2px;
-}
-
-.dark .turf-switcher-dropdown::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-/* Loading state */
-.turf-switcher-button[aria-disabled='true'] {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none !important;
+/* Enhanced Brand Text */
+.turf-brand-text {
+  background: linear-gradient(135deg, white, rgba(255, 255, 255, 0.8));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-  .turf-switcher-dropdown {
-    min-width: 240px;
-    max-height: 300px;
-  }
-
-  .turf-switcher-item {
-    margin: 4px 6px !important;
-  }
-}
-
-/* High contrast mode support */
-.high-contrast .turf-switcher-button {
-  border: 2px solid currentColor !important;
-}
-
-.high-contrast .turf-switcher-item {
-  border: 1px solid currentColor;
-}
-
-.high-contrast .turf-switcher-selected-indicator {
-  animation: none;
-  background: currentColor !important;
-  box-shadow: none;
-}
-
-/* Reduced motion support */
-.reduce-motion .turf-switcher-button,
-.reduce-motion .turf-switcher-item,
-.reduce-motion .turf-switcher-selected-indicator {
-  transition: none !important;
-  animation: none !important;
-  transform: none !important;
-}
-
-.reduce-motion .turf-switcher-button:hover,
-.reduce-motion .turf-switcher-item:hover {
-  transform: none !important;
 }
 
 .ant-card {

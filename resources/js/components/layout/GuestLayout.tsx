@@ -47,31 +47,37 @@ export const GuestLayout: React.FC<GuestLayoutProps> = ({ children }) => {
   return (
     <Layout className="min-h-screen bg-white dark:bg-gray-900">
       {/* Header */}
-      <Header className="turf-header fixed top-0 z-50 w-full border-b px-4 shadow-sm backdrop-blur-md md:px-8">
-        <div className="mx-auto flex h-full max-w-7xl items-center justify-between">
+      <Header
+        className="turf-header fixed top-0 z-50 w-full shadow-lg backdrop-blur-md transition-all duration-300"
+        style={{
+          background: 'var(--color-turf-green)',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+        }}
+      >
+        <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-4 md:px-8">
           {/* Logo */}
           <Link href={route('welcome')} className="flex items-center space-x-2 transition-transform hover:scale-105">
             <div
               className="flex h-8 w-8 items-center justify-center rounded-lg shadow-lg"
-              style={{ background: 'linear-gradient(135deg, var(--color-turf-green), var(--color-turf-light))' }}
+              style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.1))' }}
             >
               <span className="text-sm font-bold text-white">TH</span>
             </div>
-            <span className="turf-brand-text text-xl font-bold">TurfMate</span>
+            <span className="text-xl font-bold text-white">TurfMate</span>
           </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden items-center space-x-6 md:flex">
-            <Link href={route('welcome')} className="turf-nav-link transition-colors hover:opacity-80">
+            <Link href={route('welcome')} className="text-white/90 transition-colors hover:text-white">
               Home
             </Link>
-            <Link href={route('welcome')} className="turf-nav-link transition-colors hover:opacity-80">
+            <Link href={route('welcome')} className="text-white/90 transition-colors hover:text-white">
               About
             </Link>
-            <Link href={route('welcome')} className="turf-nav-link transition-colors hover:opacity-80">
+            <Link href={route('welcome')} className="text-white/90 transition-colors hover:text-white">
               Pricing
             </Link>
-            <Link href={route('welcome')} className="turf-nav-link transition-colors hover:opacity-80">
+            <Link href={route('welcome')} className="text-white/90 transition-colors hover:text-white">
               Contact
             </Link>
           </nav>
@@ -80,18 +86,14 @@ export const GuestLayout: React.FC<GuestLayoutProps> = ({ children }) => {
           <div className="hidden items-center space-x-3 md:flex">
             <ThemeToggle size="small" />
             <Link href={route('login')}>
-              <Button type="text" className="turf-auth-link transition-colors hover:opacity-80">
+              <Button type="text" className="text-white/90 transition-colors hover:bg-white/10 hover:text-white">
                 Sign In
               </Button>
             </Link>
             <Link href={route('register')}>
               <Button
                 type="primary"
-                className="border-none shadow-lg transition-all duration-200 hover:shadow-xl"
-                style={{
-                  background: 'linear-gradient(135deg, var(--color-turf-green), var(--color-turf-light))',
-                  color: 'white',
-                }}
+                className="border-none bg-white text-green-600 shadow-lg transition-all duration-200 hover:bg-white/90 hover:shadow-xl"
               >
                 Get Started
               </Button>
@@ -101,59 +103,68 @@ export const GuestLayout: React.FC<GuestLayoutProps> = ({ children }) => {
           {/* Mobile Menu Button */}
           <div className="flex items-center space-x-2 md:hidden">
             <ThemeToggle size="small" />
-            <Button type="text" icon={<MenuOutlined />} onClick={toggleMobileMenu} className="turf-nav-link p-2" aria-label="Toggle mobile menu" />
+            <Button
+              type="text"
+              icon={<MenuOutlined />}
+              onClick={toggleMobileMenu}
+              className="p-2 text-white hover:bg-white/10"
+              aria-label="Toggle mobile menu"
+            />
           </div>
         </div>
 
         {/* Mobile Navigation Dropdown */}
         {mobileMenuOpen && (
-          <div ref={mobileMenuRef} className="absolute top-full left-0 w-full border-t bg-white shadow-lg md:hidden dark:bg-gray-800">
+          <div
+            ref={mobileMenuRef}
+            className="absolute top-full left-0 w-full shadow-lg md:hidden"
+            style={{
+              background: 'var(--color-turf-green)',
+              borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+            }}
+          >
             <div className="flex flex-col space-y-1 p-4">
               {/* Mobile Navigation Links */}
               <Link
                 href={route('welcome')}
-                className="turf-nav-link block rounded-lg px-3 py-2 transition-colors hover:bg-gray-100 hover:opacity-80 dark:hover:bg-gray-700"
+                className="block rounded-lg px-3 py-2 text-white/90 transition-colors hover:bg-white/10 hover:text-white"
                 onClick={closeMobileMenu}
               >
                 Home
               </Link>
               <Link
                 href={route('welcome')}
-                className="turf-nav-link block rounded-lg px-3 py-2 transition-colors hover:bg-gray-100 hover:opacity-80 dark:hover:bg-gray-700"
+                className="block rounded-lg px-3 py-2 text-white/90 transition-colors hover:bg-white/10 hover:text-white"
                 onClick={closeMobileMenu}
               >
                 About
               </Link>
               <Link
                 href={route('welcome')}
-                className="turf-nav-link block rounded-lg px-3 py-2 transition-colors hover:bg-gray-100 hover:opacity-80 dark:hover:bg-gray-700"
+                className="block rounded-lg px-3 py-2 text-white/90 transition-colors hover:bg-white/10 hover:text-white"
                 onClick={closeMobileMenu}
               >
                 Pricing
               </Link>
               <Link
                 href={route('welcome')}
-                className="turf-nav-link block rounded-lg px-3 py-2 transition-colors hover:bg-gray-100 hover:opacity-80 dark:hover:bg-gray-700"
+                className="block rounded-lg px-3 py-2 text-white/90 transition-colors hover:bg-white/10 hover:text-white"
                 onClick={closeMobileMenu}
               >
                 Contact
               </Link>
 
               {/* Mobile Auth Buttons */}
-              <div className="mt-4 flex flex-col space-y-2 border-t pt-4">
+              <div className="mt-4 flex flex-col space-y-2 border-t pt-4" style={{ borderColor: 'rgba(255, 255, 255, 0.1)' }}>
                 <Link href={route('login')} onClick={closeMobileMenu}>
-                  <Button type="text" className="turf-auth-link w-full transition-colors hover:opacity-80">
+                  <Button type="text" className="w-full text-white/90 transition-colors hover:bg-white/10 hover:text-white">
                     Sign In
                   </Button>
                 </Link>
                 <Link href={route('register')} onClick={closeMobileMenu}>
                   <Button
                     type="primary"
-                    className="w-full border-none shadow-lg transition-all duration-200 hover:shadow-xl"
-                    style={{
-                      background: 'linear-gradient(135deg, var(--color-turf-green), var(--color-turf-light))',
-                      color: 'white',
-                    }}
+                    className="w-full border-none bg-white text-green-600 shadow-lg transition-all duration-200 hover:bg-white/90 hover:shadow-xl"
                   >
                     Get Started
                   </Button>

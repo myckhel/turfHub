@@ -2,7 +2,6 @@ import {
   AppstoreOutlined,
   ArrowLeftOutlined,
   BellOutlined,
-  CalendarOutlined,
   DashboardOutlined,
   LogoutOutlined,
   MenuOutlined,
@@ -90,13 +89,10 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = memo(
       <Drawer
         title={
           <Link href={route('dashboard')} className="flex items-center space-x-2">
-            <div
-              className="flex h-8 w-8 items-center justify-center rounded-lg shadow-lg"
-              style={{ background: 'linear-gradient(135deg, var(--color-turf-green), var(--color-turf-light))' }}
-            >
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg shadow-lg" style={{ background: 'rgba(255, 255, 255, 0.2)' }}>
               <span className="text-sm font-bold text-white">TH</span>
             </div>
-            <span className="turf-brand-text text-lg font-bold">TurfMate</span>
+            <span className="text-lg font-bold text-white">TurfMate</span>
           </Link>
         }
         placement="left"
@@ -104,9 +100,22 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = memo(
         onClose={() => setMobileMenuOpen(false)}
         width={280}
         className="turf-mobile-sidebar"
-        headerStyle={{ borderBottom: '1px solid var(--color-medium-gray)' }}
+        headerStyle={{
+          borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+          background: 'var(--color-turf-green)',
+        }}
+        bodyStyle={{
+          background: 'linear-gradient(180deg, var(--color-turf-green), rgba(var(--color-turf-green-rgb, 34, 197, 94), 0.95))',
+          padding: 0,
+        }}
       >
-        <Menu mode="inline" items={getMenuItems()} className="turf-sidebar-menu border-r-0" onClick={() => setMobileMenuOpen(false)} />
+        <Menu
+          mode="inline"
+          items={getMenuItems()}
+          className="turf-sidebar-menu border-r-0 bg-transparent"
+          onClick={() => setMobileMenuOpen(false)}
+          theme="dark"
+        />
       </Drawer>
     );
 
@@ -140,38 +149,19 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = memo(
       }
 
       if (isTurfPlayer()) {
-        items.push(
-          {
-            key: 'bookings',
-            icon: <CalendarOutlined />,
-            label: <Link href={route('dashboard')}>My Bookings</Link>,
-          },
-          {
-            key: 'matches',
-            icon: <TrophyOutlined />,
-            label: <Link href={route('dashboard')}>My Matches</Link>,
-          },
-        );
+        items.push({
+          key: 'matches',
+          icon: <TrophyOutlined />,
+          label: <Link href={route('dashboard')}>My Matches</Link>,
+        });
       }
 
       if (isTurfManager() || isTurfAdmin()) {
-        items.push(
-          {
-            key: 'fields',
-            icon: <SettingOutlined />,
-            label: <Link href={route('dashboard')}>Fields</Link>,
-          },
-          {
-            key: 'all-bookings',
-            icon: <CalendarOutlined />,
-            label: <Link href={route('dashboard')}>All Bookings</Link>,
-          },
-          {
-            key: 'reports',
-            icon: <TrophyOutlined />,
-            label: <Link href={route('dashboard')}>Reports</Link>,
-          },
-        );
+        items.push({
+          key: 'reports',
+          icon: <TrophyOutlined />,
+          label: <Link href={route('dashboard')}>Reports</Link>,
+        });
       }
 
       if (isTurfAdmin()) {
@@ -290,31 +280,51 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = memo(
             collapsed={actuallyCollapsed}
             breakpoint="lg"
             collapsedWidth={80}
-            className="turf-sidebar fixed left-0 z-40 h-[calc(100vh-4rem)] transition-transform duration-300"
+            className="turf-sidebar fixed left-0 z-40 h-screen transition-transform duration-300"
             width={280}
+            style={{
+              background: 'linear-gradient(180deg, var(--color-turf-green), rgba(var(--color-turf-green-rgb, 34, 197, 94), 0.95))',
+              borderRight: '1px solid rgba(255, 255, 255, 0.1)',
+            }}
           >
             {/* Logo */}
-            <div className="flex h-16 items-center justify-center border-b" style={{ borderColor: 'var(--color-medium-gray)' }}>
+            <div className="flex h-16 items-center justify-center border-b" style={{ borderColor: 'rgba(255, 255, 255, 0.1)' }}>
               <Link href={route('dashboard')} className="flex items-center space-x-2 transition-transform hover:scale-105">
-                <div
-                  className="flex h-8 w-8 items-center justify-center rounded-lg shadow-lg"
-                  style={{ background: 'linear-gradient(135deg, var(--color-turf-green), var(--color-turf-light))' }}
-                >
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg shadow-lg" style={{ background: 'rgba(255, 255, 255, 0.2)' }}>
                   <span className="text-sm font-bold text-white">TH</span>
                 </div>
-                {!actuallyCollapsed && <span className="turf-brand-text text-lg font-bold">TurfMate</span>}
+                {!actuallyCollapsed && <span className="text-lg font-bold text-white">TurfMate</span>}
               </Link>
             </div>
 
             {/* Navigation Menu */}
-            <Menu mode="inline" items={getMenuItems()} className="turf-sidebar-menu border-r-0" style={{ height: 'calc(100vh - 128px)' }} />
+            <Menu
+              mode="inline"
+              items={getMenuItems()}
+              className="turf-sidebar-menu border-r-0 bg-transparent"
+              style={{
+                height: 'calc(100vh - 64px)',
+                background: 'transparent',
+              }}
+              theme="dark"
+            />
           </Sider>
         )}
 
-        <AntLayout>
+        <AntLayout style={{ marginLeft: useDesktopLayout ? (actuallyCollapsed ? 80 : 280) : 0 }}>
           {/* Enhanced Header for both desktop and mobile */}
           {showHeader && (
-            <Header className="turf-header flex w-full items-center justify-between border-b px-4 shadow-sm backdrop-blur-md">
+            <Header
+              className="turf-header fixed top-0 z-50 flex w-full items-center justify-between shadow-lg backdrop-blur-md transition-all duration-300"
+              style={{
+                background: 'var(--color-turf-green)',
+                borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+                // width: useDesktopLayout ? `calc(100% - ${actuallyCollapsed ? 80 : 280}px)` : '100%',
+                // left: useDesktopLayout ? (actuallyCollapsed ? 80 : 280) : 0,
+                paddingLeft: '16px',
+                paddingRight: '16px',
+              }}
+            >
               {/* Left side - Menu trigger and navigation */}
               <div className="flex items-center space-x-4">
                 {useMobileLayout ? (
@@ -322,10 +332,15 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = memo(
                     type="text"
                     icon={<MenuOutlined />}
                     onClick={() => setMobileMenuOpen(true)}
-                    className="turf-header-btn flex items-center justify-center"
+                    className="flex items-center justify-center text-white hover:bg-white/10"
                   />
                 ) : (
-                  <Button type="text" icon={<MenuOutlined />} onClick={toggleSidebar} className="turf-header-btn flex items-center justify-center" />
+                  <Button
+                    type="text"
+                    icon={<MenuOutlined />}
+                    onClick={toggleSidebar}
+                    className="flex items-center justify-center text-white hover:bg-white/10"
+                  />
                 )}
 
                 {/* Back button for mobile */}
@@ -334,7 +349,7 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = memo(
                     type="text"
                     icon={<ArrowLeftOutlined />}
                     onClick={onBackPress}
-                    className="turf-header-btn flex items-center justify-center"
+                    className="flex items-center justify-center text-white hover:bg-white/10"
                   />
                 )}
 
@@ -355,19 +370,19 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = memo(
                 {/* Notifications */}
                 <Button
                   type="text"
-                  className="turf-header-btn"
+                  className="text-white hover:bg-white/10"
                   icon={
                     <Badge count={0} size="small">
-                      <BellOutlined />
+                      <BellOutlined className="text-white" />
                     </Badge>
                   }
                 />
 
                 {/* User dropdown */}
                 <Dropdown menu={{ items: userMenuItems }} placement="bottomRight" arrow>
-                  <div className="turf-user-dropdown flex cursor-pointer items-center space-x-2 rounded-lg px-2 py-1">
+                  <div className="flex cursor-pointer items-center space-x-2 rounded-lg px-2 py-1 transition-colors hover:bg-white/10">
                     <Avatar size={isMobile ? 'small' : 'default'} src={user?.avatar} icon={<UserOutlined />} />
-                    {!isMobile && <span className="turf-brand-text text-sm font-medium">{user?.name}</span>}
+                    {!isMobile && <span className="text-sm font-medium text-white">{user?.name}</span>}
                   </div>
                 </Dropdown>
               </div>
@@ -377,7 +392,7 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = memo(
           {/* Main Content */}
           <Content
             ref={contentRef}
-            className={`turf-content flex-1 ${showHeader ? '' : ''} ${useDesktopLayout && !actuallyCollapsed ? '' : useDesktopLayout && actuallyCollapsed ? '' : ''} ${useMobileLayout ? 'min-h-[calc(100vh-theme(spacing.16))]' : 'min-h-screen'} transition-all duration-300 ease-out`}
+            className={`turf-content flex-1 transition-all duration-300 ease-out ${showHeader ? '' : ''} ${useMobileLayout ? 'min-h-[calc(100vh-theme(spacing.16))]' : 'min-h-screen'}`}
           >
             <div className={useDesktopLayout ? 'mx-auto max-w-full' : 'mx-auto max-w-screen-xl'}>{children}</div>
           </Content>

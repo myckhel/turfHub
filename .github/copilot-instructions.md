@@ -1,6 +1,6 @@
 ## 🧱 Copilot Instruction Guide for Full-Stack (Laravel + Inertia.js + React + Zustand + TS + AntD + @gsap/react + Workbox pwa)
 
-You are an expert senior fullstack developer working on **TurfMate**, a progressive web app for managing mini football turf sessions (match queueing, team creation, session management).
+You are an expert senior fullstack developer working on **TurfMate**, a progressive web app for managing mini football turf sessions (match queueing, team creation, session management, payments).
 
 ## Backend
 
@@ -19,6 +19,7 @@ You are an expert senior fullstack developer working on **TurfMate**, a progress
 - **Type Hinting & Return Types:** Use **type-hinting** and **return types** in all methods.
 - **Utilizing Observers and Events:** Leverage Laravel's model observers and events when needed for handling actions that require another action to be taken in another context.
 - **Utilize Model Observers:** Use model observers for handling post actions to be done after a model is created, updated, or deleted.
+- **Avoid unnecessary patterns** Avoid returning response()->json() in controllers, 'status' = true and 'message' in responses and avoid inline class imports like `App\Http\Controllers\Api\BankAccountController` instead of `BankAccountController`.
 
 ### Laravel + API + Inertia.js Data Provider Logic
 
@@ -42,34 +43,6 @@ To reuse data provider logic effectively in a Laravel and Inertia.js application
 
 - **Data Logic:** A `ProductService` might have a method `getActiveProducts()` that fetches all active products with their necessary relationships.
 - **Transformation:** A `ProductResource` transforms a `Product` model into a structured array/JSON.
-- **Inertia Controller:**
-
-  ```php
-  // filepath: app/Http/Controllers/Web/ProductController.php
-  use App\Http\Resources\ProductResource;
-  use App\Services\ProductService;
-  use Inertia\Inertia;
-  use Inertia\Response;
-
-  class ProductController extends Controller
-  {
-      protected ProductService $productService;
-
-      public function __construct(ProductService $productService)
-      {
-          $this->productService = $productService;
-      }
-
-      public function index(): Response
-      {
-          $products = $this->productService->getActiveProducts();
-          return Inertia::render('Products/Index', [
-              'products' => ProductResource::collection($products),
-          ]);
-      }
-  }
-  ```
-
 - **API Controller:**
 
   ```php
@@ -103,9 +76,15 @@ To reuse data provider logic effectively in a Laravel and Inertia.js application
 - Add **feedback states**: loading, success, error
 - Resizable panels or collapsible menus (e.g., Team list, Player panel)
 
+### Design Patterns
+
+- **Card with Icons:** Cards with title or metas should have icons to represent the content visually.
+- **Container/Presentational Components:** Separate logic (container) from UI (presentational) components. Container components handle data fetching and state management, while presentational components focus on rendering UI.
+- **Optimize for Mobile:** Ensure components are responsive and touch-friendly.
+
 ### Inertia.js
 
-- **Data Props:** Be selective about the data you pass from Laravel controllers to Inertia pages. Only pass what's necessary for the initial page load.
+- **Data Props:** Be selective about the data you pass from Laravel controllers to Inertia pages. Only pass what's necessary for the initial page load; every other data will be fetched independently.
 - **`usePage` Hook:** Access shared data and props in your React components using the `usePage().props` hook.
 - **Partial Reloads:** Utilize partial reloads (`only` and `except` options) to optimize data fetching when only a portion of the page's data needs to be updated.
 - **`remember`:** Use Inertia's `remember` functionality for preserving component state across page visits, especially for form inputs or filters.
@@ -127,7 +106,11 @@ To reuse data provider logic effectively in a Laravel and Inertia.js application
 ```tsx
 import { memo } from 'react';
 
-const ItemList = memo(({ items }) => {
+interface ItemsProps {
+  items: ItemProps[];
+}
+
+const ItemList = memo(({ items }: ItemsProps) => {
   return (
     <ul>
       {items.map((item) => (
@@ -137,16 +120,20 @@ const ItemList = memo(({ items }) => {
   );
 });
 
-const Item = memo(({ item }) => {
-  return (
-    <li>
-      <h3>{item.title}</h3>
-      <p>{item.description}</p>
-    </li>
-  );
-});
+interface ItemProps {
+  item: { id: number; title: string; description: string };
+}
+
+const Item = memo(({ item }: ItemProps) => (
+  <li>
+    <h3>{item.title}</h3>
+    <p>{item.description}</p>
+  </li>
+));
 export default ItemList;
 ```
+
+-- ** Subcomponents Resource Flex ** Subcomponents that accept a resource in props should also accept the resource id in case the resource is not available in the props, this will allow the component to fetch the resource data from the api module.
 
 ### File-Based API Module Pattern
 
@@ -157,21 +144,15 @@ export default ItemList;
 
 ```typescript
 // filepath: resources/js/apis/turf.ts
-import { api } from './index';
+import api from './index';
 import type { TurfSearchParams, TurfResponse, PaginatedResponse } from '@/types';
 
 export const turfApi = {
-  searchTurfs: async (params: TurfSearchParams): Promise<PaginatedResponse<TurfResponse>> => {
-    return api.get(route('api.turfs.search'), { params });
-  },
+  searchTurfs: (params: TurfSearchParams): Promise<PaginatedResponse<TurfResponse>> => api.get(route('api.turfs.search'), { params }),
 
-  joinTurf: async (turfId: number): Promise<{ success: boolean; message: string }> => {
-    return api.post(route('api.turfs.join', { turf: turfId }));
-  },
+  joinTurf: (turfId: number): Promise<{ success: boolean; message: string }> => api.post(route('api.turfs.join', { turf: turfId })),
 
-  getTurfDetails: async (turfId: number): Promise<TurfResponse> => {
-    return api.get(route('api.turfs.show', { turf: turfId }));
-  },
+  getTurfDetails: (turfId: number): Promise<TurfResponse> => api.get(route('api.turfs.show', { turf: turfId })),
 };
 ```
 
@@ -235,6 +216,7 @@ route('user.profile', { id: user.id });
 - **Ant Design components:** restyled to match Discord’s theme
 - **Form Handling:** Leverage Ant Design's `Form` component for robust form handling, validation, and layout.
 - **Accessibility:** Pay attention to Ant Design's accessibility features and ensure your usage aligns with WCAG guidelines.
+- **Responsive Design:** Use Ant Design's grid and responsive utilities to create layouts that adapt to different screen sizes.
 
 ### TailwindCSS
 
@@ -309,9 +291,21 @@ resources/
 
 **General Tips:**
 
+- Prioritize fetching data independently in components than relying on Laravel to pass all data through Inertia props.
 - Write **unit and feature tests** for both backend and frontend.
 - Use **ESLint** and **Prettier** for code consistency.
 - Document components and APIs with **JSDoc** or PHPDoc.
 - Use **GitHub Actions** or similar for CI/CD.
-- Put theme mode into consideration for frontend, allowing users to switch between light and dark modes seamlessly.
+- Put theme mode into consideration and mobile friendliness for frontend ui/ux.
 - Api documentation exists in the Postman collection file, ensure to check it when there is a need to call an API endpoint.
+- write short code as possible, utilize short hand functions, avoid long lines of code, and use helper functions to break down complex logic.
+- Avoid passing data with services on inertia pages controllers except for binded route resources, instead use api modules to fetch data in the components.
+
+## Workflow
+
+1. First think through the problem, read the codebase for relevant files, and write a plan to tasks/todo.md.
+2. The plan should have a list of todo items that you can check off as you complete them
+3. Before you begin working, check in with me and I will verify the plan.
+4. Then, begin working on the todo items, marking them as complete as you go.
+5. Make every task and code change you do as simple as possible. We want to avoid making any massive or complex changes. Every change should impact as little code as possible. Everything is about simplicity.
+6. Be security concious. put security into consideration by making sure written codes follows security best practices. make sure there are no sensitive information in the front and and there are no vulnerabilities that can be exploited

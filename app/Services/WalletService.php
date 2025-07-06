@@ -440,9 +440,9 @@ class WalletService
     ?string $description = null
   ): void {
     if ($walletHolder instanceof User) {
-      WalletBalanceUpdated::dispatch($walletHolder, $newBalance, $previousBalance, $transactionType, $description);
+      WalletBalanceUpdated::dispatch($walletHolder, $newBalance, $previousBalance ?? 0, $transactionType, $description);
     } elseif ($walletHolder instanceof Turf) {
-      TurfWalletBalanceUpdated::dispatch($walletHolder, $newBalance, $previousBalance, $transactionType, $description);
+      TurfWalletBalanceUpdated::dispatch($walletHolder, $newBalance, $previousBalance ?? 0, $transactionType, $description);
     }
   }
 }

@@ -1,9 +1,12 @@
 import type {
   PaystackCallbacks,
   PaystackConfig,
+  PaystackError,
   PaystackInstance,
+  PaystackLoadResponse,
   PaystackPaymentRequest,
   PaystackTransactionOptions,
+  PaystackTransactionResponse,
   PaystackTransactionType,
 } from '@/types/paystack';
 import Paystack from '@paystack/inline-js';
@@ -14,14 +17,23 @@ import Paystack from '@paystack/inline-js';
 class PaystackService {
   private instance: PaystackInstance;
   private config: PaystackConfig;
+  private onSuccess: (transaction: PaystackTransactionResponse) => void;
+  private onLoad: (response: PaystackLoadResponse) => void;
+  private onCancel: () => void;
+  private onError: (error: PaystackError) => void;
 
-  constructor() {
+  constructor(options: Partial<PaystackCallbacks>) {
     this.instance = new Paystack();
     this.config = {
       publicKey: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || '',
       currency: 'NGN',
       channels: ['card', 'bank', 'ussd', 'mobile_money', 'bank_transfer'],
     };
+
+    this.onSuccess = options.onSuccess || (() => {});
+    this.onLoad = options.onLoad || (() => {});
+    this.onCancel = options.onCancel || (() => {});
+    this.onError = options.onError || ((error) => console.error('Paystack error:', error));
 
     if (!this.config.publicKey) {
       console.warn('Paystack public key not found in environment variables');
@@ -48,7 +60,12 @@ class PaystackService {
    * Resume a transaction with access code
    */
   resumeTransaction(accessCode: string): void {
-    return this.instance.resumeTransaction(accessCode);
+    return this.instance.resumeTransaction(accessCode, {
+      onSuccess: this.onSuccess,
+      onLoad: this.onLoad,
+      onCancel: this.onCancel,
+      onError: this.onError,
+    });
   }
 
   /**
@@ -117,10 +134,10 @@ class PaystackService {
       key: this.config.publicKey,
       amount: this.convertToKobo(options.amount),
       // Override with provided callbacks
-      onSuccess: options.onSuccess || (() => {}),
-      onLoad: options.onLoad || (() => {}),
-      onCancel: options.onCancel || (() => {}),
-      onError: options.onError || ((error) => console.error('Paystack error:', error)),
+      onSuccess: options.onSuccess || this.onSuccess,
+      onLoad: options.onLoad || this.onLoad,
+      onCancel: options.onCancel || this.onCancel,
+      onError: options.onError || this.onError,
     };
   }
 
@@ -170,11 +187,5 @@ class PaystackService {
   }
 }
 
-// Export singleton instance
-export const paystackService = new PaystackService();
-
 // Export class for testing or custom instances
-export { PaystackService };
-
-// Export default
-export default paystackService;
+export default PaystackService;

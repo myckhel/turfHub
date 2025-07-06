@@ -27,7 +27,7 @@ class TurfWalletBalanceUpdated implements ShouldBroadcast
   public function __construct(
     Turf $turf,
     float $newBalance,
-    float $previousBalance,
+    ?float $previousBalance = 0.0,
     string $transactionType,
     ?string $description = null
   ) {

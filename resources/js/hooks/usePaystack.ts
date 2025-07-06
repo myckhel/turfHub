@@ -6,9 +6,9 @@ import type {
   PaystackTransactionResponse,
   PaystackTransactionType,
 } from '@/types/paystack';
-import { paystackService } from '@/utils/paystack';
+import PaystackService from '@/utils/paystack';
 import { usePage } from '@inertiajs/react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 interface UsePaystackOptions {
   onSuccess?: (transaction: PaystackTransactionResponse) => void;
@@ -90,6 +90,11 @@ export const usePaystack = (options: UsePaystackOptions = {}): UsePaystackReturn
     [onLoad, clearError],
   );
 
+  const paystackService = useMemo(
+    () => new PaystackService({ onSuccess: handleSuccess, onCancel: handleCancel, onLoad: handleLoad, onError: handleError }),
+    [],
+  );
+
   // Prepare transaction options with user data and callbacks
   const prepareOptions = useCallback(
     (options: Partial<PaystackTransactionOptions>): PaystackTransactionOptions & PaystackCallbacks => {
@@ -98,132 +103,112 @@ export const usePaystack = (options: UsePaystackOptions = {}): UsePaystackReturn
         email: options.email || getUserEmail(),
         amount: options.amount || 0,
         ...options,
-        onSuccess: handleSuccess,
-        onError: handleError,
-        onCancel: handleCancel,
-        onLoad: handleLoad,
       } as PaystackTransactionOptions & PaystackCallbacks;
     },
-    [getUserEmail, handleSuccess, handleError, handleCancel, handleLoad],
+    [getUserEmail],
   );
 
   // Initiate payment (synchronous)
   const initiatePayment = useCallback(
     (options: Partial<PaystackTransactionOptions>) => {
       if (!getUserEmail()) {
-        handleError({ message: 'User email is required for payment' });
+        setError('User email is required for payment');
         return;
       }
 
       if (!options.amount) {
-        handleError({ message: 'Payment amount is required' });
+        setError('Payment amount is required');
         return;
       }
 
-      try {
-        clearError();
-        const preparedOptions = prepareOptions(options);
-        const result = paystackService.newTransaction(preparedOptions);
-        setTransactionId(result.id);
-      } catch (err) {
-        const error = err as PaystackError;
-        handleError(error);
-      }
+      clearError();
+      const preparedOptions = prepareOptions(options);
+      const result = paystackService.newTransaction(preparedOptions);
+      setTransactionId(result.id);
     },
-    [getUserEmail, handleError, clearError, prepareOptions],
+    [getUserEmail, clearError, prepareOptions, paystackService],
   );
 
   // Initiate payment (asynchronous)
   const initiateAsyncPayment = useCallback(
     async (options: Partial<PaystackTransactionOptions>) => {
       if (!getUserEmail()) {
-        handleError({ message: 'User email is required for payment' });
+        setError('User email is required for payment');
         return;
       }
 
       if (!options.amount) {
-        handleError({ message: 'Payment amount is required' });
+        setError('Payment amount is required');
         return;
       }
 
-      try {
-        clearError();
-        const preparedOptions = prepareOptions(options);
-        await paystackService.checkout(preparedOptions);
-      } catch (err) {
-        const error = err as PaystackError;
-        handleError(error);
-      }
+      clearError();
+      const preparedOptions = prepareOptions(options);
+      await paystackService.checkout(preparedOptions);
     },
-    [getUserEmail, handleError, clearError, prepareOptions],
+    [getUserEmail, clearError, prepareOptions, paystackService],
   );
 
   // Create transaction based on type
   const createTransaction = useCallback(
     (type: PaystackTransactionType, options: Partial<PaystackTransactionOptions>) => {
       if (!getUserEmail()) {
-        handleError({ message: 'User email is required for payment' });
+        setError('User email is required for payment');
         return;
       }
 
       if (!options.amount) {
-        handleError({ message: 'Payment amount is required' });
+        setError('Payment amount is required');
         return;
       }
 
-      try {
-        clearError();
-        const preparedOptions = prepareOptions(options);
-        paystackService.createTransaction(type, preparedOptions, false);
-      } catch (err) {
-        const error = err as PaystackError;
-        handleError(error);
-      }
+      clearError();
+      const preparedOptions = prepareOptions(options);
+      paystackService.createTransaction(type, preparedOptions, false);
     },
-    [getUserEmail, handleError, clearError, prepareOptions],
+    [getUserEmail, clearError, prepareOptions, paystackService],
   );
 
   // Resume transaction
   const resumeTransaction = useCallback(
     (accessCode: string) => {
-      try {
-        clearError();
-        paystackService.resumeTransaction(accessCode);
-      } catch (err) {
-        const error = err as PaystackError;
-        handleError(error);
-      }
+      clearError();
+      paystackService.resumeTransaction(accessCode);
     },
-    [clearError, handleError],
+    [clearError, paystackService],
   );
 
   // Cancel transaction
   const cancelTransaction = useCallback(
     (id: string) => {
-      try {
-        paystackService.cancelTransaction(id);
-        setLoading(false);
-        setError(null);
-      } catch (err) {
-        const error = err as PaystackError;
-        handleError(error);
-      }
+      paystackService.cancelTransaction(id);
+      setLoading(false);
+      setError(null);
     },
-    [handleError],
+    [paystackService],
   );
 
   // Utility functions
-  const generateReference = useCallback((prefix?: string) => {
-    return paystackService.generateReference(prefix);
-  }, []);
+  const generateReference = useCallback(
+    (prefix?: string) => {
+      return paystackService.generateReference(prefix);
+    },
+    [paystackService],
+  );
 
-  const convertToKobo = useCallback((amount: number) => {
-    return paystackService.convertToKobo(amount);
-  }, []);
+  const convertToKobo = useCallback(
+    (amount: number) => {
+      return paystackService.convertToKobo(amount);
+    },
+    [paystackService],
+  );
 
-  const convertFromKobo = useCallback((amount: number) => {
-    return paystackService.convertFromKobo(amount);
-  }, []);
+  const convertFromKobo = useCallback(
+    (amount: number) => {
+      return paystackService.convertFromKobo(amount);
+    },
+    [paystackService],
+  );
 
   // Warn if user is not authenticated
   useEffect(() => {

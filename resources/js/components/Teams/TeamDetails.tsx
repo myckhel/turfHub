@@ -7,6 +7,7 @@ import type { MatchSession } from '../../types/matchSession.types';
 import type { TeamDetails, TeamPlayer } from '../../types/team.types';
 import type { Turf } from '../../types/turf.types';
 import AddPlayerModal from './AddPlayerModal';
+import JoinTeamPaymentModal from './JoinTeamPaymentModal';
 
 const { Title, Text } = Typography;
 
@@ -23,22 +24,17 @@ const TeamDetailsComponent: React.FC<TeamDetailsProps> = memo(({ team, matchSess
   const [loading, setLoading] = useState<{ [key: string]: boolean }>({});
   const [addPlayerModalVisible, setAddPlayerModalVisible] = useState(false);
   const [removePlayerModalVisible, setRemovePlayerModalVisible] = useState(false);
+  const [joinTeamModalVisible, setJoinTeamModalVisible] = useState(false);
   const [playerToRemove, setPlayerToRemove] = useState<TeamPlayer | null>(null);
 
-  const handleJoinTeam = useCallback(async () => {
-    setLoading((prev) => ({ ...prev, join: true }));
+  const handleJoinTeam = useCallback(() => {
+    setJoinTeamModalVisible(true);
+  }, []);
 
-    try {
-      await teamApi.joinSlot({ team_id: team.id });
-      message.success('Successfully joined team!');
-      onUpdate?.();
-    } catch (error) {
-      console.error('Failed to join team:', error);
-      message.error('Failed to join team. Please try again.');
-    } finally {
-      setLoading((prev) => ({ ...prev, join: false }));
-    }
-  }, [team.id, onUpdate]);
+  const handleJoinTeamSuccess = useCallback(() => {
+    setJoinTeamModalVisible(false);
+    onUpdate?.();
+  }, [onUpdate]);
 
   const handleAddPlayer = useCallback(() => {
     setAddPlayerModalVisible(true);
@@ -155,7 +151,7 @@ const TeamDetailsComponent: React.FC<TeamDetailsProps> = memo(({ team, matchSess
           <Col>
             <Space direction="vertical">
               {canJoin && (
-                <Button type="primary" icon={<UserAddOutlined />} loading={loading.join} onClick={handleJoinTeam}>
+                <Button type="primary" icon={<UserAddOutlined />} onClick={handleJoinTeam}>
                   Join Team
                 </Button>
               )}
@@ -288,6 +284,17 @@ const TeamDetailsComponent: React.FC<TeamDetailsProps> = memo(({ team, matchSess
           </div>
         )}
       </Modal>
+
+      {/* Join Team Payment Modal */}
+      <JoinTeamPaymentModal
+        open={joinTeamModalVisible}
+        onCancel={() => setJoinTeamModalVisible(false)}
+        onSuccess={handleJoinTeamSuccess}
+        team={team}
+        slotFee={turf.team_slot_fee || 0}
+        title="Join Team"
+        description={`Join ${team.name} and start playing!`}
+      />
     </div>
   );
 });

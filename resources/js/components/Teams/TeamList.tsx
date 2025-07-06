@@ -2,12 +2,12 @@ import { CrownOutlined, PlusOutlined, TeamOutlined, TrophyOutlined, UserAddOutli
 import { router } from '@inertiajs/react';
 import { Avatar, Badge, Button, Card, Col, Empty, Row, Space, Tag, Typography, message } from 'antd';
 import React, { memo, useCallback, useState } from 'react';
-import { teamApi } from '../../apis/team';
 import { usePermissions } from '../../hooks/usePermissions';
 import type { MatchSession } from '../../types/matchSession.types';
 import type { TeamDetails } from '../../types/team.types';
 import type { Turf } from '../../types/turf.types';
 import AddPlayerModal from './AddPlayerModal';
+import JoinTeamPaymentModal from './JoinTeamPaymentModal';
 
 const { Text } = Typography;
 
@@ -22,27 +22,27 @@ interface TeamListProps {
 const TeamList: React.FC<TeamListProps> = memo(({ teams, matchSession, turf, showJoinButtons = true, onTeamUpdate }) => {
   const permissions = usePermissions();
   const canManageTeams = permissions.canManageTeams();
-  const [loading, setLoading] = useState<{ [key: string]: boolean }>({});
   const [addPlayerModalVisible, setAddPlayerModalVisible] = useState(false);
+  const [joinModalVisible, setJoinModalVisible] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState<TeamDetails | null>(null);
 
   const handleJoinTeam = useCallback(
-    async (teamId: number) => {
-      setLoading((prev) => ({ ...prev, [`join-${teamId}`]: true }));
+    (teamId: number) => {
+      const team = teams.find((t) => t.id === teamId);
+      if (!team) return;
 
-      try {
-        await teamApi.joinSlot({ team_id: teamId });
-        message.success('Successfully joined team!');
-        onTeamUpdate?.();
-      } catch (error) {
-        console.error('Failed to join team:', error);
-        message.error('Failed to join team. Please try again.');
-      } finally {
-        setLoading((prev) => ({ ...prev, [`join-${teamId}`]: false }));
-      }
+      setSelectedTeam(team);
+      setJoinModalVisible(true);
     },
-    [onTeamUpdate],
+    [teams],
   );
+
+  const handleJoinSuccess = useCallback(() => {
+    setJoinModalVisible(false);
+    setSelectedTeam(null);
+    message.success('Successfully joined the team!');
+    onTeamUpdate?.();
+  }, [onTeamUpdate]);
 
   const handleViewTeam = useCallback(
     (teamId: number) => {
@@ -99,28 +99,14 @@ const TeamList: React.FC<TeamListProps> = memo(({ teams, matchSession, turf, sho
       </Button>,
       ...(showJoinButtons && !isTeamFull
         ? [
-            <Button
-              key="join"
-              type="primary"
-              icon={<UserAddOutlined />}
-              loading={loading[`join-${team.id}`]}
-              onClick={() => handleJoinTeam(team.id)}
-              size="small"
-            >
+            <Button key="join" type="primary" icon={<UserAddOutlined />} onClick={() => handleJoinTeam(team.id)} size="small">
               Join Team
             </Button>,
           ]
         : []),
       ...(canManageTeams
         ? [
-            <Button
-              key="add"
-              icon={<PlusOutlined />}
-              loading={loading[`add-${team.id}`]}
-              onClick={() => handleAddPlayer(team.id)}
-              size="small"
-              disabled={isTeamFull}
-            >
+            <Button key="add" icon={<PlusOutlined />} onClick={() => handleAddPlayer(team.id)} size="small" disabled={isTeamFull}>
               Add Player
             </Button>,
           ]
@@ -235,6 +221,22 @@ const TeamList: React.FC<TeamListProps> = memo(({ teams, matchSession, turf, sho
           matchSessionId={matchSession.id}
           currentPlayerCount={selectedTeam.teamPlayers?.length || 0}
           maxPlayers={matchSession.max_players_per_team}
+        />
+      )}
+
+      {/* Join Team Payment Modal */}
+      {selectedTeam && (
+        <JoinTeamPaymentModal
+          open={joinModalVisible}
+          onCancel={() => {
+            setJoinModalVisible(false);
+            setSelectedTeam(null);
+          }}
+          onSuccess={handleJoinSuccess}
+          team={selectedTeam}
+          slotFee={selectedTeam.match_session?.team_slot_fee || 0}
+          title={`Join ${selectedTeam.name}`}
+          description={`Join ${selectedTeam.name} and start playing!`}
         />
       )}
     </>

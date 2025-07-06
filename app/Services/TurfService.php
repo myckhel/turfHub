@@ -227,7 +227,7 @@ class TurfService
   /**
    * Process team slot fee payment when joining a team.
    */
-  public function processTeamSlotPayment(\App\Models\User $user, Turf $turf): array
+  public function processTeamSlotPayment(\App\Models\User $user, Turf $turf, string $paymentMethod = 'paystack'): array
   {
     if (!$turf->requiresTeamSlotFee()) {
       return [
@@ -239,34 +239,65 @@ class TurfService
 
     $amount = $turf->getTeamSlotFee();
 
-    // Here you would integrate with your payment system
-    // For now, we'll simulate a successful payment
-    // In a real implementation, you'd use Paystack or your payment provider
-
     try {
-      // TODO: Integrate with actual payment processor
-      // $paymentResult = $this->processPayment($user, $amount, 'team_slot_fee', $turf);
+      if ($paymentMethod === 'wallet') {
+        // Process wallet payment
+        $walletService = app(\App\Services\WalletService::class);
+        $result = $walletService->processWalletPayment(
+          $user,
+          $turf,
+          $amount,
+          "Team slot fee for {$turf->name}",
+          [
+            'turf_id' => $turf->id,
+            'payment_type' => \App\Models\Payment::TYPE_TEAM_JOINING_FEE
+          ]
+        );
 
-      // For now, simulate successful payment
-      $paymentResult = [
-        'success' => true,
-        'transaction_id' => 'sim_' . uniqid(),
-        'amount' => $amount
-      ];
-
-      if ($paymentResult['success']) {
-        return [
-          'success' => true,
-          'message' => 'Team slot fee payment successful.',
-          'amount_charged' => $amount,
-          'transaction_id' => $paymentResult['transaction_id']
-        ];
+        if ($result['success']) {
+          return [
+            'success' => true,
+            'message' => 'Team slot fee payment successful via wallet.',
+            'amount_charged' => $amount,
+            'payment_method' => 'wallet',
+            'payment_id' => $result['payment']->id,
+            'new_wallet_balance' => $result['payer_balance']
+          ];
+        } else {
+          return [
+            'success' => false,
+            'message' => 'Wallet payment failed: ' . $result['message'],
+            'amount_charged' => 0
+          ];
+        }
       } else {
-        return [
-          'success' => false,
-          'message' => 'Payment failed. Please try again.',
-          'amount_charged' => 0
-        ];
+        // Process Paystack payment
+        $paymentService = app(\App\Services\PaymentService::class);
+        $paymentResult = $paymentService->initializePayment(
+          $user,
+          $turf,
+          $amount,
+          \App\Models\Payment::TYPE_TEAM_JOINING_FEE,
+          "Team slot fee for {$turf->name}"
+        );
+
+        if ($paymentResult['status']) {
+          return [
+            'success' => true,
+            'message' => 'Paystack payment initialized successfully.',
+            'amount_charged' => $amount,
+            'payment_method' => 'paystack',
+            'payment_id' => $paymentResult['data']['payment_id'],
+            'payment_url' => $paymentResult['data']['authorization_url'],
+            'reference' => $paymentResult['data']['reference']
+          ];
+        } else {
+          return [
+            'success' => false,
+            'message' => 'Payment initialization failed: ' . $paymentResult['message'],
+            'amount_charged' => 0
+          ];
+        }
       }
     } catch (\Exception $e) {
       return [

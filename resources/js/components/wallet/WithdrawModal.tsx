@@ -25,7 +25,7 @@ const WithdrawModal: React.FC<WithdrawModalProps> = ({ open, onCancel, onSuccess
     try {
       setLoadingBankAccounts(true);
       const response = await bankAccountApi.getUserBankAccounts();
-      setBankAccounts(response.data);
+      setBankAccounts(response);
     } catch (err: unknown) {
       const error = err as { message?: string };
       console.error('Failed to fetch bank accounts:', error.message);

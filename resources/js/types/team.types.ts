@@ -94,6 +94,21 @@ export interface TeamSlotPaymentResponse {
   status: 'pending' | 'success' | 'failed';
   payment_url?: string; // For Paystack redirect
   reference?: string;
+  access_code: string;
+  message: string;
+  payment_method: string;
+  success: boolean;
+}
+
+export interface PaymentVerificationResponse {
+  success: boolean;
+  message: string;
+  payment_status: 'verified' | 'failed' | 'pending';
+  team_slot?: {
+    id: number;
+    position: number;
+    payment_status: string;
+  };
 }
 
 export interface AvailableTeamSlotsResponse {

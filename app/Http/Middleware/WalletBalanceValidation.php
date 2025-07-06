@@ -30,7 +30,7 @@ class WalletBalanceValidation
     }
 
     // Check if amount is valid
-    if (!$amount || $amount <= 0) {
+    if (isset($amount) && $amount <= 0) {
       return response()->json([
         'error' => 'Invalid Amount',
         'message' => 'Amount must be greater than zero'

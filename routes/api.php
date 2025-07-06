@@ -183,6 +183,12 @@ Route::middleware('auth:sanctum')->name('api.')->group(function () {
     Route::post('turf/{turfId}', [App\Http\Controllers\Api\BankAccountController::class, 'addTurfBankAccount'])->name('turf.store');
   });
 
+  // Payment verification routes
+  Route::prefix('payment-verification')->name('payment-verification.')->group(function () {
+    Route::post('verify-team-slot', [App\Http\Controllers\Api\PaymentVerificationController::class, 'verifyTeamSlotPayment'])->name('verify-team-slot');
+    Route::post('remove-player-from-team', [App\Http\Controllers\Api\PaymentVerificationController::class, 'removePlayerFromTeam'])->name('remove-player-from-team');
+  });
+
   Route::prefix('match-sessions/{matchSession}')->group(function () {
     Route::get('payment-stats', [App\Http\Controllers\Api\PaymentController::class, 'matchSessionStats'])->name('match-sessions.payment-stats');
   });

@@ -214,7 +214,6 @@ class TeamController extends Controller
     $request->validate([
       'position' => 'required|integer|min:1|max:6',
       'payment_method' => 'required|in:paystack,wallet',
-      'redirect_url' => 'sometimes|url'
     ]);
 
     try {
@@ -223,7 +222,6 @@ class TeamController extends Controller
         Auth::user()->id,
         $request->get('position'),
         $request->get('payment_method'),
-        $request->get('redirect_url')
       );
 
       return response()->json($paymentResponse);

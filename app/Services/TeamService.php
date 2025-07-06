@@ -2,10 +2,14 @@
 
 namespace App\Services;
 
+use App\Models\Player;
 use App\Models\Team;
+use App\Models\TeamPlayer;
+use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class TeamService
 {
@@ -243,9 +247,9 @@ class TeamService
   }
 
   /**
-   * Process payment for team slot.
+   * Process payment for team slot with race condition protection.
    */
-  public function processTeamSlotPayment(Team $team, int $userId, int $position, string $paymentMethod, ?string $redirectUrl = null): array
+  public function processTeamSlotPayment(Team $team, int $userId, int $position, string $paymentMethod): array
   {
     $turf = $team->matchSession->turf;
     $teamSlotFee = $turf->team_slot_fee ?? 0;
@@ -254,76 +258,129 @@ class TeamService
       throw new \InvalidArgumentException('No team slot fee required for this turf');
     }
 
-    $user = \App\Models\User::findOrFail($userId);
-    $player = \App\Models\Player::where('user_id', $userId)
+    $user = User::findOrFail($userId);
+    $player = Player::where('user_id', $userId)
       ->where('turf_id', $turf->id)
       ->firstOrFail();
 
-    // Check if player is already in a team slot for this session
-    $existingTeamPlayer = \App\Models\TeamPlayer::whereHas('team', function ($query) use ($team) {
-      $query->where('match_session_id', $team->match_session_id);
-    })
-      ->where('player_id', $player->id)
-      ->first();
+    return DB::transaction(function () use ($team, $player, $position, $paymentMethod, $teamSlotFee, $turf, $user) {
+      // Lock the team to prevent race conditions
+      $team = Team::lockForUpdate()->findOrFail($team->id);
 
-    if ($existingTeamPlayer) {
-      throw new \InvalidArgumentException('Player is already in a team for this session');
-    }
+      // Check if player is already in a team slot for this session
+      $existingTeamPlayer = TeamPlayer::whereHas('team', function ($query) use ($team) {
+        $query->where('match_session_id', $team->match_session_id);
+      })
+        ->where('player_id', $player->id)
+        ->whereIn('payment_status', ['pending', 'confirmed']) // Check both pending and confirmed
+        ->first();
 
-    if ($paymentMethod === 'wallet') {
-      // Process wallet payment
-      $walletService = app(\App\Services\WalletService::class);
-
-      $result = $walletService->processWalletPayment(
-        $user,
-        $turf,
-        $teamSlotFee,
-        "Team slot payment for {$turf->name} - Session {$team->matchSession->id}",
-        [
-          'team_id' => $team->id,
-          'match_session_id' => $team->match_session_id,
-          'position' => $position,
-          'payment_type' => \App\Models\Payment::TYPE_TEAM_JOINING_FEE
-        ]
-      );
-
-      if ($result['success']) {
-        // Add player to team slot after successful payment
-        $this->addPlayerToTeamSlot($team, $player->id, $position);
-
-        return [
-          'success' => true,
-          'payment_method' => 'wallet',
-          'payment_id' => $result['payment']->id,
-          'amount' => $teamSlotFee,
-          'status' => 'success',
-          'message' => 'Payment successful via wallet',
-          'new_wallet_balance' => $result['payer_balance'],
-          'formatted_balance' => '₦' . number_format($result['payer_balance'], 2),
-          'team_slot_added' => true
-        ];
-      } else {
-        return [
-          'success' => false,
-          'payment_method' => 'wallet',
-          'status' => 'failed',
-          'message' => $result['message']
-        ];
+      if ($existingTeamPlayer) {
+        throw new \InvalidArgumentException('Player is already in a team for this session');
       }
-    } else {
-      // Process Paystack payment (existing logic)
-      // This would integrate with PaymentController for Paystack payments
-      return [
-        'success' => true,
-        'payment_method' => 'paystack',
-        'payment_id' => 'pay_' . uniqid(),
-        'amount' => $teamSlotFee,
-        'status' => 'pending',
-        'payment_url' => $redirectUrl ? $redirectUrl . '?payment_id=pay_' . uniqid() : null,
-        'reference' => 'ref_' . uniqid(),
-        'message' => 'Paystack payment initiated'
-      ];
-    }
+
+      // Count only confirmed players for capacity check
+      $confirmedPlayersCount = $team->teamPlayers()->confirmed()->count();
+
+      // Check if team has available slots
+      if ($confirmedPlayersCount >= $team->matchSession->max_players_per_team) {
+        throw new \InvalidArgumentException('Team is full');
+      }
+
+      if ($paymentMethod === 'wallet') {
+        // Process wallet payment
+        $walletService = app(WalletService::class);
+
+        $result = $walletService->processWalletPayment(
+          $user,
+          $turf,
+          $teamSlotFee,
+          "Team slot payment for {$turf->name} - Session {$team->matchSession->id}",
+          [
+            'team_id' => $team->id,
+            'match_session_id' => $team->match_session_id,
+            'position' => $position,
+            'payment_type' => \App\Models\Payment::TYPE_TEAM_JOINING_FEE
+          ]
+        );
+
+        if ($result['success']) {
+          // Add player to team slot after successful payment - wallet payments are immediate
+          $team->teamPlayers()->create([
+            'player_id' => $player->id,
+            'payment_status' => 'confirmed',
+            'payment_reference' => $result['payment']->reference,
+            'join_time' => now(),
+          ]);
+
+          // Set captain if team doesn't have one
+          if (!$team->captain_id) {
+            $team->update(['captain_id' => $player->user_id]);
+          }
+
+          return [
+            'success' => true,
+            'payment_method' => 'wallet',
+            'payment_id' => $result['payment']->id,
+            'amount' => $teamSlotFee,
+            'status' => 'success',
+            'message' => 'Payment successful via wallet',
+            'new_wallet_balance' => $result['payer_balance'],
+            'formatted_balance' => '₦' . number_format($result['payer_balance'], 2),
+            'team_slot_added' => true
+          ];
+        } else {
+          return [
+            'success' => false,
+            'payment_method' => 'wallet',
+            'status' => 'failed',
+            'message' => $result['message']
+          ];
+        }
+      } else {
+        // Process Paystack payment using PaymentService
+        $paymentService = app(\App\Services\PaymentService::class);
+
+        $paymentResult = $paymentService->initializePayment(
+          $user,
+          $team,
+          $teamSlotFee,
+          \App\Models\Payment::TYPE_TEAM_JOINING_FEE,
+          "Team slot payment for {$turf->name} - Session {$team->matchSession->id}"
+        );
+
+        if ($paymentResult['status']) {
+          // Reserve the slot for payment processing with expiry
+          $team->teamPlayers()->create([
+            'player_id' => $player->id,
+            'payment_status' => 'pending',
+            'payment_reference' => $paymentResult['data']['reference'],
+            'reserved_at' => now(),
+          ]);
+
+          return [
+            'success' => true,
+            'payment_method' => 'paystack',
+            'payment_id' => $paymentResult['data']['payment_id'],
+            'amount' => $teamSlotFee,
+            'status' => 'pending',
+            'payment_url' => $paymentResult['data']['authorization_url'],
+            'reference' => $paymentResult['data']['reference'],
+            'access_code' => $paymentResult['data']['access_code'],
+            'message' => 'Paystack payment initiated',
+            'slot_reserved' => true,
+            'expires_at' => now()->addMinutes(5)->toISOString()
+          ];
+        } else {
+          return [
+            'success' => false,
+            'payment_method' => 'paystack',
+            'status' => 'failed',
+            'message' => $paymentResult['message']
+          ];
+        }
+      }
+    });
   }
 
   /**

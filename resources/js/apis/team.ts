@@ -63,7 +63,7 @@ export const teamApi = {
   },
 
   // Process payment for team slot
-  processSlotPayment: async (data: ProcessTeamSlotPaymentRequest): Promise<ApiResponse<TeamSlotPaymentResponse>> => {
+  processSlotPayment: async (data: ProcessTeamSlotPaymentRequest): Promise<TeamSlotPaymentResponse> => {
     return api.post(`/teams/${data.team_id}/process-payment`, data);
   },
 

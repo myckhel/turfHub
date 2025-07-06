@@ -121,9 +121,9 @@ class PlayerService
    * Join a team slot in a match session.
    * This implements the core player flow functionality.
    */
-  public function joinTeamSlot(Player $player, MatchSession $matchSession, ?Team $team, float $paymentAmount): array
+  public function joinTeamSlot(Player $player, MatchSession $matchSession, ?Team $team = null, string $paymentMethod = 'none'): array
   {
-    return DB::transaction(function () use ($player, $matchSession, $team, $paymentAmount) {
+    return DB::transaction(function () use ($player, $matchSession, $team, $paymentMethod) {
       // Verify the player belongs to the same turf as the match session
       if ($player->turf_id !== $matchSession->turf_id) {
         throw new \InvalidArgumentException('Player does not belong to this turf');
@@ -155,36 +155,100 @@ class PlayerService
         throw new \InvalidArgumentException('Team is full');
       }
 
-      // Initialize payment
-      $paymentResult = $this->paymentService->initializeSessionPayment(
-        user: $player->user,
-        matchSession: $matchSession,
-        amount: $paymentAmount,
-        team: $team,
-        paymentType: Payment::TYPE_SESSION_FEE
-      );
+      $paymentAmount = $matchSession->turf->team_slot_fee ?? 0;
 
-      if (!$paymentResult['status']) {
-        throw new \Exception('Payment initialization failed: ' . $paymentResult['message']);
+      // Check if payment is required
+      if ($paymentAmount > 0 && $paymentMethod !== 'none') {
+        if ($paymentMethod === 'wallet') {
+          // Process wallet payment
+          $walletService = app(\App\Services\WalletService::class);
+          $result = $walletService->processWalletPayment(
+            $player->user,
+            $matchSession->turf,
+            $paymentAmount,
+            "Match session fee for {$matchSession->name}",
+            [
+              'match_session_id' => $matchSession->id,
+              'team_id' => $team->id,
+              'payment_type' => Payment::TYPE_SESSION_FEE
+            ]
+          );
+
+          if (!$result['success']) {
+            throw new \Exception('Wallet payment failed: ' . $result['message']);
+          }
+
+          // Add player to team after successful wallet payment
+          $teamPlayer = TeamPlayer::create([
+            'team_id' => $team->id,
+            'player_id' => $player->id,
+            'join_time' => now(),
+          ]);
+
+          // Set captain if this is the first player in the team
+          if ($team->teamPlayers->count() === 0 && !$team->captain_id) {
+            $team->update(['captain_id' => $player->user_id]);
+          }
+
+          return [
+            'team' => $team->load(['teamPlayers.player.user', 'captain', 'matchSession']),
+            'team_player' => $teamPlayer,
+            'payment' => $result['payment'],
+            'payment_method' => 'wallet',
+            'wallet_balance' => $result['payer_balance']
+          ];
+        } else {
+          // Initialize Paystack payment
+          $paymentResult = $this->paymentService->initializePayment(
+            user: $player->user,
+            payable: $matchSession,
+            amount: $paymentAmount,
+            paymentType: Payment::TYPE_SESSION_FEE,
+            description: "Match session fee for {$matchSession->name}"
+          );
+
+          if (!$paymentResult['status']) {
+            throw new \Exception('Payment initialization failed: ' . $paymentResult['message']);
+          }
+
+          // Store team information for later processing after payment
+          cache()->put(
+            "match_session_payment_{$paymentResult['data']['reference']}",
+            [
+              'match_session_id' => $matchSession->id,
+              'team_id' => $team->id,
+              'player_id' => $player->id,
+              'user_id' => $player->user_id
+            ],
+            now()->addHours(1)
+          );
+
+          return [
+            'team' => $team->load(['teamPlayers.player.user', 'captain', 'matchSession']),
+            'payment' => $paymentResult['data'],
+            'payment_method' => 'paystack',
+            'requires_payment' => true
+          ];
+        }
+      } else {
+        // No payment required, add player directly
+        $teamPlayer = TeamPlayer::create([
+          'team_id' => $team->id,
+          'player_id' => $player->id,
+          'join_time' => now(),
+        ]);
+
+        // Set captain if this is the first player in the team
+        if ($team->teamPlayers->count() === 0 && !$team->captain_id) {
+          $team->update(['captain_id' => $player->user_id]);
+        }
+
+        return [
+          'team' => $team->load(['teamPlayers.player.user', 'captain', 'matchSession']),
+          'team_player' => $teamPlayer,
+          'payment_method' => 'none'
+        ];
       }
-
-      // Add player to team
-      $teamPlayer = TeamPlayer::create([
-        'team_id' => $team->id,
-        'player_id' => $player->id,
-        'join_time' => now(),
-      ]);
-
-      // Set captain if this is the first player in the team
-      if ($team->teamPlayers->count() === 1 && !$team->captain_id) {
-        $team->update(['captain_id' => $player->user_id]);
-      }
-
-      return [
-        'team' => $team->load(['teamPlayers.player.user', 'captain', 'matchSession']),
-        'team_player' => $teamPlayer,
-        'payment' => $paymentResult['data'],
-      ];
     });
   }
 
@@ -462,5 +526,55 @@ class PlayerService
     }
 
     return $query;
+  }
+
+  /**
+   * Handle successful match session payment after Paystack verification.
+   */
+  public function handleSuccessfulMatchSessionPayment(string $paymentReference): array
+  {
+    // Get cached match session information
+    $sessionData = cache()->get("match_session_payment_{$paymentReference}");
+
+    if (!$sessionData) {
+      return [
+        'success' => false,
+        'message' => 'Match session payment data not found or expired'
+      ];
+    }
+
+    try {
+      $matchSession = MatchSession::findOrFail($sessionData['match_session_id']);
+      $team = Team::findOrFail($sessionData['team_id']);
+      $player = Player::findOrFail($sessionData['player_id']);
+
+      // Add player to team
+      $teamPlayer = TeamPlayer::create([
+        'team_id' => $team->id,
+        'player_id' => $player->id,
+        'join_time' => now(),
+      ]);
+
+      // Set captain if this is the first player in the team
+      if ($team->teamPlayers->count() === 1 && !$team->captain_id) {
+        $team->update(['captain_id' => $player->user_id]);
+      }
+
+      // Clear the cached data
+      cache()->forget("match_session_payment_{$paymentReference}");
+
+      return [
+        'success' => true,
+        'message' => 'Player successfully added to match session team',
+        'match_session_id' => $matchSession->id,
+        'team_id' => $team->id,
+        'player_id' => $player->id
+      ];
+    } catch (\Exception $e) {
+      return [
+        'success' => false,
+        'message' => 'Failed to add player to match session: ' . $e->getMessage()
+      ];
+    }
   }
 }

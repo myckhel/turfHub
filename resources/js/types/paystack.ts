@@ -88,7 +88,7 @@ export interface PaystackPaymentRequest extends PaystackTransactionOptions, Pays
 export interface PaystackInstance {
   newTransaction: (options: Record<string, unknown>) => { id: string };
   checkout: (options: Record<string, unknown>) => Promise<void>;
-  resumeTransaction: (accessCode: string) => void;
+  resumeTransaction: (accessCode: string, callbacks?: PaystackCallbacks) => void;
   cancelTransaction: (id: string) => void;
   preloadTransaction: (options: Record<string, unknown>) => () => void;
   paymentRequest: (options: Record<string, unknown>) => Promise<void>;

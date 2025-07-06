@@ -1,5 +1,5 @@
 // Payment Components
-export { CustomPaymentExample, default as PaymentExamples, SubscriptionPaymentExample } from './PaymentExamples';
+export { default as PaymentMethodModal } from './PaymentMethodModal';
 export { default as PaymentModal } from './PaymentModal';
 
 // Payment Types

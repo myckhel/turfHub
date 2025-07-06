@@ -75,7 +75,7 @@ class WalletController extends Controller
   }
 
   /**
-   * Deposit money into wallet (this would typically be called after Paystack payment verification)
+   * Deposit money into wallet after Paystack payment verification
    */
   public function deposit(Request $request): JsonResponse
   {
@@ -88,15 +88,70 @@ class WalletController extends Controller
 
       $user = Auth::user();
       $amount = $request->amount;
+      $paymentReference = $request->payment_reference;
+
+      // Verify payment with Paystack before depositing
+      $paymentService = app(\App\Services\PaymentService::class);
+      $verificationResult = $paymentService->verifyPayment($paymentReference);
+
+      if (!$verificationResult['status']) {
+        return response()->json([
+          'status' => false,
+          'message' => 'Payment verification failed: ' . $verificationResult['message']
+        ], 400);
+      }
+
+      $payment = $verificationResult['data']['payment'];
+
+      // Check if payment is successful and belongs to the current user
+      if (!$payment->isSuccessful()) {
+        return response()->json([
+          'status' => false,
+          'message' => 'Payment was not successful'
+        ], 400);
+      }
+
+      if ($payment->user_id !== $user->id) {
+        return response()->json([
+          'status' => false,
+          'message' => 'Payment does not belong to the current user'
+        ], 403);
+      }
+
+      // Check if payment amount matches requested amount
+      if (abs($payment->amount - $amount) > 0.01) {
+        return response()->json([
+          'status' => false,
+          'message' => 'Payment amount does not match the requested amount'
+        ], 400);
+      }
+
+      // Check if payment has already been processed for deposit
+      if (isset($payment->metadata['wallet_deposit_processed'])) {
+        return response()->json([
+          'status' => false,
+          'message' => 'Payment has already been processed for wallet deposit'
+        ], 400);
+      }
+
       $metadata = array_merge($request->metadata ?? [], [
-        'payment_reference' => $request->payment_reference,
-        'deposit_type' => 'paystack_payment'
+        'payment_reference' => $paymentReference,
+        'payment_id' => $payment->id,
+        'deposit_type' => 'paystack_payment',
+        'verified_at' => now()->toISOString()
       ]);
 
-      // TODO: Verify payment with Paystack before depositing
-      // For now, we'll assume payment is verified
-
       $result = $this->walletService->deposit($user, $amount, $metadata);
+
+      if ($result['success']) {
+        // Mark payment as processed for wallet deposit
+        $payment->update([
+          'metadata' => array_merge($payment->metadata ?? [], [
+            'wallet_deposit_processed' => true,
+            'wallet_deposit_processed_at' => now()->toISOString()
+          ])
+        ]);
+      }
 
       if ($result['success']) {
         return response()->json([

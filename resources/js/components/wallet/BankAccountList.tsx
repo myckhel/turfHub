@@ -32,10 +32,10 @@ const BankAccountList: React.FC<BankAccountListProps> = memo(
         let response;
         if (turfId) {
           response = await bankAccountApi.getTurfBankAccounts(turfId);
-          setAccounts(response.data.bank_accounts);
+          setAccounts(response.bank_accounts);
         } else {
           response = await bankAccountApi.getUserBankAccounts();
-          setAccounts(response.data);
+          setAccounts(response);
         }
       } catch (err: unknown) {
         const error = err as { message?: string };

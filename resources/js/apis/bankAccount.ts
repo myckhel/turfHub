@@ -12,7 +12,7 @@ export const bankAccountApi = {
   },
 
   // User bank accounts
-  getUserBankAccounts: async (): Promise<ApiResponse<BankAccount[]>> => {
+  getUserBankAccounts: async (): Promise<BankAccount[]> => {
     return api.get(route('api.bank-accounts.user.index'));
   },
 
@@ -25,7 +25,7 @@ export const bankAccountApi = {
   },
 
   // Turf bank accounts
-  getTurfBankAccounts: async (turfId: number): Promise<ApiResponse<{ turf_id: number; turf_name: string; bank_accounts: BankAccount[] }>> => {
+  getTurfBankAccounts: async (turfId: number): Promise<{ turf_id: number; turf_name: string; bank_accounts: BankAccount[] }> => {
     return api.get(route('api.bank-accounts.turf.index', { turfId }));
   },
 

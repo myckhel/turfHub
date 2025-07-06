@@ -139,7 +139,7 @@ class PaymentService
           'reference' => $reference,
           'user_id' => Auth::user()->id,
           'payable_type' => Wallet::class,
-          'payable_id' => Auth::user()->wallet?->id,
+          'payable_id' => Auth::user()->wallet()->firstOrCreate()->id,
           'status' => $transactionData['status'] === 'success' ? Payment::STATUS_SUCCESS : Payment::STATUS_FAILED,
           'payment_method' => $transactionData['channel'] ?? null,
           'amount' => $transactionData['amount'] / 100, // Convert from kobo to naira

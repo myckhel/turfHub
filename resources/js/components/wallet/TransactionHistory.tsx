@@ -182,8 +182,8 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = memo(({ turfId, co
       key: 'amount',
       width: compact ? 100 : 120,
       align: 'right' as const,
-      render: (amount: number, record: WalletTransaction) => (
-        <div className={`font-medium ${record.type.toLowerCase() === 'deposit' ? 'text-green-600' : 'text-red-600'}`}>{record.formatted_amount}</div>
+      render: (amount: string, record: WalletTransaction) => (
+        <div className={`font-medium ${record.type.toLowerCase() === 'deposit' ? 'text-green-600' : 'text-red-600'}`}>{amount}</div>
       ),
     },
     {

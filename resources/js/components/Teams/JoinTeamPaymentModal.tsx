@@ -147,7 +147,6 @@ const JoinTeamPaymentModal: React.FC<JoinTeamPaymentModalProps> = memo(
           setError(errorMessage);
           message.error(errorMessage);
           setLoading(false);
-          // TODO
           // remove player from team if payment fails
           removePlayerFromTeam(paymentReferenceRef.current);
         }

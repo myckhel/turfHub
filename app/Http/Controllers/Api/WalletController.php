@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Turf;
 use App\Models\BankAccount;
+use App\Services\PaymentService;
 use App\Services\WalletService;
 use App\Services\PaystackTransferService;
 use Illuminate\Http\Request;
@@ -91,7 +92,7 @@ class WalletController extends Controller
       $paymentReference = $request->payment_reference;
 
       // Verify payment with Paystack before depositing
-      $paymentService = app(\App\Services\PaymentService::class);
+      $paymentService = app(PaymentService::class);
       $verificationResult = $paymentService->verifyPayment($paymentReference);
 
       if (!$verificationResult['status']) {

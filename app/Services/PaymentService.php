@@ -6,7 +6,9 @@ use App\Models\Payment;
 use App\Models\MatchSession;
 use App\Models\Team;
 use App\Models\User;
+use Bavix\Wallet\Models\Wallet;
 use Binkode\Paystack\Support\Transaction;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -120,7 +122,7 @@ class PaymentService
   public function verifyPayment(string $reference): array
   {
     try {
-      $payment = Payment::where('reference', $reference)->firstOrFail();
+      $payment = Payment::where('reference', $reference)->first();
 
       $paystackResponse = Transaction::verify($reference);
 
@@ -131,6 +133,24 @@ class PaymentService
       $transactionData = $paystackResponse['data'];
 
       DB::beginTransaction();
+
+      if (!$payment) {
+        $payment = Payment::create([
+          'reference' => $reference,
+          'user_id' => Auth::user()->id,
+          'payable_type' => Wallet::class,
+          'payable_id' => Auth::user()->wallet?->id,
+          'status' => $transactionData['status'] === 'success' ? Payment::STATUS_SUCCESS : Payment::STATUS_FAILED,
+          'payment_method' => $transactionData['channel'] ?? null,
+          'amount' => $transactionData['amount'] / 100, // Convert from kobo to naira
+          'currency' => 'NGN',
+          'gateway_response' => $transactionData['gateway_response'] ?? null,
+          'paid_at' => $transactionData['status'] === 'success' ? now() : null,
+          'metadata' => array_merge($payment->metadata ?? [], [
+            'paystack_data' => $transactionData,
+          ]),
+        ]);
+      }
 
       // Update payment status
       $payment->update([

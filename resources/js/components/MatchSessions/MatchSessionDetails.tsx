@@ -117,26 +117,37 @@ const MatchSessionDetails: React.FC<MatchSessionDetailsProps> = ({ turf, matchSe
       <div className="container mx-auto px-4 py-6">
         {/* Header */}
         <Card className="mb-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <Title level={2} className="mb-2">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex-1">
+              <Title level={2} className="mb-2 text-lg sm:text-xl lg:text-2xl">
                 {matchSession.name}
               </Title>
-              <Space>
-                <Tag color={getStatusColor(matchSession.status)}>{matchSession.status.toUpperCase()}</Tag>
+              <Space wrap className="flex-wrap">
+                <Tag color={getStatusColor(matchSession.status)} className="text-xs sm:text-sm">
+                  {matchSession.status.toUpperCase()}
+                </Tag>
                 {matchSession.is_active && (
-                  <Tag color="green" icon={<PlayCircleOutlined />}>
+                  <Tag color="green" icon={<PlayCircleOutlined />} className="text-xs sm:text-sm">
                     LIVE
                   </Tag>
                 )}
-                <Text type="secondary">{matchSession.time_slot === 'morning' ? '🌅 Morning' : '🌆 Evening'}</Text>
+                <Text type="secondary" className="text-xs sm:text-sm">
+                  {matchSession.time_slot === 'morning' ? '🌅 Morning' : '🌆 Evening'}
+                </Text>
               </Space>
             </div>
 
             {canManageSessions && (
-              <Space>
-                <Button icon={<EditOutlined />} onClick={handleEditSession} disabled={matchSession.status === 'completed'}>
-                  Edit Session
+              <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap lg:flex-nowrap">
+                <Button
+                  icon={<EditOutlined />}
+                  onClick={handleEditSession}
+                  disabled={matchSession.status === 'completed'}
+                  size="small"
+                  className="min-h-[36px] touch-manipulation"
+                >
+                  <span className="hidden sm:inline">Edit Session</span>
+                  <span className="sm:hidden">Edit</span>
                 </Button>
 
                 <Button
@@ -149,8 +160,11 @@ const MatchSessionDetails: React.FC<MatchSessionDetailsProps> = ({ turf, matchSe
                       }),
                     )
                   }
+                  size="small"
+                  className="min-h-[36px] touch-manipulation"
                 >
-                  Manage Teams
+                  <span className="hidden sm:inline">Manage Teams</span>
+                  <span className="sm:hidden">Teams</span>
                 </Button>
 
                 {matchSession.status === 'scheduled' && (
@@ -159,18 +173,28 @@ const MatchSessionDetails: React.FC<MatchSessionDetailsProps> = ({ turf, matchSe
                     icon={<PlayCircleOutlined />}
                     onClick={handleStartSession}
                     loading={actionLoading}
-                    className="border-green-600 bg-green-600 hover:border-green-700 hover:bg-green-700"
+                    className="min-h-[36px] touch-manipulation border-green-600 bg-green-600 hover:border-green-700 hover:bg-green-700"
+                    size="small"
                   >
-                    Start Session
+                    <span className="hidden sm:inline">Start Session</span>
+                    <span className="sm:hidden">Start</span>
                   </Button>
                 )}
 
                 {matchSession.is_active && (
-                  <Button danger icon={<PauseCircleOutlined />} onClick={handleStopSession} loading={actionLoading}>
-                    Stop Session
+                  <Button
+                    danger
+                    icon={<PauseCircleOutlined />}
+                    onClick={handleStopSession}
+                    loading={actionLoading}
+                    size="small"
+                    className="min-h-[36px] touch-manipulation"
+                  >
+                    <span className="hidden sm:inline">Stop Session</span>
+                    <span className="sm:hidden">Stop</span>
                   </Button>
                 )}
-              </Space>
+              </div>
             )}
           </div>
         </Card>
@@ -180,36 +204,40 @@ const MatchSessionDetails: React.FC<MatchSessionDetailsProps> = ({ turf, matchSe
           <OngoingGameMatch gameMatch={ongoingMatch as GameMatchType} matchSession={matchSession} onMatchUpdate={() => window.location.reload()} />
         )}
 
-        <Row gutter={16}>
+        <Row gutter={[12, 16]}>
           {/* Session Details */}
-          <Col span={24} md={12}>
-            <Card title="Session Details" className="mb-6">
-              <Descriptions column={1} size="small">
+          <Col xs={24} lg={12}>
+            <Card title="Session Details" className="mb-4 lg:mb-6">
+              <Descriptions column={1} size="small" className="text-sm">
                 <Descriptions.Item label="Date">
                   <CalendarOutlined className="mr-1" />
-                  {format(new Date(matchSession.session_date), 'MMMM dd, yyyy')}
+                  <span className="text-xs sm:text-sm">{format(new Date(matchSession.session_date), 'MMMM dd, yyyy')}</span>
                 </Descriptions.Item>
                 <Descriptions.Item label="Time">
                   <ClockCircleOutlined className="mr-1" />
-                  {matchSession.start_time} - {matchSession.end_time}
+                  <span className="text-xs sm:text-sm">
+                    {matchSession.start_time} - {matchSession.end_time}
+                  </span>
                 </Descriptions.Item>
                 <Descriptions.Item label="Max Teams">
                   <TeamOutlined className="mr-1" />
-                  {matchSession.max_teams}
+                  <span className="text-xs sm:text-sm">{matchSession.max_teams}</span>
                 </Descriptions.Item>
                 <Descriptions.Item label="Current Teams">
-                  {matchSession.teams?.length || 0} / {matchSession.max_teams}
+                  <span className="text-xs sm:text-sm">
+                    {matchSession.teams?.length || 0} / {matchSession.max_teams}
+                  </span>
                 </Descriptions.Item>
                 <Descriptions.Item label="Matches Played">
                   <TrophyOutlined className="mr-1" />
-                  {matchSession.game_matches?.length || 0}
+                  <span className="text-xs sm:text-sm">{matchSession.game_matches?.length || 0}</span>
                 </Descriptions.Item>
               </Descriptions>
             </Card>
           </Col>
 
           {/* Queue Status */}
-          <Col span={24} md={12}>
+          <Col xs={24} lg={12}>
             <QueueStatus
               matchSessionId={matchSessionId}
               turfId={turfId}
@@ -217,7 +245,7 @@ const MatchSessionDetails: React.FC<MatchSessionDetailsProps> = ({ turf, matchSe
               autoRefresh={true}
               refreshInterval={10000}
               showTitle={true}
-              className="mb-6"
+              className="mb-4 lg:mb-6"
             />
           </Col>
         </Row>
@@ -239,7 +267,7 @@ const MatchSessionDetails: React.FC<MatchSessionDetailsProps> = ({ turf, matchSe
           matchSessionId={matchSessionId}
           turfId={turfId}
           maxPlayersPerTeam={matchSession.max_players_per_team}
-          className="mb-6"
+          className="mb-4 lg:mb-6"
         />
 
         {/* Game Matches */}
@@ -247,7 +275,7 @@ const MatchSessionDetails: React.FC<MatchSessionDetailsProps> = ({ turf, matchSe
           matchSessionId={matchSessionId}
           turfId={turfId}
           title="Match History"
-          className="mb-6"
+          className="mb-4 lg:mb-6"
           autoRefresh={matchSession.is_active}
           refreshInterval={15000}
         />

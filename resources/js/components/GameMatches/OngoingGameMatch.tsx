@@ -1,5 +1,5 @@
 import { ClockCircleOutlined, EditOutlined, PauseCircleOutlined, PlayCircleOutlined, SaveOutlined, TrophyOutlined } from '@ant-design/icons';
-import { Badge, Button, Card, Col, Descriptions, InputNumber, Row, Space, Spin, Tag, Typography, message } from 'antd';
+import { Badge, Button, Card, Col, Descriptions, InputNumber, Row, Spin, Tag, Typography, message } from 'antd';
 import { format } from 'date-fns';
 import React, { useCallback, useEffect, useState } from 'react';
 import { gameMatchApi } from '../../apis/gameMatch';
@@ -241,10 +241,16 @@ const OngoingGameMatch: React.FC<OngoingGameMatchProps> = ({ gameMatch, matchSes
   if (initialLoading) {
     return (
       <Card className="py-8 text-center">
-        <Spin size="large" />
-        <div className="mt-4">
-          <Text type="secondary">Loading match data...</Text>
-        </div>
+        <Row justify="center">
+          <Col xs={24}>
+            <Spin size="large" />
+            <div className="mt-4">
+              <Text type="secondary" className="text-sm sm:text-base">
+                Loading match data...
+              </Text>
+            </div>
+          </Col>
+        </Row>
       </Card>
     );
   }
@@ -253,78 +259,110 @@ const OngoingGameMatch: React.FC<OngoingGameMatchProps> = ({ gameMatch, matchSes
   if (!currentMatch) {
     return (
       <Card className="py-8 text-center">
-        <Text type="secondary">No match data available</Text>
+        <Row justify="center">
+          <Col xs={24}>
+            <Text type="secondary" className="text-sm sm:text-base">
+              No match data available
+            </Text>
+          </Col>
+        </Row>
       </Card>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="ongoing-game-match space-y-4 md:space-y-6">
       {/* Match Header */}
-      <Card>
-        <div className="flex items-center justify-between">
-          <div>
-            <Space align="center">
-              <Title level={3} className="mb-0">
-                {currentMatch.first_team?.name} vs {currentMatch.second_team?.name}
-              </Title>
-              <Badge status={getStatusColor(currentMatch.status)} />
-              <Tag color={getStatusColor(currentMatch.status)} icon={getStatusIcon(currentMatch.status)}>
-                {currentMatch.status.replace('_', ' ').toUpperCase()}
-              </Tag>
-              {isLive && (
-                <Tag color="red" className="animate-pulse">
-                  LIVE
-                </Tag>
-              )}
-            </Space>
-            <div className="mt-2">
-              <Text type="secondary">
-                <ClockCircleOutlined className="mr-1" />
-                {format(new Date(currentMatch.match_time), 'MMM dd, yyyy HH:mm')}
-              </Text>
-            </div>
-          </div>
-
-          {canManageSessions && (
-            <Space>
-              {isUpcoming && (
-                <Button type="primary" icon={<PlayCircleOutlined />} onClick={handleStartMatch} loading={loading}>
-                  Start Match
-                </Button>
-              )}
-
-              {(isLive || isUpcoming) && !isEditingScore && (
-                <Button icon={<EditOutlined />} onClick={() => setIsEditingScore(true)}>
-                  Edit Score
-                </Button>
-              )}
-
-              {isEditingScore && (
-                <Space>
-                  <Button onClick={handleCancelEdit}>Cancel</Button>
-                  <Button icon={<SaveOutlined />} onClick={handleSaveScore} loading={loading}>
-                    Save Score
-                  </Button>
+      <Card className="overflow-hidden">
+        <Row gutter={[16, 16]} align="middle">
+          {/* Title and Status Section */}
+          <Col xs={24} lg={16}>
+            <div className="space-y-3">
+              {/* Team Names - Responsive Layout */}
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
+                <Title level={3} className="mb-0 text-base leading-tight sm:text-lg md:text-xl lg:text-2xl">
+                  <span className="block sm:inline">{currentMatch.first_team?.name}</span>
+                  <span className="mx-2 hidden sm:inline">vs</span>
+                  <span className="block sm:inline">{currentMatch.second_team?.name}</span>
+                </Title>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge status={getStatusColor(currentMatch.status)} />
+                  <Tag color={getStatusColor(currentMatch.status)} icon={getStatusIcon(currentMatch.status)} className="text-xs">
+                    {currentMatch.status.replace('_', ' ').toUpperCase()}
+                  </Tag>
                   {isLive && (
-                    <Button type="primary" danger onClick={handleSetResult} loading={loading}>
-                      End Match & Set Result
-                    </Button>
+                    <Tag color="red" className="animate-pulse text-xs">
+                      LIVE
+                    </Tag>
                   )}
-                </Space>
-              )}
-            </Space>
+                </div>
+              </div>
+
+              {/* Match Time */}
+              <div className="text-xs sm:text-sm">
+                <Text type="secondary">
+                  <ClockCircleOutlined className="mr-1" />
+                  {format(new Date(currentMatch.match_time), 'MMM dd, yyyy HH:mm')}
+                </Text>
+              </div>
+            </div>
+          </Col>
+
+          {/* Action Buttons Section */}
+          {canManageSessions && (
+            <Col xs={24} lg={8}>
+              <div className="flex flex-col gap-2 sm:flex-row lg:flex-col lg:items-end xl:flex-row xl:items-center">
+                {isUpcoming && (
+                  <Button
+                    type="primary"
+                    icon={<PlayCircleOutlined />}
+                    onClick={handleStartMatch}
+                    loading={loading}
+                    className="w-full sm:w-auto"
+                    size="small"
+                  >
+                    <span className="hidden sm:inline">Start Match</span>
+                    <span className="sm:hidden">Start</span>
+                  </Button>
+                )}
+
+                {(isLive || isUpcoming) && !isEditingScore && (
+                  <Button icon={<EditOutlined />} onClick={() => setIsEditingScore(true)} className="w-full sm:w-auto" size="small">
+                    <span className="hidden sm:inline">Edit Score</span>
+                    <span className="sm:hidden">Edit</span>
+                  </Button>
+                )}
+
+                {isEditingScore && (
+                  <div className="flex w-full flex-col gap-2 sm:flex-row">
+                    <Button onClick={handleCancelEdit} className="w-full sm:w-auto" size="small">
+                      Cancel
+                    </Button>
+                    <Button icon={<SaveOutlined />} onClick={handleSaveScore} loading={loading} className="w-full sm:w-auto" size="small">
+                      Save
+                    </Button>
+                    {isLive && (
+                      <Button type="primary" danger onClick={handleSetResult} loading={loading} className="w-full sm:w-auto" size="small">
+                        <span className="hidden md:inline">End Match & Set Result</span>
+                        <span className="md:hidden">End Match</span>
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </div>
+            </Col>
           )}
-        </div>
+        </Row>
       </Card>
 
       {/* Score Display */}
       <Card title="Score" className="text-center">
-        <Row gutter={24} align="middle" justify="center">
-          <Col span={8}>
-            <div className="text-center">
-              <div className="mb-2">
-                <Tag color={currentMatch.first_team?.color || 'blue'} className="px-4 py-2 text-lg">
+        <Row gutter={[16, 24]} align="middle" justify="center">
+          {/* First Team */}
+          <Col className="order-1 sm:order-1">
+            <div className="space-y-3 text-center">
+              <div>
+                <Tag color={currentMatch.first_team?.color || 'blue'} className="px-3 py-1 text-sm font-medium sm:text-base">
                   {currentMatch.first_team?.name}
                 </Tag>
               </div>
@@ -335,25 +373,27 @@ const OngoingGameMatch: React.FC<OngoingGameMatchProps> = ({ gameMatch, matchSes
                   onChange={(value) => setFirstTeamScore(value || 0)}
                   min={0}
                   max={50}
-                  className="text-center"
-                  style={{ fontSize: '2rem', width: '100px' }}
+                  className="w-20 text-center sm:w-24"
+                  style={{ fontSize: '1.5rem' }}
                 />
               ) : (
-                <Text className="text-4xl font-bold">{currentMatch.first_team_score}</Text>
+                <Text className="block text-3xl font-bold sm:text-4xl">{currentMatch.first_team_score}</Text>
               )}
             </div>
           </Col>
 
-          <Col span={8}>
-            <div className="text-center">
-              <Text className="text-6xl font-bold text-gray-400">VS</Text>
+          {/* VS Divider */}
+          <Col className="order-2 sm:order-2">
+            <div className="py-2 text-center sm:py-0">
+              <Text className="text-4xl font-bold text-gray-400 sm:text-6xl">VS</Text>
             </div>
           </Col>
 
-          <Col span={8}>
-            <div className="text-center">
-              <div className="mb-2">
-                <Tag color={currentMatch.second_team?.color || 'red'} className="px-4 py-2 text-lg">
+          {/* Second Team */}
+          <Col className="order-3 sm:order-3">
+            <div className="space-y-3 text-center">
+              <div>
+                <Tag color={currentMatch.second_team?.color || 'red'} className="px-3 py-1 text-sm font-medium sm:text-base">
                   {currentMatch.second_team?.name}
                 </Tag>
               </div>
@@ -364,48 +404,53 @@ const OngoingGameMatch: React.FC<OngoingGameMatchProps> = ({ gameMatch, matchSes
                   onChange={(value) => setSecondTeamScore(value || 0)}
                   min={0}
                   max={50}
-                  className="text-center"
-                  style={{ fontSize: '2rem', width: '100px' }}
+                  className="w-20 text-center sm:w-24"
+                  style={{ fontSize: '1.5rem' }}
                 />
               ) : (
-                <Text className="text-4xl font-bold">{currentMatch.second_team_score}</Text>
+                <Text className="block text-3xl font-bold sm:text-4xl">{currentMatch.second_team_score}</Text>
               )}
             </div>
           </Col>
         </Row>
 
-        {isCompleted && currentMatch.winning_team && (
-          <div className="mt-6">
-            <Tag color="gold" className="px-4 py-2 text-lg">
-              🏆 Winner: {currentMatch.winning_team.name}
-            </Tag>
-          </div>
-        )}
-
-        {isCompleted && !currentMatch.winning_team && currentMatch.first_team_score === currentMatch.second_team_score && (
-          <div className="mt-6">
-            <Tag color="orange" className="px-4 py-2 text-lg">
-              🤝 Draw
-            </Tag>
-          </div>
+        {/* Match Result */}
+        {isCompleted && (
+          <Row justify="center" className="mt-6">
+            <Col xs={24} className="text-center">
+              {currentMatch.winning_team ? (
+                <Tag color="gold" className="px-4 py-2 text-base sm:text-lg">
+                  🏆 Winner: {currentMatch.winning_team.name}
+                </Tag>
+              ) : currentMatch.first_team_score === currentMatch.second_team_score ? (
+                <Tag color="orange" className="px-4 py-2 text-base sm:text-lg">
+                  🤝 Draw
+                </Tag>
+              ) : null}
+            </Col>
+          </Row>
         )}
       </Card>
 
       {/* Match Details */}
-      <Row gutter={16}>
-        <Col span={24} md={12}>
-          <Card title="Match Information" size="small">
-            <Descriptions column={1} size="small">
-              <Descriptions.Item label="Match Session">{currentMatchSession?.name || matchSession?.name}</Descriptions.Item>
+      <Row gutter={[16, 16]}>
+        <Col xs={24} lg={12}>
+          <Card title="Match Information" size="small" className="h-full">
+            <Descriptions column={1} size="small" className="mobile-descriptions">
+              <Descriptions.Item label="Match Session">
+                <span className="text-xs break-words sm:text-sm">{currentMatchSession?.name || matchSession?.name}</span>
+              </Descriptions.Item>
               <Descriptions.Item label="Status">
-                <Tag color={getStatusColor(currentMatch.status)} icon={getStatusIcon(currentMatch.status)}>
+                <Tag color={getStatusColor(currentMatch.status)} icon={getStatusIcon(currentMatch.status)} className="text-xs">
                   {currentMatch.status.replace('_', ' ').toUpperCase()}
                 </Tag>
               </Descriptions.Item>
-              <Descriptions.Item label="Start Time">{format(new Date(currentMatch.match_time), 'MMM dd, yyyy HH:mm')}</Descriptions.Item>
+              <Descriptions.Item label="Start Time">
+                <span className="text-xs sm:text-sm">{format(new Date(currentMatch.match_time), 'MMM dd, yyyy HH:mm')}</span>
+              </Descriptions.Item>
               {currentMatch.outcome && (
                 <Descriptions.Item label="Outcome">
-                  <Tag color={currentMatch.outcome === 'win' ? 'green' : currentMatch.outcome === 'loss' ? 'red' : 'orange'}>
+                  <Tag color={currentMatch.outcome === 'win' ? 'green' : currentMatch.outcome === 'loss' ? 'red' : 'orange'} className="text-xs">
                     {currentMatch.outcome.toUpperCase()}
                   </Tag>
                 </Descriptions.Item>
@@ -414,24 +459,43 @@ const OngoingGameMatch: React.FC<OngoingGameMatchProps> = ({ gameMatch, matchSes
           </Card>
         </Col>
 
-        <Col span={24} md={12}>
-          <Card title="Teams" size="small">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span>{currentMatch.first_team?.name}</span>
-                <Tag color={currentMatch.first_team?.color || 'blue'}>Team 1</Tag>
-              </div>
-              <div className="flex items-center justify-between">
-                <span>{currentMatch.second_team?.name}</span>
-                <Tag color={currentMatch.second_team?.color || 'red'}>Team 2</Tag>
-              </div>
+        <Col xs={24} lg={12}>
+          <Card title="Teams" size="small" className="h-full">
+            <div className="space-y-4">
+              <Row gutter={[8, 8]} align="middle">
+                <Col xs={16} sm={18}>
+                  <span className="block truncate text-sm font-medium sm:text-base">{currentMatch.first_team?.name}</span>
+                </Col>
+                <Col xs={8} sm={6} className="text-right">
+                  <Tag color={currentMatch.first_team?.color || 'blue'} className="text-xs">
+                    Team 1
+                  </Tag>
+                </Col>
+              </Row>
+
+              <Row gutter={[8, 8]} align="middle">
+                <Col xs={16} sm={18}>
+                  <span className="block truncate text-sm font-medium sm:text-base">{currentMatch.second_team?.name}</span>
+                </Col>
+                <Col xs={8} sm={6} className="text-right">
+                  <Tag color={currentMatch.second_team?.color || 'red'} className="text-xs">
+                    Team 2
+                  </Tag>
+                </Col>
+              </Row>
             </div>
           </Card>
         </Col>
       </Row>
 
       {/* Match Events */}
-      {canManageSessions && <MatchEventsList gameMatch={currentMatch} onEventUpdate={loadGameMatch} />}
+      {canManageSessions && (
+        <Row>
+          <Col xs={24}>
+            <MatchEventsList gameMatch={currentMatch} onEventUpdate={loadGameMatch} />
+          </Col>
+        </Row>
+      )}
     </div>
   );
 };

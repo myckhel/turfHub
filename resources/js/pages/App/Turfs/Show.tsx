@@ -12,7 +12,7 @@ import {
   UserOutlined,
 } from '@ant-design/icons';
 import { router } from '@inertiajs/react';
-import { Avatar, Button, Card, Descriptions, Divider, message, Space, Tabs, Tag, Typography } from 'antd';
+import { Avatar, Button, Card, Descriptions, Divider, message, Tabs, Tag, Typography } from 'antd';
 import React, { useState } from 'react';
 
 import { turfApi } from '@/apis/turf';
@@ -127,27 +127,27 @@ const TurfDetail: React.FC<TurfDetailProps> = ({ turf }) => {
   };
 
   const renderOverviewTab = () => (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Basic Info */}
       <Card title="Turf Information">
-        <Descriptions column={1} labelStyle={{ fontWeight: 'bold' }}>
+        <Descriptions column={1} labelStyle={{ fontWeight: 'bold' }} size="small">
           <Descriptions.Item label="Name">
-            <div className="flex items-center">
-              {turf.name}
-              {isOwner && <CrownOutlined className="ml-2 text-yellow-500" />}
-              {isSelected && <CheckCircleOutlined className="ml-2 text-green-500" />}
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-sm sm:text-base">{turf.name}</span>
+              {isOwner && <CrownOutlined className="text-yellow-500" />}
+              {isSelected && <CheckCircleOutlined className="text-green-500" />}
             </div>
           </Descriptions.Item>
           <Descriptions.Item label="Location">
             <div className="flex items-center">
               <EnvironmentOutlined className="mr-2" />
-              {turf.location}
+              <span className="text-sm sm:text-base">{turf.location}</span>
             </div>
           </Descriptions.Item>
           <Descriptions.Item label="Owner">
             <div className="flex items-center">
               <UserOutlined className="mr-2" />
-              {turf.owner?.name || 'Unknown'}
+              <span className="text-sm sm:text-base">{turf.owner?.name || 'Unknown'}</span>
             </div>
           </Descriptions.Item>
           <Descriptions.Item label="Status">
@@ -164,7 +164,7 @@ const TurfDetail: React.FC<TurfDetailProps> = ({ turf }) => {
           <Descriptions.Item label="Max Players per Team">
             <div className="flex items-center">
               <TeamOutlined className="mr-2" />
-              {turf.max_players_per_team} players
+              <span className="text-sm sm:text-base">{turf.max_players_per_team} players</span>
             </div>
           </Descriptions.Item>
         </Descriptions>
@@ -173,8 +173,10 @@ const TurfDetail: React.FC<TurfDetailProps> = ({ turf }) => {
           <>
             <Divider />
             <div>
-              <Text strong>Description:</Text>
-              <Paragraph className="mt-2">{turf.description}</Paragraph>
+              <Text strong className="text-sm sm:text-base">
+                Description:
+              </Text>
+              <Paragraph className="mt-2 text-sm sm:text-base">{turf.description}</Paragraph>
             </div>
           </>
         )}
@@ -183,15 +185,16 @@ const TurfDetail: React.FC<TurfDetailProps> = ({ turf }) => {
       {/* Membership Info */}
       {turf.requires_membership && (
         <Card title="Membership Information">
-          <Descriptions column={1}>
+          <Descriptions column={1} size="small">
             <Descriptions.Item label="Membership Required">
               <Tag color="blue">Yes</Tag>
             </Descriptions.Item>
             {turf.membership_fee && (
               <Descriptions.Item label="Membership Fee">
-                <div className="flex items-center">
-                  <DollarOutlined className="mr-2" />₦{turf.membership_fee}
-                  {turf.membership_type && <span className="ml-2 text-gray-500">({turf.membership_type})</span>}
+                <div className="flex flex-wrap items-center gap-2">
+                  <DollarOutlined />
+                  <span className="text-sm sm:text-base">₦{turf.membership_fee}</span>
+                  {turf.membership_type && <span className="text-xs text-gray-500 sm:text-sm">({turf.membership_type})</span>}
                 </div>
               </Descriptions.Item>
             )}
@@ -291,17 +294,17 @@ const TurfDetail: React.FC<TurfDetailProps> = ({ turf }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-green-900">
-      <div className="container mx-auto px-4 py-6">
+      <div className="container mx-auto px-3 py-4 sm:px-4 sm:py-6">
         {/* Header Card */}
-        <TurfCard variant="hero" className="mb-6">
-          <div className="p-6">
-            <div className="mb-4 flex items-start justify-between">
-              <div>
-                <Title level={1} className="mb-2 text-white">
+        <TurfCard variant="hero" className="mb-4 sm:mb-6">
+          <div className="p-4 sm:p-6">
+            <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div className="flex-1">
+                <Title level={1} className="mb-2 text-xl text-white sm:text-2xl lg:text-3xl">
                   {turf.name}
-                  {isOwner && <CrownOutlined className="ml-3 text-yellow-400" />}
+                  {isOwner && <CrownOutlined className="ml-2 text-yellow-400" />}
                 </Title>
-                <div className="flex items-center space-x-4 text-gray-300">
+                <div className="mb-3 flex flex-col space-y-2 text-sm text-gray-300 sm:flex-row sm:space-y-0 sm:space-x-4 sm:text-base">
                   <div className="flex items-center">
                     <EnvironmentOutlined className="mr-2" />
                     {turf.location}
@@ -312,7 +315,7 @@ const TurfDetail: React.FC<TurfDetailProps> = ({ turf }) => {
                   </div>
                 </div>
               </div>
-              <div className="text-right">
+              <div className="shrink-0">
                 {/* Turf Wallet Balance - Only for admins/owners */}
                 {canViewTurfWallet && (
                   <div className="mb-3">
@@ -320,34 +323,40 @@ const TurfDetail: React.FC<TurfDetailProps> = ({ turf }) => {
                   </div>
                 )}
 
-                {turf.is_active ? (
-                  <Tag color="green" className="mb-2">
-                    <CheckCircleOutlined className="mr-1" />
-                    Active
-                  </Tag>
-                ) : (
-                  <Tag color="red" className="mb-2">
-                    <CloseCircleOutlined className="mr-1" />
-                    Inactive
-                  </Tag>
-                )}
-                {isSelected && (
-                  <div>
+                <div className="flex flex-wrap gap-2">
+                  {turf.is_active ? (
+                    <Tag color="green" className="mb-2">
+                      <CheckCircleOutlined className="mr-1" />
+                      Active
+                    </Tag>
+                  ) : (
+                    <Tag color="red" className="mb-2">
+                      <CloseCircleOutlined className="mr-1" />
+                      Inactive
+                    </Tag>
+                  )}
+                  {isSelected && (
                     <Tag color="blue">
                       <CheckCircleOutlined className="mr-1" />
                       Current Turf
                     </Tag>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             </div>
 
-            {turf.description && <Paragraph className="mb-4 text-lg text-gray-200">{turf.description}</Paragraph>}
+            {turf.description && <Paragraph className="mb-4 text-sm text-gray-200 sm:text-lg">{turf.description}</Paragraph>}
 
             {/* Action Buttons */}
-            <Space wrap>
+            <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
               {isOwner ? (
-                <Button type="primary" size="large" icon={<EditOutlined />} onClick={() => router.visit(route('web.turfs.edit', { turf: turf.id }))}>
+                <Button
+                  type="primary"
+                  size="large"
+                  icon={<EditOutlined />}
+                  onClick={() => router.visit(route('web.turfs.edit', { turf: turf.id }))}
+                  className="w-full sm:w-auto"
+                >
                   Edit Turf
                 </Button>
               ) : (
@@ -359,11 +368,14 @@ const TurfDetail: React.FC<TurfDetailProps> = ({ turf }) => {
                         size="large"
                         icon={isSelected ? <CloseCircleOutlined /> : <CheckCircleOutlined />}
                         onClick={handleSelectTurf}
+                        className="w-full sm:w-auto"
                       >
-                        {isSelected ? 'Deselect Turf' : 'Select as Current'}
+                        <span className="hidden sm:inline">{isSelected ? 'Deselect Turf' : 'Select as Current'}</span>
+                        <span className="sm:hidden">{isSelected ? 'Deselect' : 'Select'}</span>
                       </Button>
-                      <Button danger size="large" icon={<LogoutOutlined />} loading={loading} onClick={handleLeaveTurf}>
-                        Leave Turf
+                      <Button danger size="large" icon={<LogoutOutlined />} loading={loading} onClick={handleLeaveTurf} className="w-full sm:w-auto">
+                        <span className="hidden sm:inline">Leave Turf</span>
+                        <span className="sm:hidden">Leave</span>
                       </Button>
                     </>
                   ) : (
@@ -374,18 +386,21 @@ const TurfDetail: React.FC<TurfDetailProps> = ({ turf }) => {
                       loading={loading}
                       onClick={handleJoinTurf}
                       disabled={!turf.is_active}
+                      className="w-full sm:w-auto"
                     >
-                      Join Turf
+                      <span className="hidden sm:inline">Join Turf</span>
+                      <span className="sm:hidden">Join</span>
                       {turf.requires_membership && turf.membership_fee && <span className="ml-2">(₦{turf.membership_fee})</span>}
                     </Button>
                   )}
                 </>
               )}
 
-              <Button size="large" onClick={() => router.visit(route('web.turfs.index'))}>
-                Back to Turfs
+              <Button size="large" onClick={() => router.visit(route('web.turfs.index'))} className="w-full sm:w-auto">
+                <span className="hidden sm:inline">Back to Turfs</span>
+                <span className="sm:hidden">Back</span>
               </Button>
-            </Space>
+            </div>
           </div>
         </TurfCard>
 
@@ -394,6 +409,7 @@ const TurfDetail: React.FC<TurfDetailProps> = ({ turf }) => {
           <Tabs
             activeKey={activeTab}
             onChange={setActiveTab}
+            size="small"
             items={[
               {
                 key: 'overview',
@@ -402,12 +418,22 @@ const TurfDetail: React.FC<TurfDetailProps> = ({ turf }) => {
               },
               {
                 key: 'players',
-                label: `Players (${turf.players?.length || 0})`,
+                label: (
+                  <>
+                    <span className="hidden sm:inline">Players ({turf.players?.length || 0})</span>
+                    <span className="sm:hidden">Players</span>
+                  </>
+                ),
                 children: renderPlayersTab(),
               },
               {
                 key: 'match-sessions',
-                label: 'Match Sessions',
+                label: (
+                  <>
+                    <span className="hidden sm:inline">Match Sessions</span>
+                    <span className="sm:hidden">Sessions</span>
+                  </>
+                ),
                 children: renderMatchSessionsTab(),
               },
             ]}

@@ -219,8 +219,6 @@ const MatchEventsList: React.FC<MatchEventsListProps> = ({ gameMatch, onEventUpd
     },
   ];
 
-  console.log(teamPlayers);
-
   return (
     <>
       <Card
@@ -292,7 +290,7 @@ const MatchEventsList: React.FC<MatchEventsListProps> = ({ gameMatch, onEventUpd
               <Form.Item name="player_id" label="Player" rules={[{ required: true, message: 'Please select player' }]}>
                 <Select placeholder="Select player" showSearch optionFilterProp="children">
                   {teamPlayers.map((player) => (
-                    <Option key={player.id} value={player.id}>
+                    <Option key={player.player_id} value={player.player_id}>
                       {player.player.user.name} (
                       {player.team_id === gameMatch.first_team_id ? gameMatch.first_team?.name : gameMatch.second_team?.name})
                     </Option>
@@ -309,7 +307,7 @@ const MatchEventsList: React.FC<MatchEventsListProps> = ({ gameMatch, onEventUpd
                 <Form.Item name="related_player_id" label="Related Player (for substitution)">
                   <Select placeholder="Select related player" allowClear>
                     {teamPlayers.map((player) => (
-                      <Option key={player.id} value={player.id}>
+                      <Option key={player.player_id} value={player.player_id}>
                         {player.player.user.name} (
                         {player.team_id === gameMatch.first_team_id ? gameMatch.first_team?.name : gameMatch.second_team?.name})
                       </Option>

@@ -81,3 +81,67 @@
   transform: scale(1.1);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
+
+/* OngoingGameMatch Mobile Responsive Styles */
+.mobile-descriptions .ant-descriptions-item-label,
+.mobile-descriptions .ant-descriptions-item-content {
+  padding: 4px 0 !important;
+}
+
+@media (max-width: 575px) {
+  /* Compact spacing for mobile */
+  .ongoing-game-match .ant-card {
+    padding: 12px;
+  }
+
+  .ongoing-game-match .ant-card-head {
+    padding: 8px 12px;
+    min-height: auto;
+  }
+
+  .ongoing-game-match .ant-card-body {
+    padding: 12px;
+  }
+
+  /* Score display adjustments */
+  .ongoing-game-match .ant-input-number {
+    width: 60px !important;
+    font-size: 1.25rem !important;
+  }
+
+  /* Tag adjustments */
+  .ongoing-game-match .ant-tag {
+    font-size: 11px;
+    padding: 2px 6px;
+    line-height: 1.2;
+  }
+
+  /* Button adjustments */
+  .ongoing-game-match .ant-btn {
+    height: 32px;
+    padding: 4px 8px;
+    font-size: 12px;
+  }
+
+  /* Typography adjustments */
+  .ongoing-game-match .ant-typography h3 {
+    font-size: 16px !important;
+    line-height: 1.3 !important;
+    margin-bottom: 8px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Extra small devices */
+  .ongoing-game-match .ant-col {
+    margin-bottom: 8px;
+  }
+
+  .ongoing-game-match .ant-descriptions-item-label {
+    font-size: 11px;
+  }
+
+  .ongoing-game-match .ant-descriptions-item-content {
+    font-size: 12px;
+  }
+}

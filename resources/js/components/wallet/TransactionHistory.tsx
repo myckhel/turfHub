@@ -146,10 +146,11 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = memo(({ turfId, co
       title: 'Date',
       dataIndex: 'created_at',
       key: 'created_at',
-      width: compact ? 120 : 150,
+      width: compact ? 100 : 120,
+      fixed: 'left' as const,
       render: (date: string) => (
-        <div className="text-sm">
-          <div>{format(new Date(date), 'MMM dd, yyyy')}</div>
+        <div className="text-xs sm:text-sm">
+          <div className="font-medium">{format(new Date(date), 'MMM dd')}</div>
           <div className="text-gray-500">{format(new Date(date), 'HH:mm')}</div>
         </div>
       ),
@@ -158,10 +159,12 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = memo(({ turfId, co
       title: 'Type',
       dataIndex: 'type',
       key: 'type',
-      width: compact ? 100 : 120,
+      width: compact ? 80 : 100,
       render: (type: string) => (
-        <Tag color={getTransactionTypeColor(type)} className="font-medium">
-          {getTransactionTypeIcon(type)} {type.toUpperCase()}
+        <Tag color={getTransactionTypeColor(type)} className="text-xs font-medium">
+          <span className="hidden sm:inline">{getTransactionTypeIcon(type)} </span>
+          <span className="sm:hidden">{getTransactionTypeIcon(type)}</span>
+          <span className="hidden sm:inline">{type.toUpperCase()}</span>
         </Tag>
       ),
     },
@@ -170,9 +173,10 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = memo(({ turfId, co
       dataIndex: 'description',
       key: 'description',
       ellipsis: true,
+      width: compact ? 150 : 200,
       render: (description: string) => (
         <Tooltip title={description}>
-          <Text className={compact ? 'text-sm' : ''}>{description}</Text>
+          <Text className={`${compact ? 'text-xs' : 'text-sm'} block max-w-[120px] truncate sm:max-w-none`}>{description}</Text>
         </Tooltip>
       ),
     },
@@ -180,18 +184,27 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = memo(({ turfId, co
       title: 'Amount',
       dataIndex: 'amount',
       key: 'amount',
-      width: compact ? 100 : 120,
+      width: compact ? 90 : 110,
       align: 'right' as const,
+      fixed: 'right' as const,
       render: (amount: string, record: WalletTransaction) => (
-        <div className={`font-medium ${record.type.toLowerCase() === 'deposit' ? 'text-green-600' : 'text-red-600'}`}>{amount}</div>
+        <div className={`text-xs font-medium sm:text-sm ${record.type.toLowerCase() === 'deposit' ? 'text-green-600' : 'text-red-600'}`}>
+          {amount}
+        </div>
       ),
     },
     {
       title: 'Status',
       dataIndex: 'confirmed',
       key: 'confirmed',
-      width: compact ? 80 : 100,
-      render: (confirmed: boolean) => <Tag color={confirmed ? 'green' : 'orange'}>{confirmed ? 'Confirmed' : 'Pending'}</Tag>,
+      width: compact ? 70 : 90,
+      fixed: 'right' as const,
+      render: (confirmed: boolean) => (
+        <Tag color={confirmed ? 'green' : 'orange'} className="text-xs">
+          <span className="hidden sm:inline">{confirmed ? 'Confirmed' : 'Pending'}</span>
+          <span className="sm:hidden">{confirmed ? '✓' : '⏳'}</span>
+        </Tag>
+      ),
     },
   ];
 
@@ -221,14 +234,22 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = memo(({ turfId, co
         </div>
       }
       extra={
-        <Space>
+        <Space className="flex-wrap">
           {showFilters && (
-            <Button icon={<FilterOutlined />} onClick={() => setShowFiltersPanel(!showFiltersPanel)} type={showFiltersPanel ? 'primary' : 'default'}>
-              Filters
+            <Button
+              icon={<FilterOutlined />}
+              onClick={() => setShowFiltersPanel(!showFiltersPanel)}
+              type={showFiltersPanel ? 'primary' : 'default'}
+              size="small"
+              className="min-h-[36px] touch-manipulation"
+            >
+              <span className="hidden sm:inline">Filters</span>
             </Button>
           )}
           <Dropdown menu={{ items: exportMenuItems }} placement="bottomRight">
-            <Button icon={<ExportOutlined />}>Export</Button>
+            <Button icon={<ExportOutlined />} size="small" className="min-h-[36px] touch-manipulation">
+              <span className="hidden sm:inline">Export</span>
+            </Button>
           </Dropdown>
         </Space>
       }
@@ -236,14 +257,15 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = memo(({ turfId, co
     >
       {showFiltersPanel && (
         <Card size="small" className="mb-4">
-          <Row gutter={[16, 16]}>
-            <Col xs={24} sm={12} md={6}>
+          <Row gutter={[12, 12]}>
+            <Col xs={24} sm={12} lg={6}>
               <Select
                 placeholder="Transaction Type"
                 allowClear
                 value={filters.type}
                 onChange={(value) => handleFilterChange({ type: value })}
                 className="w-full"
+                size="small"
                 options={[
                   { label: 'Deposit', value: 'deposit' },
                   { label: 'Withdrawal', value: 'withdraw' },
@@ -252,7 +274,7 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = memo(({ turfId, co
                 ]}
               />
             </Col>
-            <Col xs={24} sm={12} md={6}>
+            <Col xs={24} sm={12} lg={6}>
               <RangePicker
                 placeholder={['Start Date', 'End Date']}
                 onChange={(dates) => {
@@ -265,32 +287,37 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = memo(({ turfId, co
                   }
                 }}
                 className="w-full"
+                size="small"
+                format="MMM DD"
               />
             </Col>
-            <Col xs={24} sm={12} md={6}>
+            <Col xs={24} sm={12} lg={6}>
               <Select
                 placeholder="Status"
                 allowClear
                 value={filters.status}
                 onChange={(value) => handleFilterChange({ status: value })}
                 className="w-full"
+                size="small"
                 options={[
                   { label: 'Confirmed', value: 'confirmed' },
                   { label: 'Pending', value: 'pending' },
                 ]}
               />
             </Col>
-            <Col xs={24} sm={12} md={6}>
-              <Space>
+            <Col xs={24} sm={12} lg={6}>
+              <Space className="flex w-full justify-between">
                 <Input.Search
-                  placeholder="Search transactions..."
+                  placeholder="Search..."
                   value={filters.search}
                   onChange={(e) => handleFilterChange({ search: e.target.value })}
                   onSearch={(value) => handleFilterChange({ search: value })}
                   allowClear
+                  size="small"
+                  className="flex-1"
                 />
                 {Object.keys(filters).length > 0 && (
-                  <Button onClick={clearFilters} size="small">
+                  <Button onClick={clearFilters} size="small" className="ml-2">
                     Clear
                   </Button>
                 )}
@@ -323,17 +350,23 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = memo(({ turfId, co
         <Empty description="No transactions found" image={Empty.PRESENTED_IMAGE_SIMPLE} />
       ) : (
         <>
-          <Table
-            columns={columns}
-            dataSource={transactions}
-            rowKey="id"
-            pagination={false}
-            size={compact ? 'small' : 'middle'}
-            scroll={{ x: compact ? 600 : 800 }}
-          />
+          <div className="overflow-x-auto">
+            <Table
+              columns={columns}
+              dataSource={transactions}
+              rowKey="id"
+              pagination={false}
+              size={compact ? 'small' : 'middle'}
+              scroll={{
+                x: 'max-content',
+                scrollToFirstRowOnChange: true,
+              }}
+              className="transaction-table"
+            />
+          </div>
 
           {total > pageSize && (
-            <div className="mt-4 text-center">
+            <div className="mt-4 flex flex-col items-center space-y-2 sm:space-y-0">
               <Pagination
                 current={currentPage}
                 pageSize={pageSize}
@@ -343,8 +376,15 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = memo(({ turfId, co
                   setPageSize(size || pageSize);
                 }}
                 showSizeChanger
-                showQuickJumper
-                showTotal={(total, range) => `${range[0]}-${range[1]} of ${total} transactions`}
+                showQuickJumper={!compact}
+                showTotal={(total, range) => (
+                  <span className="text-xs sm:text-sm">
+                    {range[0]}-{range[1]} of {total} transactions
+                  </span>
+                )}
+                size="small"
+                className="flex-wrap justify-center"
+                responsive
               />
             </div>
           )}

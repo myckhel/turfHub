@@ -34,6 +34,22 @@ const MatchSessionList: React.FC<MatchSessionListProps> = ({ turfId, showCreateB
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<{ [key: number]: boolean }>({});
 
+  // Move getStatusColor function to be accessible by both table and cards
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active':
+        return 'success';
+      case 'scheduled':
+        return 'blue';
+      case 'completed':
+        return 'default';
+      case 'cancelled':
+        return 'error';
+      default:
+        return 'default';
+    }
+  };
+
   const loadMatchSessions = useCallback(async () => {
     setLoading(true);
     try {
@@ -108,19 +124,139 @@ const MatchSessionList: React.FC<MatchSessionListProps> = ({ turfId, showCreateB
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active':
-        return 'success';
-      case 'scheduled':
-        return 'blue';
-      case 'completed':
-        return 'default';
-      case 'cancelled':
-        return 'error';
-      default:
-        return 'default';
-    }
+  // Mobile-friendly card component for match sessions
+  interface MatchSessionCardProps {
+    session: MatchSession;
+    canManageSessions: boolean;
+    actionLoading: { [key: number]: boolean };
+    onView: (sessionId: number) => void;
+    onEdit: (sessionId: number) => void;
+    onStart: (sessionId: number) => void;
+    onStop: (sessionId: number) => void;
+    onDelete: (sessionId: number) => void;
+  }
+
+  const MatchSessionCard: React.FC<MatchSessionCardProps> = ({
+    session,
+    canManageSessions,
+    actionLoading,
+    onView,
+    onEdit,
+    onStart,
+    onStop,
+    onDelete,
+  }) => {
+    return (
+      <Card
+        size="small"
+        className="mb-3"
+        extra={
+          <div className="flex flex-wrap gap-1">
+            <Tag color={getStatusColor(session.status)} className="text-xs">
+              {session.status.toUpperCase()}
+            </Tag>
+            {session.is_active && (
+              <Tag color="green" icon={<PlayCircleOutlined />} className="text-xs">
+                LIVE
+              </Tag>
+            )}
+          </div>
+        }
+      >
+        <div className="space-y-3">
+          {/* Header */}
+          <div>
+            <Title level={5} className="mb-1 text-sm">
+              {session.name}
+            </Title>
+            <Text type="secondary" className="text-xs">
+              {session.time_slot === 'morning' ? '🌅 Morning' : '🌆 Evening'}
+            </Text>
+          </div>
+
+          {/* Date & Time */}
+          <div className="flex flex-col gap-1 text-xs">
+            <div className="flex items-center gap-1">
+              <CalendarOutlined />
+              <span>{format(new Date(session.session_date), 'MMM dd, yyyy')}</span>
+            </div>
+            <div className="flex items-center gap-1 text-gray-500">
+              <ClockCircleOutlined />
+              <span>
+                {session.start_time} - {session.end_time}
+              </span>
+            </div>
+          </div>
+
+          {/* Stats */}
+          <div className="flex items-center justify-between text-xs">
+            <div className="flex items-center gap-1">
+              <TeamOutlined />
+              <span>
+                {session.teams?.length || 0} / {session.max_teams} teams
+              </span>
+            </div>
+            <div className="flex items-center gap-1">
+              <TrophyOutlined />
+              <span>{session.game_matches?.length || 0} matches</span>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex flex-wrap gap-1">
+            <Button type="text" size="small" icon={<EyeOutlined />} onClick={() => onView(session.id)}>
+              View
+            </Button>
+
+            {canManageSessions && (
+              <>
+                <Button type="text" size="small" icon={<EditOutlined />} onClick={() => onEdit(session.id)} disabled={session.status === 'completed'}>
+                  Edit
+                </Button>
+
+                {session.status === 'scheduled' && (
+                  <Button
+                    type="text"
+                    size="small"
+                    icon={<PlayCircleOutlined />}
+                    onClick={() => onStart(session.id)}
+                    loading={actionLoading[session.id]}
+                    className="text-green-600 hover:text-green-700"
+                  >
+                    Start
+                  </Button>
+                )}
+
+                {session.is_active && (
+                  <Button
+                    type="text"
+                    size="small"
+                    icon={<PauseCircleOutlined />}
+                    onClick={() => onStop(session.id)}
+                    loading={actionLoading[session.id]}
+                    className="text-orange-600 hover:text-orange-700"
+                  >
+                    Stop
+                  </Button>
+                )}
+
+                <Popconfirm
+                  title="Delete session?"
+                  description="This action cannot be undone"
+                  onConfirm={() => onDelete(session.id)}
+                  okText="Yes"
+                  cancelText="No"
+                >
+                  <Button type="text" size="small" icon={<DeleteOutlined />} loading={actionLoading[session.id]} danger>
+                    Delete
+                  </Button>
+                </Popconfirm>
+              </>
+            )}
+          </div>
+        </div>
+      </Card>
+    );
   };
 
   const columns = [
@@ -291,15 +427,35 @@ const MatchSessionList: React.FC<MatchSessionListProps> = ({ turfId, showCreateB
       className="w-full"
     >
       {matchSessions.length > 0 ? (
-        <Table
-          dataSource={matchSessions}
-          columns={columns}
-          rowKey="id"
-          pagination={false}
-          size="middle"
-          scroll={{ y: maxHeight }}
-          loading={loading}
-        />
+        <>
+          <div className="hidden md:block">
+            <Table
+              dataSource={matchSessions}
+              columns={columns}
+              rowKey="id"
+              pagination={false}
+              size="middle"
+              scroll={{ y: maxHeight }}
+              loading={loading}
+            />
+          </div>
+
+          <div className="block md:hidden">
+            {matchSessions.map((session) => (
+              <MatchSessionCard
+                key={session.id}
+                session={session}
+                canManageSessions={canManageSessions}
+                actionLoading={actionLoading}
+                onView={handleViewSession}
+                onEdit={handleEditSession}
+                onStart={handleStartSession}
+                onStop={handleStopSession}
+                onDelete={handleDeleteSession}
+              />
+            ))}
+          </div>
+        </>
       ) : (
         <Empty description="No match sessions found" image={Empty.PRESENTED_IMAGE_SIMPLE}>
           {canManageSessions && (

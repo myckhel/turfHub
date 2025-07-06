@@ -1,6 +1,6 @@
 import { walletApi, type WalletBalance } from '@/apis/wallet';
 import { EyeInvisibleOutlined, EyeOutlined, MinusOutlined, PlusOutlined, WalletOutlined } from '@ant-design/icons';
-import { Alert, Button, Card, Col, Row, Space, Spin, Statistic, Typography } from 'antd';
+import { Alert, Button, Card, Col, Row, Spin, Statistic, Typography } from 'antd';
 import React, { useCallback, useEffect, useState } from 'react';
 import DepositModal from './DepositModal';
 import WithdrawModal from './WithdrawModal';
@@ -98,10 +98,10 @@ const WalletOverview: React.FC<WalletOverviewProps> = ({ userId, turfId, showAct
       <Card
         className={`wallet-overview ${compact ? '' : 'min-h-48'}`}
         title={
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2">
               <WalletOutlined className="text-primary" />
-              <Title level={compact ? 5 : 4} className="mb-0">
+              <Title level={compact ? 5 : 4} className="mb-0 text-sm sm:text-base">
                 {turfId ? 'Turf Wallet' : 'My Wallet'}
               </Title>
             </div>
@@ -110,50 +110,45 @@ const WalletOverview: React.FC<WalletOverviewProps> = ({ userId, turfId, showAct
                 type="text"
                 icon={balanceVisible ? <EyeInvisibleOutlined /> : <EyeOutlined />}
                 onClick={() => setBalanceVisible(!balanceVisible)}
-                className="text-gray-500"
+                className="self-start text-gray-500 sm:self-auto"
+                size="small"
               />
             )}
           </div>
         }
-        extra={
-          showActions &&
-          !compact && (
-            <Space>
-              <Button type="primary" icon={<PlusOutlined />} onClick={handleDepositClick} size={compact ? 'small' : undefined}>
-                Deposit
-              </Button>
-              <Button icon={<MinusOutlined />} onClick={handleWithdrawClick} size={compact ? 'small' : undefined}>
-                Withdraw
-              </Button>
-            </Space>
-          )
-        }
       >
-        <Row gutter={compact ? 8 : 16}>
-          <Col span={compact ? 24 : 12}>
+        <Row gutter={[8, 16]}>
+          <Col xs={24} sm={compact ? 24 : 16} md={compact ? 24 : 12}>
             <Statistic
               title="Current Balance"
               value={balanceVisible ? balance?.balance : '****'}
               precision={2}
               prefix="₦"
-              className="text-center"
+              className="text-center sm:text-left"
               valueStyle={{
                 color: '#52c41a',
-                fontSize: compact ? '1.5rem' : '2rem',
+                fontSize: compact ? '1.25rem' : window.innerWidth < 640 ? '1.5rem' : '2rem',
                 fontWeight: 'bold',
               }}
             />
           </Col>
 
           {!compact && (
-            <Col span={12}>
-              <div className="flex flex-col gap-2">
-                <div className="text-xs tracking-wide text-gray-500 uppercase">Quick Actions</div>
-                <div className="flex gap-2">
-                  <Button type="primary" ghost icon={<PlusOutlined />} onClick={handleDepositClick} className="flex-1" size="small">
+            <Col xs={24} sm={8} md={12}>
+              <div className="flex flex-col gap-3">
+                <div className="hidden text-xs tracking-wide text-gray-500 uppercase sm:block">Quick Actions</div>
+                <div className="flex flex-col gap-2 sm:gap-1">
+                  <Button
+                    type="primary"
+                    ghost
+                    icon={<PlusOutlined />}
+                    onClick={handleDepositClick}
+                    className="min-h-[44px] w-full touch-manipulation"
+                    size="small"
+                  >
                     Add Money
                   </Button>
-                  <Button icon={<MinusOutlined />} onClick={handleWithdrawClick} className="flex-1" size="small">
+                  <Button icon={<MinusOutlined />} onClick={handleWithdrawClick} className="min-h-[44px] w-full touch-manipulation" size="small">
                     Withdraw
                   </Button>
                 </div>
@@ -162,12 +157,31 @@ const WalletOverview: React.FC<WalletOverviewProps> = ({ userId, turfId, showAct
           )}
         </Row>
 
+        {/* Mobile action buttons for non-compact mode */}
+        {!compact && showActions && (
+          <div className="mt-4 flex flex-col gap-2 md:hidden">
+            <Button type="primary" icon={<PlusOutlined />} onClick={handleDepositClick} className="min-h-[44px] w-full touch-manipulation">
+              Deposit Money
+            </Button>
+            <Button icon={<MinusOutlined />} onClick={handleWithdrawClick} className="min-h-[44px] w-full touch-manipulation">
+              Withdraw Money
+            </Button>
+          </div>
+        )}
+
+        {/* Compact mode action buttons */}
         {compact && showActions && (
-          <div className="mt-4 flex gap-2">
-            <Button type="primary" icon={<PlusOutlined />} onClick={handleDepositClick} size="small" className="flex-1">
+          <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={handleDepositClick}
+              size="small"
+              className="min-h-[44px] flex-1 touch-manipulation"
+            >
               Deposit
             </Button>
-            <Button icon={<MinusOutlined />} onClick={handleWithdrawClick} size="small" className="flex-1">
+            <Button icon={<MinusOutlined />} onClick={handleWithdrawClick} size="small" className="min-h-[44px] flex-1 touch-manipulation">
               Withdraw
             </Button>
           </div>

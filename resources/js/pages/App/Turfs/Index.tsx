@@ -28,13 +28,13 @@ const TurfListHeader: React.FC = () => {
   };
 
   return (
-    <div className="my-6">
-      <div className="flex items-center justify-between">
+    <div className="my-4 sm:my-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <Title level={2} className="mb-2 text-white">
+          <Title level={2} className="mb-2 text-lg text-white sm:text-xl lg:text-2xl">
             Discover Turfs
           </Title>
-          <Text className="text-base text-gray-300">Find and join football turfs in your area</Text>
+          <Text className="text-sm text-gray-300 sm:text-base">Find and join football turfs in your area</Text>
         </div>
         <Button
           type="primary"
@@ -43,7 +43,8 @@ const TurfListHeader: React.FC = () => {
           onClick={handleCreateTurf}
           className="border-green-600 bg-green-600 hover:border-green-700 hover:bg-green-700"
         >
-          Create Turf
+          <span className="hidden sm:inline">Create Turf</span>
+          <span className="sm:hidden">Create</span>
         </Button>
       </div>
     </div>
@@ -71,28 +72,44 @@ const TurfSearch: React.FC<TurfSearchProps> = ({ onSearch, onFilterChange, curre
   };
 
   return (
-    <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="mb-4 flex flex-col gap-4 sm:mb-6 sm:flex-row sm:items-center sm:justify-between">
       <Search
-        placeholder="Search turfs by name or location..."
+        placeholder="Search turfs..."
         allowClear
         enterButton={<SearchOutlined />}
         size="large"
         value={searchTerm}
         onChange={handleChange}
         onSearch={handleSearch}
-        className="max-w-md"
+        className="w-full sm:max-w-md"
         loading={loading}
       />
 
-      <div className="flex gap-2">
-        <Button type={currentFilter === 'all' ? 'primary' : 'default'} icon={<FilterOutlined />} onClick={() => onFilterChange('all')}>
-          All
+      <div className="flex flex-wrap gap-2 sm:gap-2">
+        <Button
+          type={currentFilter === 'all' ? 'primary' : 'default'}
+          icon={<FilterOutlined />}
+          onClick={() => onFilterChange('all')}
+          className="flex-1 sm:flex-none"
+        >
+          <span className="hidden sm:inline">All</span>
         </Button>
-        <Button type={currentFilter === 'owned' ? 'primary' : 'default'} icon={<CrownOutlined />} onClick={() => onFilterChange('owned')}>
-          My Turfs
+        <Button
+          type={currentFilter === 'owned' ? 'primary' : 'default'}
+          icon={<CrownOutlined />}
+          onClick={() => onFilterChange('owned')}
+          className="flex-1 sm:flex-none"
+        >
+          <span className="hidden sm:inline">My Turfs</span>
+          <span className="sm:hidden">Mine</span>
         </Button>
-        <Button type={currentFilter === 'joined' ? 'primary' : 'default'} icon={<TeamOutlined />} onClick={() => onFilterChange('joined')}>
-          Joined
+        <Button
+          type={currentFilter === 'joined' ? 'primary' : 'default'}
+          icon={<TeamOutlined />}
+          onClick={() => onFilterChange('joined')}
+          className="flex-1 sm:flex-none"
+        >
+          <span className="hidden sm:inline">Joined</span>
         </Button>
       </div>
     </div>
@@ -132,24 +149,33 @@ const TurfCardActions: React.FC<TurfCardActionsProps> = ({ turf, isMember, isSel
   };
 
   return (
-    <div className="flex gap-2">
-      <Button type="default" size="small" onClick={handleViewDetails} className="flex-1">
-        View Details
+    <div className="flex flex-col gap-2 sm:flex-row sm:gap-2">
+      <Button type="default" size="small" onClick={handleViewDetails} className="flex-1 text-xs sm:text-sm">
+        <span className="hidden sm:inline">View Details</span>
+        <span className="sm:hidden">View</span>
       </Button>
 
       {isOwner ? (
-        <Button type="default" size="small" icon={<EditOutlined />} onClick={handleEdit} className="flex-1">
-          Edit
+        <Button type="default" size="small" icon={<EditOutlined />} onClick={handleEdit} className="flex-1 text-xs sm:text-sm">
+          <span className="hidden sm:inline">Edit</span>
         </Button>
       ) : (
         <>
           {isMember ? (
-            <Button type={isSelected ? 'default' : 'primary'} size="small" onClick={handleSelect} className="flex-1">
+            <Button type={isSelected ? 'default' : 'primary'} size="small" onClick={handleSelect} className="flex-1 text-xs sm:text-sm">
               {isSelected ? 'Deselect' : 'Select'}
             </Button>
           ) : (
-            <Button type="primary" size="small" loading={joinLoading} onClick={handleJoin} disabled={!turf.is_active} className="flex-1">
-              Join Turf
+            <Button
+              type="primary"
+              size="small"
+              loading={joinLoading}
+              onClick={handleJoin}
+              disabled={!turf.is_active}
+              className="flex-1 text-xs sm:text-sm"
+            >
+              <span className="hidden sm:inline">Join Turf</span>
+              <span className="sm:hidden">Join</span>
             </Button>
           )}
         </>
@@ -183,21 +209,21 @@ const TurfListCard: React.FC<TurfListCardProps> = ({ turf, user, selectedTurf, b
       className={`turf-card ${isSelected ? 'selected' : ''}`}
       onPress={() => router.visit(route('web.turfs.show', { turf: turf.id }))}
     >
-      <div className="p-4">
+      <div className="p-3 sm:p-4">
         {/* Header */}
-        <div className="mb-3 flex items-start justify-between">
+        <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex-1">
-            <Title level={4} className="mb-1 text-white">
+            <Title level={4} className="mb-1 text-sm text-white sm:text-base">
               {turf.name}
-              {isOwner && <CrownOutlined className="ml-2 text-yellow-400" />}
-              {isSelected && <CheckCircleOutlined className="ml-2 text-green-400" />}
+              {isOwner && <CrownOutlined className="ml-1 text-yellow-400 sm:ml-2" />}
+              {isSelected && <CheckCircleOutlined className="ml-1 text-green-400 sm:ml-2" />}
             </Title>
-            <Text type="secondary" className="flex items-center text-gray-300">
+            <Text type="secondary" className="flex items-center text-xs text-gray-300 sm:text-sm">
               <EnvironmentOutlined className="mr-1" />
               {turf.location}
             </Text>
           </div>
-          <div className="text-right">
+          <div className="shrink-0">
             {turf.is_active ? (
               <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800">Active</span>
             ) : (
@@ -208,26 +234,27 @@ const TurfListCard: React.FC<TurfListCardProps> = ({ turf, user, selectedTurf, b
 
         {/* Description */}
         {turf.description && (
-          <Paragraph className="mb-3 text-gray-200" ellipsis={{ rows: 2, expandable: false }}>
+          <Paragraph className="mb-3 text-xs text-gray-200 sm:text-sm" ellipsis={{ rows: 2, expandable: false }}>
             {turf.description}
           </Paragraph>
         )}
 
         {/* Stats */}
-        <div className="mb-4 flex items-center justify-between text-sm text-gray-300">
+        <div className="mb-4 flex flex-col gap-2 text-xs text-gray-300 sm:flex-row sm:items-center sm:justify-between sm:text-sm">
           <div className="flex items-center">
             <TeamOutlined className="mr-1" />
-            Max {turf.max_players_per_team} players/team
+            <span className="hidden sm:inline">Max {turf.max_players_per_team} players/team</span>
+            <span className="sm:hidden">{turf.max_players_per_team} players/team</span>
           </div>
-          <div className="text-right">
+          <div className="space-y-1 sm:text-right">
             {turf.requires_membership && (
-              <div className="mb-1">
+              <div>
                 <div className="font-medium text-yellow-400">{turf.membership_fee ? `₦${turf.membership_fee}` : 'Membership Required'}</div>
                 {turf.membership_type && <div className="text-xs text-gray-400">{turf.membership_type}</div>}
               </div>
             )}
             {turf.team_slot_fee && turf.team_slot_fee > 0 && (
-              <div className="mt-1">
+              <div>
                 <div className="font-medium text-blue-400">₦{turf.team_slot_fee} per slot</div>
                 <div className="text-xs text-gray-400">team fee</div>
               </div>
@@ -253,12 +280,12 @@ const TurfListCard: React.FC<TurfListCardProps> = ({ turf, user, selectedTurf, b
 // Loading Skeleton Component
 const TurfGridSkeleton: React.FC = () => {
   const skeletonCards = Array.from({ length: 6 }, (_, index) => (
-    <Card key={index} className="h-64">
+    <Card key={index} className="h-48 sm:h-64">
       <Skeleton active avatar={false} title={{ width: '60%' }} paragraph={{ rows: 3, width: ['100%', '80%', '60%'] }} />
     </Card>
   ));
 
-  return <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">{skeletonCards}</div>;
+  return <div className="mb-4 grid grid-cols-1 gap-3 sm:mb-6 sm:gap-4 md:grid-cols-2 lg:grid-cols-3">{skeletonCards}</div>;
 };
 
 // Turf Grid Component
@@ -282,7 +309,7 @@ const TurfGrid: React.FC<TurfGridProps> = ({ turfs, loading, user, selectedTurf,
   return (
     <Spin spinning={loading && turfs.length > 0}>
       {turfs.length > 0 ? (
-        <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="mb-4 grid grid-cols-1 gap-3 sm:mb-6 sm:gap-4 md:grid-cols-2 lg:grid-cols-3">
           {turfs.map((turf) => (
             <TurfListCard
               key={turf.id}
@@ -478,7 +505,7 @@ const TurfList: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-green-900">
-      <div className="container mx-auto px-4 py-6">
+      <div className="container mx-auto px-3 py-4 sm:px-4 sm:py-6">
         {/* Current Selection Info */}
         <SelectedTurfCard buttonText="View Turf" />
 

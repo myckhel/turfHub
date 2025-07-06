@@ -1,6 +1,6 @@
 import { CalendarOutlined, PauseCircleOutlined, PlayCircleOutlined, TeamOutlined, TrophyOutlined } from '@ant-design/icons';
 import { router } from '@inertiajs/react';
-import { Button, Card, Empty, Row, Space, Spin, Tag, Typography } from 'antd';
+import { Button, Card, Empty, Spin, Tag, Typography } from 'antd';
 import { format } from 'date-fns';
 import React, { useCallback, useEffect, useState } from 'react';
 import { matchSessionApi } from '../apis/matchSession';
@@ -63,32 +63,33 @@ const SessionCard: React.FC<{
       className="mb-4 w-full"
       size="small"
       extra={
-        <Space>
+        <div className="flex flex-col items-end gap-2 sm:flex-row sm:items-center">
           {getStatusTag(session.status)}
           {canManageSessions && session.status === 'active' && (
             <Button
               size="small"
               type="link"
+              className="p-1 text-xs sm:p-2 sm:text-sm"
               onClick={() => router.visit(route('web.turfs.match-sessions.show', { turf: session.turf_id, matchSession: session.id }))}
             >
               Manage
             </Button>
           )}
-        </Space>
+        </div>
       }
     >
-      <div className="flex items-center justify-between">
-        <div>
-          <Title level={5} className="mb-1">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex-1">
+          <Title level={5} className="mb-1 text-sm sm:text-base">
             {session.name}
           </Title>
-          <Text type="secondary" className="text-sm">
+          <Text type="secondary" className="text-xs sm:text-sm">
             {formatTime(session.start_time)} - {formatTime(session.end_time)}
           </Text>
         </div>
 
-        <div className="text-right">
-          <div className="flex items-center gap-2 text-sm text-gray-600">
+        <div className="flex items-center justify-between sm:justify-end">
+          <div className="flex items-center gap-2 text-xs text-gray-600 sm:text-sm">
             <TeamOutlined />
             <span>
               {session.teams?.length || 0}/{session.max_teams} teams
@@ -183,12 +184,18 @@ const TurfLiveSessions: React.FC<TurfLiveSessionsProps> = ({ turfId, turf, autoR
     <div className="mb-6">
       {/* Header */}
       <Card className="mb-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <Title level={3} className="mb-1">
-              🟢 Live Sessions {turf?.name && `- ${turf.name}`}
+            <Title level={3} className="mb-1 text-lg sm:text-xl">
+              🟢 Live Sessions
+              {turf?.name && (
+                <>
+                  <span className="hidden sm:inline"> - {turf.name}</span>
+                  <div className="block text-sm font-normal text-gray-500 sm:hidden">{turf.name}</div>
+                </>
+              )}
             </Title>
-            <Text type="secondary">
+            <Text type="secondary" className="text-sm">
               {activeSessions.length} active session{activeSessions.length !== 1 ? 's' : ''}
             </Text>
           </div>
@@ -196,11 +203,11 @@ const TurfLiveSessions: React.FC<TurfLiveSessionsProps> = ({ turfId, turf, autoR
       </Card>
 
       {/* Active Sessions */}
-      <Row className="w-full">
+      <div className="space-y-4">
         {activeSessions.map((session) => (
           <SessionCard key={session.id} session={session} />
         ))}
-      </Row>
+      </div>
     </div>
   );
 };

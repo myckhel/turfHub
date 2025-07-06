@@ -90,45 +90,55 @@ const BankAccountList: React.FC<BankAccountListProps> = memo(
     const renderAccountItem = (account: BankAccount) => (
       <List.Item
         key={account.id}
-        className={`bank-account-item ${selectable ? 'cursor-pointer hover:bg-gray-50' : ''} ${
+        className={`bank-account-item transition-colors duration-200 ${selectable ? 'cursor-pointer touch-manipulation hover:bg-gray-50' : ''} ${
           selectedAccount?.id === account.id ? 'border-blue-200 bg-blue-50' : ''
-        }`}
+        } p-3 sm:p-4`}
         onClick={selectable ? () => handleAccountSelect(account) : undefined}
         actions={
           showActions && !selectable
             ? [
-                <Tooltip title="Edit Account" key="edit">
-                  <Button
-                    type="text"
-                    icon={<EditOutlined />}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleEditAccount(account);
-                    }}
-                    size="small"
-                  />
-                </Tooltip>,
-                <Popconfirm
-                  key="delete"
-                  title="Remove Bank Account"
-                  description="Are you sure you want to remove this bank account?"
-                  onConfirm={(e) => {
-                    e?.stopPropagation();
-                    handleDeleteAccount(account.id);
-                  }}
-                  okText="Remove"
-                  cancelText="Cancel"
-                  okType="danger"
-                >
-                  <Tooltip title="Remove Account">
-                    <Button type="text" icon={<DeleteOutlined />} danger onClick={(e) => e.stopPropagation()} size="small" />
+                <div key="actions" className="flex gap-1">
+                  <Tooltip title="Edit Account">
+                    <Button
+                      type="text"
+                      icon={<EditOutlined />}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEditAccount(account);
+                      }}
+                      size="small"
+                      className="min-h-[36px] min-w-[36px] touch-manipulation"
+                    />
                   </Tooltip>
-                </Popconfirm>,
+                  <Popconfirm
+                    title="Remove Bank Account"
+                    description="Are you sure you want to remove this bank account?"
+                    onConfirm={(e) => {
+                      e?.stopPropagation();
+                      handleDeleteAccount(account.id);
+                    }}
+                    okText="Remove"
+                    cancelText="Cancel"
+                    okType="danger"
+                    placement="topRight"
+                  >
+                    <Tooltip title="Remove Account">
+                      <Button
+                        type="text"
+                        icon={<DeleteOutlined />}
+                        danger
+                        onClick={(e) => e.stopPropagation()}
+                        size="small"
+                        className="min-h-[36px] min-w-[36px] touch-manipulation"
+                      />
+                    </Tooltip>
+                  </Popconfirm>
+                </div>,
               ]
             : selectable && selectedAccount?.id === account.id
               ? [
-                  <Tag color="blue" key="selected">
-                    Selected
+                  <Tag color="blue" key="selected" className="touch-manipulation">
+                    <span className="text-xs">Selected</span>
                   </Tag>,
                 ]
               : []
@@ -136,33 +146,37 @@ const BankAccountList: React.FC<BankAccountListProps> = memo(
       >
         <List.Item.Meta
           avatar={
-            <div className={`flex h-10 w-10 items-center justify-center rounded-full ${account.is_verified ? 'bg-green-100' : 'bg-orange-100'}`}>
-              <BankOutlined className={account.is_verified ? 'text-green-600' : 'text-orange-600'} />
+            <div
+              className={`flex h-10 w-10 items-center justify-center rounded-full sm:h-12 sm:w-12 ${
+                account.is_verified ? 'bg-green-100' : 'bg-orange-100'
+              }`}
+            >
+              <BankOutlined className={`${account.is_verified ? 'text-green-600' : 'text-orange-600'} text-lg sm:text-xl`} />
             </div>
           }
           title={
-            <div className="flex items-center gap-2">
-              <Text strong className={compact ? 'text-sm' : ''}>
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-2">
+              <Text strong className={`${compact ? 'text-sm' : 'text-base'} leading-tight`}>
                 {account.bank_name}
               </Text>
               {account.is_verified ? (
-                <Tag color="green" icon={<CheckCircleOutlined />}>
+                <Tag color="green" icon={<CheckCircleOutlined />} className="text-xs">
                   Verified
                 </Tag>
               ) : (
-                <Tag color="orange" icon={<ExclamationCircleOutlined />}>
+                <Tag color="orange" icon={<ExclamationCircleOutlined />} className="text-xs">
                   Pending
                 </Tag>
               )}
             </div>
           }
           description={
-            <div className="space-y-1">
-              <div className={`text-gray-600 ${compact ? 'text-xs' : 'text-sm'}`}>
-                <strong>Account:</strong> {account.account_number}
+            <div className="mt-1 space-y-1">
+              <div className={`text-gray-600 ${compact ? 'text-xs' : 'text-sm'} leading-tight`}>
+                <span className="font-medium">Account:</span> {account.account_number}
               </div>
-              <div className={`text-gray-600 ${compact ? 'text-xs' : 'text-sm'}`}>
-                <strong>Name:</strong> {account.account_name}
+              <div className={`text-gray-600 ${compact ? 'text-xs' : 'text-sm'} leading-tight`}>
+                <span className="font-medium">Name:</span> {account.account_name}
               </div>
             </div>
           }
@@ -214,8 +228,15 @@ const BankAccountList: React.FC<BankAccountListProps> = memo(
           }
           extra={
             showActions && (
-              <Button type="primary" icon={<PlusOutlined />} onClick={handleAddAccount} size={compact ? 'small' : undefined}>
-                Add Account
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={handleAddAccount}
+                size={compact ? 'small' : undefined}
+                className="min-h-[36px] touch-manipulation"
+              >
+                <span className="hidden sm:inline">Add Account</span>
+                <span className="sm:hidden">Add</span>
               </Button>
             )
           }
@@ -228,7 +249,7 @@ const BankAccountList: React.FC<BankAccountListProps> = memo(
                   <Text type="secondary">No bank accounts found</Text>
                   {showActions && (
                     <div className="mt-4">
-                      <Button type="primary" icon={<PlusOutlined />} onClick={handleAddAccount}>
+                      <Button type="primary" icon={<PlusOutlined />} onClick={handleAddAccount} className="min-h-[44px] touch-manipulation">
                         Add Your First Bank Account
                       </Button>
                     </div>
@@ -239,17 +260,24 @@ const BankAccountList: React.FC<BankAccountListProps> = memo(
             />
           ) : (
             <>
+              {' '}
               {selectable && (
                 <Alert
                   message="Select a Bank Account"
                   description="Choose the bank account you want to use for withdrawals."
                   type="info"
-                  className="mb-4"
+                  className="mb-4 text-sm"
                   showIcon
                 />
               )}
-
-              <List dataSource={accounts} renderItem={renderAccountItem} size={compact ? 'small' : 'default'} className="bank-account-list-items" />
+              <List
+                dataSource={accounts}
+                renderItem={renderAccountItem}
+                size={compact ? 'small' : 'default'}
+                className="bank-account-list-items"
+                split={true}
+                itemLayout="horizontal"
+              />
             </>
           )}
         </Card>

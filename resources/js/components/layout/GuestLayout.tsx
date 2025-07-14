@@ -2,7 +2,7 @@ import { MenuOutlined } from '@ant-design/icons';
 import { Link } from '@inertiajs/react';
 import { Button, Layout } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
-import ThemeToggle from '../ui/ThemeToggle';
+import ThemeToggle from '../shared/ThemeToggle';
 
 const { Header, Content, Footer } = Layout;
 
@@ -61,32 +61,32 @@ export const GuestLayout: React.FC<GuestLayoutProps> = ({ children }) => {
               className="flex h-8 w-8 items-center justify-center rounded-lg shadow-lg"
               style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.1))' }}
             >
-              <span className="text-sm font-bold text-white">TH</span>
+              <span className="text-sm font-bold text-white">TM</span>
             </div>
             <span className="text-xl font-bold text-white">TurfMate</span>
           </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden items-center space-x-6 md:flex">
-            <Link href={route('welcome')} className="text-white/90 transition-colors hover:text-white">
+            <Link href={route('welcome')} className="text-white transition-colors hover:text-white/80">
               Home
             </Link>
-            <Link href={route('welcome')} className="text-white/90 transition-colors hover:text-white">
+            <Link href={route('welcome')} className="text-white transition-colors hover:text-white/80">
               About
             </Link>
-            <Link href={route('welcome')} className="text-white/90 transition-colors hover:text-white">
+            <Link href={route('welcome')} className="text-white transition-colors hover:text-white/80">
               Pricing
             </Link>
-            <Link href={route('welcome')} className="text-white/90 transition-colors hover:text-white">
+            <Link href={route('welcome')} className="text-white transition-colors hover:text-white/80">
               Contact
             </Link>
           </nav>
 
           {/* Desktop Auth buttons and Theme Toggle */}
           <div className="hidden items-center space-x-3 md:flex">
-            <ThemeToggle size="small" />
+            <ThemeToggle size="small" className="opacity-60" />
             <Link href={route('login')}>
-              <Button type="text" className="text-white/90 transition-colors hover:bg-white/10 hover:text-white">
+              <Button type="text" className="text-white transition-colors hover:bg-white/10 hover:text-white">
                 Sign In
               </Button>
             </Link>
@@ -100,9 +100,14 @@ export const GuestLayout: React.FC<GuestLayoutProps> = ({ children }) => {
             </Link>
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile: Sign In always visible, ThemeToggle less prominent */}
           <div className="flex items-center space-x-2 md:hidden">
-            <ThemeToggle size="small" />
+            <ThemeToggle size="small" className="opacity-40" />
+            <Link href={route('login')}>
+              <Button type="text" className="px-2 py-1 text-sm font-medium text-white hover:bg-white/10 hover:text-white">
+                Sign In
+              </Button>
+            </Link>
             <Button
               type="text"
               icon={<MenuOutlined />}
@@ -176,7 +181,7 @@ export const GuestLayout: React.FC<GuestLayoutProps> = ({ children }) => {
       </Header>
 
       {/* Main Content - Add top padding to account for fixed header */}
-      <Content className="flex-1 bg-white pt-16 dark:bg-gray-900">{children}</Content>
+      <Content className="flex-1 bg-white dark:bg-gray-900">{children}</Content>
 
       {/* Footer */}
       <Footer className="turf-footer text-white">

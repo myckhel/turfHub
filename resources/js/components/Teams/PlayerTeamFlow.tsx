@@ -121,6 +121,7 @@ const PlayerTeamFlow: React.FC<PlayerTeamFlowProps> = memo(({ matchSessionId, on
                 description={`A slot fee of ₦${availableSlots.slot_fee.toLocaleString()} is required to join a team. Payment can be made via Paystack or your wallet balance.`}
                 type="info"
                 showIcon
+                style={{ marginBottom: '1rem' }}
               />
             )}
 

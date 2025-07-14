@@ -1,8 +1,10 @@
 import { AppstoreOutlined, TeamOutlined } from '@ant-design/icons';
 import { router } from '@inertiajs/react';
-import { Button, Card, Space, Typography } from 'antd';
+import { Button, Space, Typography } from 'antd';
+import Meta from 'antd/es/card/Meta';
 import React from 'react';
-import { SelectedTurfCard } from '../../components/ui';
+import SelectedTurfCard from '../../components/Turf/SelectedTurfCard';
+import Card from '../../components/ui/Card';
 import WalletBalanceDisplay from '../../components/wallet/WalletBalanceDisplay';
 import { useAuth } from '../../hooks/useAuth';
 import { useTurfStore } from '../../stores/turf.store';
@@ -18,7 +20,7 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-green-900 p-6">
+    <div className="min-h-screen p-6">
       <div className="mx-auto max-w-4xl">
         <div className="mb-6 flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
           <Title level={2} className="mb-0 text-center text-white sm:text-left">
@@ -43,7 +45,7 @@ const Dashboard: React.FC = () => {
             }
             onClick={() => router.visit(route('web.turfs.index'))}
           >
-            <Card.Meta title="Browse Turfs" description="Discover and join football turfs in your area" />
+            <Meta title="Browse Turfs" description="Discover and join football turfs in your area" />
           </Card>
 
           <Card
@@ -62,7 +64,7 @@ const Dashboard: React.FC = () => {
               }
             }}
           >
-            <Card.Meta
+            <Meta
               title={selectedTurf ? 'My Turf' : 'Join a Turf'}
               description={selectedTurf ? `Manage your activities at ${selectedTurf.name}` : 'Find and join a turf to start playing'}
             />

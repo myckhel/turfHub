@@ -7,10 +7,10 @@ export { default as BottomTabNavigation } from './components/navigation/BottomTa
 export { default as MobileHeader } from './components/navigation/MobileHeader';
 
 // UI Components
-export { default as ThemeToggle } from './components/ui/ThemeToggle';
-export { default as TurfButton } from './components/ui/TurfButton';
-export { default as TurfCard } from './components/ui/TurfCard';
-export { default as TurfSwitcher } from './components/ui/TurfSwitcher';
+export { default as ThemeToggle } from './components/shared/ThemeToggle';
+export { default as TurfSwitcher } from './components/Turf/TurfSwitcher';
+export { default as TurfButton } from './components/ui/Button';
+export { default as TurfCard } from './components/ui/Card';
 
 // Hooks
 export { useAuth } from './hooks/useAuth';

@@ -88,25 +88,25 @@ const TurfWalletBalanceDisplay: React.FC<TurfWalletBalanceDisplayProps> = memo(
 
     return (
       <div className={`flex items-center gap-2 ${onClick ? 'cursor-pointer rounded px-2 py-1 hover:bg-white/10' : ''}`} onClick={handleClick}>
-        <WalletOutlined className="text-blue-400" />
-
         <div className="flex flex-col gap-1">
-          {!compact && <Text className="text-xs text-gray-300">{turfName} Wallet</Text>}
+          <div className="flex items-center">
+            <WalletOutlined className="mr-2 text-blue-400" />
+            {!compact && <Text className="text-xs text-gray-300">{turfName} Wallet</Text>}
+          </div>
 
           <div className="flex items-center gap-1">
-            <Text strong className={`text-blue-400 ${compact ? 'text-sm' : ''}`}>
-              {visible ? balance.formatted_balance : '****'}
-            </Text>
-
             {showToggle && (
               <Button
                 type="text"
                 size="small"
                 icon={visible ? <EyeInvisibleOutlined /> : <EyeOutlined />}
                 onClick={handleToggleVisibility}
-                className="ml-1 h-auto p-0 text-gray-400 hover:text-gray-200"
+                className="-ml-2 h-auto p-0 text-gray-400 hover:text-gray-200"
               />
             )}
+            <Text strong className={`text-blue-400 ${compact ? 'text-sm' : ''}`}>
+              {visible ? balance.formatted_balance : '****'}
+            </Text>
           </div>
         </div>
       </div>

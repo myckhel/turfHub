@@ -8,7 +8,7 @@ import {
   TrophyOutlined,
 } from '@ant-design/icons';
 import { router } from '@inertiajs/react';
-import { Button, Card, Col, Descriptions, Row, Space, Tag, Typography, message } from 'antd';
+import { Col, Descriptions, Row, Space, Tag, Typography, message } from 'antd';
 import { format } from 'date-fns';
 import React, { memo, useState } from 'react';
 import { matchSessionApi } from '../../apis/matchSession';
@@ -18,6 +18,7 @@ import type { MatchSession } from '../../types/matchSession.types';
 import { Turf } from '../../types/turf.types';
 import { GameMatchesTable, OngoingGameMatch } from '../GameMatches';
 import { PlayerTeamFlow } from '../Teams';
+import { Button, Card } from '../ui';
 import { MatchSessionStandings, QueueStatus } from './index';
 
 const { Title, Text } = Typography;
@@ -113,7 +114,7 @@ const MatchSessionDetails: React.FC<MatchSessionDetailsProps> = ({ turf, matchSe
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-green-900">
+    <div className="min-h-screen">
       <div className="container mx-auto px-4 py-6">
         {/* Header */}
         <Card className="mb-6">
@@ -169,7 +170,7 @@ const MatchSessionDetails: React.FC<MatchSessionDetailsProps> = ({ turf, matchSe
 
                 {matchSession.status === 'scheduled' && (
                   <Button
-                    type="primary"
+                    variant="primary"
                     icon={<PlayCircleOutlined />}
                     onClick={handleStartSession}
                     loading={actionLoading}

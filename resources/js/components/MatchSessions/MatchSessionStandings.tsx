@@ -1,7 +1,7 @@
 import { TrophyOutlined, UserOutlined } from '@ant-design/icons';
 import { router } from '@inertiajs/react';
 import { Card, Table, Tag, Typography } from 'antd';
-import React, { memo } from 'react';
+import React, { memo, useMemo } from 'react';
 import type { Team } from '../../types/matchSession.types';
 
 const { Text } = Typography;
@@ -25,6 +25,8 @@ interface StandingsTeam extends Team {
 const MatchSessionStandings: React.FC<MatchSessionStandingsProps> = ({ teams, matchSessionId, turfId, maxPlayersPerTeam, className }) => {
   const calculateStandings = (teams: Team[]): StandingsTeam[] => {
     const standings = teams.map((team) => {
+      console.log(team);
+
       const points = team.wins * 3 + team.draws * 1; // 3 points for win, 1 for draw
       const played = team.wins + team.losses + team.draws;
       const goalDifference = team.goals_for - team.goals_against;
@@ -55,7 +57,7 @@ const MatchSessionStandings: React.FC<MatchSessionStandingsProps> = ({ teams, ma
     return standings;
   };
 
-  const standingsData = calculateStandings(teams);
+  const standingsData = useMemo(() => calculateStandings(teams), [teams]);
 
   const handleTeamClick = (teamId: number) => {
     router.visit(

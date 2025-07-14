@@ -1,5 +1,5 @@
 import { WalletOutlined } from '@ant-design/icons';
-import { Card, Typography } from 'antd';
+import { Typography } from 'antd';
 import React from 'react';
 import WalletDashboard from '../../../components/wallet/WalletDashboard';
 
@@ -20,9 +20,7 @@ const WalletIndex: React.FC = () => {
         </Typography.Text>
       </div>
 
-      <Card className="shadow-sm">
-        <WalletDashboard compact={false} />
-      </Card>
+      <WalletDashboard compact={false} />
     </div>
   );
 };

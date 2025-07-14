@@ -1,5 +1,5 @@
 import { ClockCircleOutlined, EditOutlined, PauseCircleOutlined, PlayCircleOutlined, SaveOutlined, TrophyOutlined } from '@ant-design/icons';
-import { Badge, Button, Card, Col, Descriptions, InputNumber, Row, Spin, Tag, Typography, message } from 'antd';
+import { Badge, Button, Card, Col, InputNumber, Row, Spin, Tag, Typography, message } from 'antd';
 import { format } from 'date-fns';
 import React, { useCallback, useEffect, useState } from 'react';
 import { gameMatchApi } from '../../apis/gameMatch';
@@ -431,62 +431,6 @@ const OngoingGameMatch: React.FC<OngoingGameMatchProps> = ({ gameMatch, matchSes
           </Row>
         )}
       </Card>
-
-      {/* Match Details */}
-      <Row gutter={[16, 16]}>
-        <Col xs={24} lg={12}>
-          <Card title="Match Information" size="small" className="h-full">
-            <Descriptions column={1} size="small" className="mobile-descriptions">
-              <Descriptions.Item label="Match Session">
-                <span className="text-xs break-words sm:text-sm">{currentMatchSession?.name || matchSession?.name}</span>
-              </Descriptions.Item>
-              <Descriptions.Item label="Status">
-                <Tag color={getStatusColor(currentMatch.status)} icon={getStatusIcon(currentMatch.status)} className="text-xs">
-                  {currentMatch.status.replace('_', ' ').toUpperCase()}
-                </Tag>
-              </Descriptions.Item>
-              <Descriptions.Item label="Start Time">
-                <span className="text-xs sm:text-sm">{format(new Date(currentMatch.match_time), 'MMM dd, yyyy HH:mm')}</span>
-              </Descriptions.Item>
-              {currentMatch.outcome && (
-                <Descriptions.Item label="Outcome">
-                  <Tag color={currentMatch.outcome === 'win' ? 'green' : currentMatch.outcome === 'loss' ? 'red' : 'orange'} className="text-xs">
-                    {currentMatch.outcome.toUpperCase()}
-                  </Tag>
-                </Descriptions.Item>
-              )}
-            </Descriptions>
-          </Card>
-        </Col>
-
-        <Col xs={24} lg={12}>
-          <Card title="Teams" size="small" className="h-full">
-            <div className="space-y-4">
-              <Row gutter={[8, 8]} align="middle">
-                <Col xs={16} sm={18}>
-                  <span className="block truncate text-sm font-medium sm:text-base">{currentMatch.first_team?.name}</span>
-                </Col>
-                <Col xs={8} sm={6} className="text-right">
-                  <Tag color={currentMatch.first_team?.color || 'blue'} className="text-xs">
-                    Team 1
-                  </Tag>
-                </Col>
-              </Row>
-
-              <Row gutter={[8, 8]} align="middle">
-                <Col xs={16} sm={18}>
-                  <span className="block truncate text-sm font-medium sm:text-base">{currentMatch.second_team?.name}</span>
-                </Col>
-                <Col xs={8} sm={6} className="text-right">
-                  <Tag color={currentMatch.second_team?.color || 'red'} className="text-xs">
-                    Team 2
-                  </Tag>
-                </Col>
-              </Row>
-            </div>
-          </Card>
-        </Col>
-      </Row>
 
       {/* Match Events */}
       {canManageSessions && (

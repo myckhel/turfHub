@@ -12,12 +12,12 @@ import {
   UserOutlined,
 } from '@ant-design/icons';
 import { router } from '@inertiajs/react';
-import { Avatar, Button, Card, Descriptions, Divider, message, Tabs, Tag, Typography } from 'antd';
+import { Avatar, Descriptions, Divider, message, Tabs, Tag, Typography } from 'antd';
 import React, { useState } from 'react';
 
 import { turfApi } from '@/apis/turf';
 import { MatchSessionList } from '../../../components/MatchSessions';
-import { TurfCard } from '../../../components/ui/TurfCard';
+import { Button, Card } from '../../../components/ui';
 import TurfWalletBalanceDisplay from '../../../components/wallet/TurfWalletBalanceDisplay';
 import { useAuth } from '../../../hooks/useAuth';
 import { usePermissions } from '../../../hooks/usePermissions';
@@ -252,7 +252,7 @@ const TurfDetail: React.FC<TurfDetailProps> = ({ turf }) => {
   );
 
   const renderPlayersTab = () => (
-    <Card title={`Players (${turf.players?.length || 0})`}>
+    <>
       {turf.players && turf.players.length > 0 ? (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {turf.players.map((player) => (
@@ -260,15 +260,11 @@ const TurfDetail: React.FC<TurfDetailProps> = ({ turf }) => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <Avatar icon={<UserOutlined />} />
-                  <div>
+                  <div className="ml-2">
                     <Text strong>{player.user.name}</Text>
-                    <br />
-                    <Text type="secondary" className="text-sm">
-                      {player.user.email}
-                    </Text>
                   </div>
                 </div>
-                <div className="flex flex-col items-end space-y-1">
+                <div className="flex flex-row items-end space-y-1">
                   {player.is_member && <Tag color="gold">Member</Tag>}
                   <Tag color={player.status === 'active' ? 'green' : 'default'}>{player.status}</Tag>
                   {player.user.id === user?.id && <Tag color="blue">You</Tag>}
@@ -283,7 +279,7 @@ const TurfDetail: React.FC<TurfDetailProps> = ({ turf }) => {
           <Text type="secondary">No players have joined this turf yet</Text>
         </div>
       )}
-    </Card>
+    </>
   );
 
   const renderMatchSessionsTab = () => (
@@ -293,10 +289,10 @@ const TurfDetail: React.FC<TurfDetailProps> = ({ turf }) => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-green-900">
+    <div className="min-h-screen">
       <div className="container mx-auto px-3 py-4 sm:px-4 sm:py-6">
         {/* Header Card */}
-        <TurfCard variant="hero" className="mb-4 sm:mb-6">
+        <Card variant="hero" className="mb-4 sm:mb-6">
           <div className="p-4 sm:p-6">
             <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div className="flex-1">
@@ -304,7 +300,7 @@ const TurfDetail: React.FC<TurfDetailProps> = ({ turf }) => {
                   {turf.name}
                   {isOwner && <CrownOutlined className="ml-2 text-yellow-400" />}
                 </Title>
-                <div className="mb-3 flex flex-col space-y-2 text-sm text-gray-300 sm:flex-row sm:space-y-0 sm:space-x-4 sm:text-base">
+                <div className="mb-3 flex flex-col space-y-2 text-sm text-black sm:flex-row sm:space-y-0 sm:space-x-4 sm:text-base dark:text-white">
                   <div className="flex items-center">
                     <EnvironmentOutlined className="mr-2" />
                     {turf.location}
@@ -351,7 +347,7 @@ const TurfDetail: React.FC<TurfDetailProps> = ({ turf }) => {
             <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
               {isOwner ? (
                 <Button
-                  type="primary"
+                  variant="primary"
                   size="large"
                   icon={<EditOutlined />}
                   onClick={() => router.visit(route('web.turfs.edit', { turf: turf.id }))}
@@ -364,7 +360,7 @@ const TurfDetail: React.FC<TurfDetailProps> = ({ turf }) => {
                   {isMember ? (
                     <>
                       <Button
-                        type={isSelected ? 'default' : 'primary'}
+                        variant={isSelected ? 'secondary' : 'primary'}
                         size="large"
                         icon={isSelected ? <CloseCircleOutlined /> : <CheckCircleOutlined />}
                         onClick={handleSelectTurf}
@@ -380,7 +376,7 @@ const TurfDetail: React.FC<TurfDetailProps> = ({ turf }) => {
                     </>
                   ) : (
                     <Button
-                      type="primary"
+                      variant="primary"
                       size="large"
                       icon={<UserAddOutlined />}
                       loading={loading}
@@ -396,13 +392,13 @@ const TurfDetail: React.FC<TurfDetailProps> = ({ turf }) => {
                 </>
               )}
 
-              <Button size="large" onClick={() => router.visit(route('web.turfs.index'))} className="w-full sm:w-auto">
+              <Button variant="secondary" size="large" onClick={() => router.visit(route('web.turfs.index'))} className="w-full sm:w-auto">
                 <span className="hidden sm:inline">Back to Turfs</span>
                 <span className="sm:hidden">Back</span>
               </Button>
             </div>
           </div>
-        </TurfCard>
+        </Card>
 
         {/* Content Tabs */}
         <Card>

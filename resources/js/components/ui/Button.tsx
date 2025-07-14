@@ -22,7 +22,7 @@ interface TurfButtonProps extends Omit<AntButtonProps, 'type' | 'size' | 'varian
   children?: React.ReactNode;
 }
 
-export const TurfButton = forwardRef<HTMLButtonElement, TurfButtonProps>(({
+export const Button = forwardRef<HTMLButtonElement, TurfButtonProps>(({
   variant = 'primary',
   size = 'medium',
   fullWidth = false,
@@ -45,7 +45,7 @@ export const TurfButton = forwardRef<HTMLButtonElement, TurfButtonProps>(({
 
     // Hover animation
     const button = buttonRef.current;
-    
+
     const handleMouseEnter = () => {
       gsap.to(button, {
         scale: 1.05,
@@ -127,8 +127,8 @@ export const TurfButton = forwardRef<HTMLButtonElement, TurfButtonProps>(({
   const getVariantStyles = () => {
     const variants = {
       primary: `
-        ${gradient 
-          ? 'bg-gradient-to-r from-turf-green to-turf-light hover:from-turf-light hover:to-turf-green' 
+        ${gradient
+          ? 'bg-gradient-to-r from-turf-green to-turf-light hover:from-turf-light hover:to-turf-green'
           : 'bg-turf-green hover:bg-turf-light'
         }
         text-white border-0
@@ -144,8 +144,8 @@ export const TurfButton = forwardRef<HTMLButtonElement, TurfButtonProps>(({
         shadow-sm hover:shadow-md
       `,
       accent: `
-        ${gradient 
-          ? 'bg-gradient-to-r from-sky-blue to-sky-light hover:from-sky-light hover:to-sky-blue' 
+        ${gradient
+          ? 'bg-gradient-to-r from-sky-blue to-sky-light hover:from-sky-light hover:to-sky-blue'
           : 'bg-sky-blue hover:bg-sky-light'
         }
         text-white border-0
@@ -210,6 +210,6 @@ export const TurfButton = forwardRef<HTMLButtonElement, TurfButtonProps>(({
   );
 });
 
-TurfButton.displayName = 'TurfButton';
+Button.displayName = 'Button';
 
-export default TurfButton;
+export default Button;

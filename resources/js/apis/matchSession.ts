@@ -32,12 +32,12 @@ export const matchSessionApi = {
   },
 
   // Create a new match session
-  create: async (data: CreateMatchSessionRequest): Promise<ApiResponse<MatchSession>> => {
+  create: async (data: CreateMatchSessionRequest): Promise<MatchSession> => {
     return api.post('/match-sessions', data);
   },
 
   // Update a match session
-  update: async (id: number, data: UpdateMatchSessionRequest): Promise<ApiResponse<MatchSession>> => {
+  update: async (id: number, data: UpdateMatchSessionRequest): Promise<MatchSession> => {
     return api.put(`/match-sessions/${id}`, data);
   },
 

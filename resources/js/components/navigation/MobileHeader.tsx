@@ -6,7 +6,7 @@ import { gsap } from 'gsap';
 import React, { useRef } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { useTheme } from '../../hooks/useTheme';
-import TurfSwitcher from '../ui/TurfSwitcher';
+import TurfSwitcher from '../Turf/TurfSwitcher';
 
 interface User {
   id: number;

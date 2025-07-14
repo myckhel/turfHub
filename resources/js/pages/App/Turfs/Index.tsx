@@ -9,10 +9,11 @@ import {
   TeamOutlined,
 } from '@ant-design/icons';
 import { router } from '@inertiajs/react';
-import { Button, Card, Empty, Input, Skeleton, Spin, Typography, message } from 'antd';
+import { Button, Empty, Input, Skeleton, Spin, Typography, message } from 'antd';
 import React, { useCallback, useEffect, useState } from 'react';
 import { turfApi } from '../../../apis/turf';
-import { SelectedTurfCard, TurfCard } from '../../../components/ui';
+import SelectedTurfCard from '../../../components/Turf/SelectedTurfCard';
+import Card from '../../../components/ui/Card';
 import { useAuth } from '../../../hooks/useAuth';
 import type { User } from '../../../stores/auth.store';
 import { useTurfStore } from '../../../stores/turf.store';
@@ -202,7 +203,7 @@ const TurfListCard: React.FC<TurfListCardProps> = ({ turf, user, selectedTurf, b
   const isJoinLoading = joinLoading === turf.id;
 
   return (
-    <TurfCard
+    <Card
       key={turf.id}
       variant={isSelected ? 'elevated' : 'default'}
       interactive
@@ -273,7 +274,7 @@ const TurfListCard: React.FC<TurfListCardProps> = ({ turf, user, selectedTurf, b
           onSelect={onSelect}
         />
       </div>
-    </TurfCard>
+    </Card>
   );
 };
 
@@ -504,7 +505,7 @@ const TurfList: React.FC = () => {
   }, [handleSearch]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-green-900">
+    <div className="min-h-screen">
       <div className="container mx-auto px-3 py-4 sm:px-4 sm:py-6">
         {/* Current Selection Info */}
         <SelectedTurfCard buttonText="View Turf" />

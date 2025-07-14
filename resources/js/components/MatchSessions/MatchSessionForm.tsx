@@ -68,18 +68,20 @@ const MatchSessionForm: React.FC<MatchSessionFormProps> = ({ turfId, matchSessio
         status: values.status || 'scheduled',
       };
 
+      let newMatchSession: MatchSession;
+
       if (isEditing && matchSession) {
         const updateData: UpdateMatchSessionRequest = formData;
-        await matchSessionApi.update(matchSession.id, updateData);
+        newMatchSession = await matchSessionApi.update(matchSession.id, updateData);
         message.success('Match session updated successfully');
       } else {
         const createData: CreateMatchSessionRequest = formData;
-        await matchSessionApi.create(createData);
+        newMatchSession = await matchSessionApi.create(createData);
         message.success('Match session created successfully');
       }
 
       // Navigate back to turf details
-      router.visit(route('web.turfs.show', { turf: turfId }));
+      router.visit(route('web.turfs.match-sessions.show', { turf: turfId, matchSession: matchSession?.id || newMatchSession?.id }));
     } catch (error: unknown) {
       console.error('Failed to save match session:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to save match session';
@@ -98,8 +100,8 @@ const MatchSessionForm: React.FC<MatchSessionFormProps> = ({ turfId, matchSessio
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-green-900">
-      <div className="container mx-auto px-4 py-6">
+    <div className="min-h-screen">
+      <div className="container mx-auto flex w-full items-center justify-center px-4 py-6">
         <Card className="mx-auto max-w-2xl">
           <Title level={2} className="mb-6 text-center">
             {isEditing ? 'Edit Match Session' : 'Create Match Session'}
@@ -129,6 +131,7 @@ const MatchSessionForm: React.FC<MatchSessionFormProps> = ({ turfId, matchSessio
                     className="w-full"
                     disabledDate={(current) => current && current < dayjs().startOf('day')}
                     format="YYYY-MM-DD"
+                    defaultValue={dayjs()}
                   />
                 </Form.Item>
               </Col>
@@ -183,7 +186,7 @@ const MatchSessionForm: React.FC<MatchSessionFormProps> = ({ turfId, matchSessio
                     { type: 'number', min: 4, max: 8, message: 'Teams must be between 4 and 8' },
                   ]}
                 >
-                  <InputNumber size="large" className="w-full" min={4} max={8} placeholder="4-8 teams" />
+                  <InputNumber defaultValue={matchSession?.max_teams || 4} size="large" className="w-full" min={4} max={8} placeholder="4-8 teams" />
                 </Form.Item>
               </Col>
               <Col span={12}>

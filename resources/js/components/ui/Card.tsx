@@ -3,8 +3,11 @@ import { Card as AntCard, CardProps as AntCardProps } from 'antd';
 import { gsap } from 'gsap';
 import React, { forwardRef, useRef } from 'react';
 import { useTheme } from '../../hooks/useTheme';
+// import Grid from 'antd/es/card/Grid';
+// import Meta from 'antd/es/card/Meta';
+// import { CardInterface } from 'antd/es/card';
 
-interface TurfCardProps extends Omit<AntCardProps, 'className' | 'variant'> {
+interface CardProps extends Omit<AntCardProps, 'className' | 'variant'> {
   /** Card variant for different use cases */
   variant?: 'default' | 'elevated' | 'outlined' | 'glass' | 'hero';
   /** Mobile-first interaction modes */
@@ -24,7 +27,7 @@ interface TurfCardProps extends Omit<AntCardProps, 'className' | 'variant'> {
   children?: React.ReactNode;
 }
 
-export const TurfCard = forwardRef<HTMLDivElement, TurfCardProps>(({
+const Card = forwardRef<HTMLDivElement, CardProps>(({
   variant = 'default',
   interactive = false,
   springOnPress = true,
@@ -47,8 +50,8 @@ export const TurfCard = forwardRef<HTMLDivElement, TurfCardProps>(({
     // Entrance animation
     gsap.fromTo(
       cardRef.current,
-      { 
-        opacity: 0, 
+      {
+        opacity: 0,
         y: 20,
         scale: 0.95
       },
@@ -77,7 +80,7 @@ export const TurfCard = forwardRef<HTMLDivElement, TurfCardProps>(({
         repeat: 1,
       });
     }
-    
+
     onPress?.();
   };
 
@@ -99,7 +102,7 @@ export const TurfCard = forwardRef<HTMLDivElement, TurfCardProps>(({
           border-0
           transform hover:scale-[1.02]
         `;
-      
+
       case 'outlined':
         return `
           ${baseStyles}
@@ -108,7 +111,7 @@ export const TurfCard = forwardRef<HTMLDivElement, TurfCardProps>(({
           hover:border-turf-green dark:hover:border-turf-light
           hover:bg-slate-50 dark:hover:bg-slate-800/50
         `;
-      
+
       case 'glass':
         return `
           ${baseStyles}
@@ -116,7 +119,7 @@ export const TurfCard = forwardRef<HTMLDivElement, TurfCardProps>(({
           border border-white/20 dark:border-slate-700/30
           backdrop-blur-xl
         `;
-      
+
       case 'hero':
         return `
           ${baseStyles}
@@ -126,7 +129,7 @@ export const TurfCard = forwardRef<HTMLDivElement, TurfCardProps>(({
           shadow-2xl
           transform hover:scale-[1.02]
         `;
-      
+
       default:
         return `
           ${baseStyles}
@@ -141,7 +144,7 @@ export const TurfCard = forwardRef<HTMLDivElement, TurfCardProps>(({
   // Gradient background styles
   const getGradientStyles = () => {
     if (gradient === 'none') return '';
-    
+
     const gradients = {
       turf: 'bg-gradient-to-br from-turf-green via-turf-light to-turf-dark',
       sky: 'bg-gradient-to-br from-sky-blue via-sky-light to-sky-dark',
@@ -155,7 +158,7 @@ export const TurfCard = forwardRef<HTMLDivElement, TurfCardProps>(({
   const shimmerStyles = shimmer ? `
     relative overflow-hidden
     before:absolute before:inset-0
-    before:bg-gradient-to-r before:from-transparent 
+    before:bg-gradient-to-r before:from-transparent
     before:via-white/20 before:to-transparent
     before:translate-x-[-100%] before:animate-shimmer
   ` : '';
@@ -184,6 +187,20 @@ export const TurfCard = forwardRef<HTMLDivElement, TurfCardProps>(({
   );
 });
 
-TurfCard.displayName = 'TurfCard';
+Card.displayName = 'Card';
 
-export default TurfCard;
+// const Meta = AntCard.Meta
+// const Grid = AntCard.Grid
+
+
+// export interface CardInterface extends CardInterface {
+//   Grid: typeof Grid;
+//   Meta: typeof Meta;
+// }
+// declare const Card: CardInterface;
+
+// Card.Meta = Meta
+
+// export {Meta,Grid}
+
+export default Card;

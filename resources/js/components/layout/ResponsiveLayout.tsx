@@ -22,8 +22,8 @@ import { useResponsive } from '../../hooks/useResponsive';
 import { useTheme } from '../../hooks/useTheme';
 import { useLayoutStore } from '../../stores';
 import { useTurfStore } from '../../stores/turf.store';
-import ThemeToggle from '../ui/ThemeToggle';
-import TurfSwitcher from '../ui/TurfSwitcher';
+import TurfSwitcher from '../Turf/TurfSwitcher';
+import ThemeToggle from '../shared/ThemeToggle';
 
 const { Content, Header, Sider } = AntLayout;
 

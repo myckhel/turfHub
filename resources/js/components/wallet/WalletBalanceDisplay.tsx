@@ -80,7 +80,10 @@ const WalletBalanceDisplay: React.FC<WalletBalanceDisplayProps> = memo(({ showTo
   }
 
   return (
-    <div className={`flex items-center gap-2 ${onClick ? 'cursor-pointer rounded px-2 py-1 hover:bg-gray-50' : ''}`} onClick={handleClick}>
+    <div
+      className={`flex items-center gap-2 ${onClick ? 'cursor-pointer rounded px-2 py-1 hover:bg-gray-50 dark:hover:bg-gray-900' : ''}`}
+      onClick={handleClick}
+    >
       <WalletOutlined className="text-green-600" />
 
       <div className="flex items-center gap-1">

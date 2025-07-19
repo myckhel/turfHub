@@ -1,0 +1,157 @@
+/* TurfMate Landing Page Styles */
+
+/* Hero Section Enhancements */
+.hero-gradient {
+  background: linear-gradient(135deg, #1b5e20 0%, #22c55e 50%, #16a34a 100%);
+  position: relative;
+}
+
+.hero-gradient::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 70% 80%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* Floating animation for CTAs */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.hero-cta {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Card hover effects */
+.landing-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid transparent;
+}
+
+.landing-card:hover {
+  transform: translateY(-8px);
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border-color: #22c55e;
+}
+
+/* Feature section alternating layouts */
+.feature-section {
+  scroll-margin-top: 100px;
+}
+
+/* Steps component custom styling */
+.ant-steps-item-process .ant-steps-item-icon {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  border-color: #22c55e;
+}
+
+.ant-steps-item-finish .ant-steps-item-icon {
+  background: #22c55e;
+  border-color: #22c55e;
+}
+
+/* Testimonial cards */
+.testimonial-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.testimonial-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #22c55e, #3b82f6, #8b5cf6);
+}
+
+/* Scroll indicator animation */
+@keyframes scroll-indicator {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 0.5;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.scroll-indicator {
+  animation: scroll-indicator 2s ease-in-out infinite;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2.5rem !important;
+    line-height: 1.1 !important;
+  }
+
+  .hero-subtitle {
+    font-size: 1.1rem !important;
+  }
+
+  .feature-image-mock {
+    height: 200px !important;
+  }
+}
+
+/* Dark mode adjustments */
+.dark .landing-card {
+  background: rgba(31, 41, 55, 0.8);
+  backdrop-filter: blur(10px);
+}
+
+.dark .landing-card:hover {
+  background: rgba(31, 41, 55, 0.9);
+  border-color: #22c55e;
+}
+
+/* Performance optimizations */
+.feature-image-mock {
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* Touch-friendly interactions */
+@media (hover: none) and (pointer: coarse) {
+  .landing-card:hover {
+    transform: none;
+  }
+
+  .landing-card:active {
+    transform: scale(0.98);
+  }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  .hero-cta,
+  .scroll-indicator {
+    animation: none;
+  }
+
+  .landing-card {
+    transition: none;
+  }
+}

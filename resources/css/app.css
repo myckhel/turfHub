@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @import './game-matches.css';
+@import './landing.css';
 
 @plugin 'tailwindcss-animate';
 

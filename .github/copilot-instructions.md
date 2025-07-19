@@ -212,8 +212,7 @@ route('user.profile', { id: user.id });
 
 ### Ant Design
 
-- **Theme Customization:** Use Ant Design's theming capabilities (e.g., via `ConfigProvider` or by customizing Less variables if you've set up Less) to match your application's branding.
-- **Ant Design components:** restyled to match Discord’s theme
+- **AntD components Customised:** use custom Ant Design components from `components/ui` or create new ones if needed.
 - **Form Handling:** Leverage Ant Design's `Form` component for robust form handling, validation, and layout.
 - **Accessibility:** Pay attention to Ant Design's accessibility features and ensure your usage aligns with WCAG guidelines.
 - **Responsive Design:** Use Ant Design's grid and responsive utilities to create layouts that adapt to different screen sizes.
@@ -257,7 +256,7 @@ route('user.profile', { id: user.id });
 
 ### Code Style and Consistency
 
-- **ESLint/Prettier**: Enforce code style using ESLint and Prettier. Configure them to work together.
+- **ESLint/Prettier**: Enforce code style using ESLint and Prettier.
 - **Comments**: Write clear and concise comments for complex logic or non-obvious code.
 - **DRY Principle**: Don't Repeat Yourself. Abstract reusable logic into functions, hooks, or components.
 - **Add new Exposed Api Postman Doc** Document any new API endpoints or changes to existing ones in the postman Api collection file.
@@ -280,6 +279,9 @@ route('user.profile', { id: user.id });
 resources/
 ├─ js/
 │  ├─ components/
+│  |  ├─ ui/
+│  |  ├─ features/
+│  |  └─ layout/
 │  ├─ css/
 │  ├─ layouts/
 │  ├─ pages/
@@ -300,6 +302,7 @@ resources/
 - Api documentation exists in the Postman collection file, ensure to check it when there is a need to call an API endpoint.
 - write short code as possible, utilize short hand functions, avoid long lines of code, and use helper functions to break down complex logic.
 - Avoid passing data with services on inertia pages controllers except for binded route resources, instead use api modules to fetch data in the components.
+- Avoid generating useless files, components, or code that is not needed.
 
 ## Workflow
 

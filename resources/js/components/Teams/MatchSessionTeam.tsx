@@ -1,5 +1,5 @@
 import { TeamOutlined, UserAddOutlined } from '@ant-design/icons';
-import { Alert, Button, Card, Col, Row, Space, Spin, Tag, Typography, message } from 'antd';
+import { Alert, Button, Card, Col, Row, Space, Tag, Typography, message } from 'antd';
 import React, { memo, useCallback, useState } from 'react';
 import { useAvailableSlots } from '../../hooks/teams';
 import type { TeamDetails } from '../../types/team.types';
@@ -49,19 +49,6 @@ const MatchSessionTeam: React.FC<MatchSessionTeamProps> = memo(({ matchSessionId
     }
   };
 
-  if (loading) {
-    return (
-      <Card>
-        <div className="py-8 text-center">
-          <Spin size="large" />
-          <div className="mt-4">
-            <Text>Loading available team slots...</Text>
-          </div>
-        </div>
-      </Card>
-    );
-  }
-
   if (error) {
     return (
       <Card>
@@ -87,6 +74,7 @@ const MatchSessionTeam: React.FC<MatchSessionTeamProps> = memo(({ matchSessionId
   return (
     <>
       <Card
+        loading={loading}
         title={
           <div className="flex items-center gap-2">
             <TeamOutlined />
@@ -120,6 +108,13 @@ const MatchSessionTeam: React.FC<MatchSessionTeamProps> = memo(({ matchSessionId
                 style={{ marginBottom: '1rem' }}
               />
             )}
+
+            {/* Helpful Instructions */}
+            <div className="mt-4 rounded-lg bg-blue-50 p-3">
+              <Text className="text-sm text-blue-800">
+                💡 <strong>How it works:</strong> Choose any team with available slots, complete payment, and start playing immediately!
+              </Text>
+            </div>
 
             <Row gutter={[16, 16]}>
               {teams.map((team: TeamDetails) => {

@@ -3,6 +3,7 @@ import { router } from '@inertiajs/react';
 import { Button, Space, Typography } from 'antd';
 import Meta from 'antd/es/card/Meta';
 import React from 'react';
+import DashboardAvailableSlots from '../../components/dashboard/DashboardAvailableSlots';
 import SelectedTurfCard from '../../components/Turf/SelectedTurfCard';
 import Card from '../../components/ui/Card';
 import WalletBalanceDisplay from '../../components/wallet/WalletBalanceDisplay';
@@ -33,6 +34,8 @@ const Dashboard: React.FC = () => {
         </div>
 
         <SelectedTurfCard buttonText="View Turf" />
+
+        <DashboardAvailableSlots />
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <Card

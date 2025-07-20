@@ -9,10 +9,9 @@ const { Text } = Typography;
 
 interface PlayerTeamFlowProps {
   matchSessionId: number;
-  onJoinSuccess?: () => void;
 }
 
-const PlayerTeamFlow: React.FC<PlayerTeamFlowProps> = memo(({ matchSessionId, onJoinSuccess }) => {
+const MatchSessionTeam: React.FC<PlayerTeamFlowProps> = memo(({ matchSessionId }) => {
   const [loading, setLoading] = useState(true);
   const [availableSlots, setAvailableSlots] = useState<AvailableTeamSlotsResponse | null>(null);
   const [joinModalVisible, setJoinModalVisible] = useState(false);
@@ -44,9 +43,8 @@ const PlayerTeamFlow: React.FC<PlayerTeamFlowProps> = memo(({ matchSessionId, on
     setJoinModalVisible(false);
     setSelectedTeam(null);
     message.success('Successfully joined the team!');
-    onJoinSuccess?.();
     loadAvailableSlots();
-  }, [onJoinSuccess, loadAvailableSlots]);
+  }, [loadAvailableSlots]);
 
   const getTeamStatusColor = (status: string) => {
     switch (status) {
@@ -207,6 +205,6 @@ const PlayerTeamFlow: React.FC<PlayerTeamFlowProps> = memo(({ matchSessionId, on
   );
 });
 
-PlayerTeamFlow.displayName = 'PlayerTeamFlow';
+MatchSessionTeam.displayName = 'MatchSessionTeam';
 
-export default PlayerTeamFlow;
+export default MatchSessionTeam;

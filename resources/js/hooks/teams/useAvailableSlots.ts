@@ -69,10 +69,11 @@ export const useAvailableSlots = (options: UseAvailableSlotsOptions = {}): UseAv
     // Fetch active sessions for the selected turf
     try {
       const response = await matchSessionApi.getActiveTurfSessions(selectedTurf.id);
+
       const activeSessions = response.data || [];
 
       if (activeSessions.length === 0) {
-        throw new Error(`No active match sessions found for ${selectedTurf.name}`);
+        return null; // No active sessions found
       }
 
       // If multiple active sessions, use the first one
@@ -101,7 +102,7 @@ export const useAvailableSlots = (options: UseAvailableSlotsOptions = {}): UseAv
       const sessionId = await getActiveSessionId();
 
       if (!sessionId) {
-        throw new Error('No match session available');
+        return;
       }
 
       setActiveSessionId(sessionId);

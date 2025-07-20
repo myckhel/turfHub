@@ -104,8 +104,8 @@ export const turfApi = {
       player_status?: string;
       include?: string[];
     },
-  ): Promise<ApiResponse<Turf[]>> => {
-    return api.get<Turf[]>(`/users/${userId}/belonging-turfs`, { params });
+  ): Promise<Turf[]> => {
+    return api.get(`/users/${userId}/belonging-turfs`, { params });
   },
 
   // Join a turf

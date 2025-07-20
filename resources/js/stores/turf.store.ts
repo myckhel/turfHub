@@ -26,11 +26,10 @@ export const useTurfStore = create<TurfSwitcherState & TurfSwitcherActions>()(
           set({ isLoading: true, error: null });
 
           try {
-            const response = await turfApi.getBelongingTurfs(userId);
-            const turfs = response.data || [];
+            const turfs = await turfApi.getBelongingTurfs(userId);
 
             set({
-              belongingTurfs: turfs,
+              belongingTurfs: turfs || [],
               isLoading: false,
               error: null,
             });

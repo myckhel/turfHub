@@ -285,7 +285,9 @@ const MatchSessionList: React.FC<MatchSessionListProps> = ({ turfId, showCreateB
           </div>
           <div className="flex items-center gap-1 text-sm text-gray-500">
             <ClockCircleOutlined />
-            {record.start_time} - {record.end_time}
+            <span>
+              {format(new Date(record.start_time), 'hh:mm a')} - {format(new Date(record.end_time), 'hh:mm a')}
+            </span>
           </div>
         </div>
       ),

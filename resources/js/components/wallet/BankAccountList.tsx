@@ -32,7 +32,7 @@ const BankAccountList: React.FC<BankAccountListProps> = memo(
         let response;
         if (turfId) {
           response = await bankAccountApi.getTurfBankAccounts(turfId);
-          setAccounts(response.bank_accounts);
+          setAccounts(response);
         } else {
           response = await bankAccountApi.getUserBankAccounts();
           setAccounts(response);

@@ -25,11 +25,8 @@ class UserService
    */
   public function getUserWithRelations(User $user, array $includes = []): User
   {
-    $allowedIncludes = ['ownedTurfs', 'players', 'belongingTurfs'];
-    $validIncludes = array_intersect($includes, $allowedIncludes);
-
-    if (!empty($validIncludes)) {
-      $user->load($validIncludes);
+    if (!empty($includes)) {
+      $user->load($includes);
     }
 
     return $user;

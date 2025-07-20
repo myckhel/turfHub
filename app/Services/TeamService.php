@@ -28,11 +28,8 @@ class TeamService
    */
   public function getTeamWithRelations(Team $team, array $includes = []): Team
   {
-    $allowedIncludes = ['matchSession', 'captain', 'teamPlayers', 'gameMatchesAsFirstTeam', 'gameMatchesAsSecondTeam'];
-    $validIncludes = array_intersect($includes, $allowedIncludes);
-
-    if (!empty($validIncludes)) {
-      $team->load($validIncludes);
+    if (!empty($includes)) {
+      $team->load($includes);
     }
 
     return $team;

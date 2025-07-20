@@ -37,11 +37,8 @@ class PlayerService
    */
   public function getPlayerWithRelations(Player $player, array $includes = []): Player
   {
-    $allowedIncludes = ['user', 'turf', 'teamPlayers', 'matchEvents'];
-    $validIncludes = array_intersect($includes, $allowedIncludes);
-
-    if (!empty($validIncludes)) {
-      $player->load($validIncludes);
+    if (!empty($includes)) {
+      $player->load($includes);
     }
 
     return $player;
@@ -517,11 +514,9 @@ class PlayerService
     // Load relationships if requested
     if ($request->filled('include')) {
       $includes = explode(',', $request->include);
-      $allowedIncludes = ['user', 'turf', 'teamPlayers', 'matchEvents'];
-      $validIncludes = array_intersect($includes, $allowedIncludes);
 
-      if (!empty($validIncludes)) {
-        $query->with($validIncludes);
+      if (!empty($includes)) {
+        $query->with($includes);
       }
     }
 

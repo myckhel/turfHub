@@ -335,11 +335,9 @@ class MatchSessionService
     // Load relationships if requested
     if ($request->filled('include')) {
       $includes = explode(',', $request->include);
-      $allowedIncludes = ['turf', 'teams', 'gameMatches', 'queueLogic'];
-      $validIncludes = array_intersect($includes, $allowedIncludes);
 
-      if (!empty($validIncludes)) {
-        $query->with($validIncludes);
+      if (!empty($includes)) {
+        $query->with($includes);
       }
     }
 

@@ -24,11 +24,8 @@ class TeamPlayerService
    */
   public function getTeamPlayerWithRelations(TeamPlayer $teamPlayer, array $includes = []): TeamPlayer
   {
-    $allowedIncludes = ['team', 'player'];
-    $validIncludes = array_intersect($includes, $allowedIncludes);
-
-    if (!empty($validIncludes)) {
-      $teamPlayer->load($validIncludes);
+    if (!empty($includes)) {
+      $teamPlayer->load($includes);
     }
 
     return $teamPlayer;

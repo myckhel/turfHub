@@ -82,7 +82,11 @@ class GameMatchService
 
     // Filter by status
     if ($request->filled('status')) {
-      $query->where('status', $request->status);
+      $query->when(
+        is_array($request->status),
+        fn($q) => $q->whereIn('status', $request->status),
+        fn($q) => $q->where('status', $request->status)
+      );
     }
 
     // Filter by outcome
@@ -102,8 +106,7 @@ class GameMatchService
     // Load relationships if requested
     if ($request->filled('include')) {
       $includes = explode(',', $request->include);
-      $allowedIncludes = ['matchSession', 'firstTeam', 'secondTeam', 'winningTeam', 'matchEvents'];
-      $validIncludes = array_intersect($includes, $allowedIncludes);
+      $validIncludes = $includes;
 
       if (!empty($validIncludes)) {
         $query->with($validIncludes);

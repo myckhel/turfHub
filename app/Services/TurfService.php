@@ -25,11 +25,8 @@ class TurfService
    */
   public function getTurfWithRelations(Turf $turf, array $includes = []): Turf
   {
-    $allowedIncludes = ['owner', 'players', 'players.user', 'matchSessions', 'activeMatchSessions'];
-    $validIncludes = array_intersect($includes, $allowedIncludes);
-
-    if (!empty($validIncludes)) {
-      $turf->load($validIncludes);
+    if (!empty($includes)) {
+      $turf->load($includes);
     }
 
     return $turf;
@@ -117,11 +114,9 @@ class TurfService
     // Load relationships if requested
     if ($request->filled('include')) {
       $includes = explode(',', $request->include);
-      $allowedIncludes = ['owner', 'players', 'matchSessions', 'activeMatchSessions'];
-      $validIncludes = array_intersect($includes, $allowedIncludes);
 
-      if (!empty($validIncludes)) {
-        $query->with($validIncludes);
+      if (!empty($includes)) {
+        $query->with($includes);
       }
     }
 

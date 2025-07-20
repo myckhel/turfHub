@@ -18,6 +18,7 @@ import React, { useState } from 'react';
 import { turfApi } from '@/apis/turf';
 import { MatchSessionList } from '../../../components/MatchSessions';
 import { Button, Card } from '../../../components/ui';
+import { BankAccountList, TransactionHistory, WalletOverview } from '../../../components/wallet';
 import TurfWalletBalanceDisplay from '../../../components/wallet/TurfWalletBalanceDisplay';
 import { useAuth } from '../../../hooks/useAuth';
 import { usePermissions } from '../../../hooks/usePermissions';
@@ -288,6 +289,19 @@ const TurfDetail: React.FC<TurfDetailProps> = ({ turf }) => {
     </div>
   );
 
+  const renderWalletTab = () => (
+    <div className="space-y-6">
+      {/* Wallet Overview */}
+      <WalletOverview turfId={turf.id} showActions={canViewTurfWallet} compact={false} />
+
+      {/* Bank Accounts for turf wallet withdrawals */}
+      {canViewTurfWallet && <BankAccountList turfId={turf.id} showActions={true} compact={false} />}
+
+      {/* Transaction History */}
+      <TransactionHistory turfId={turf.id} showFilters={true} compact={false} initialLimit={20} />
+    </div>
+  );
+
   return (
     <div className="min-h-screen">
       <div className="container mx-auto px-3 py-4 sm:px-4 sm:py-6">
@@ -300,7 +314,7 @@ const TurfDetail: React.FC<TurfDetailProps> = ({ turf }) => {
                   {turf.name}
                   {isOwner && <CrownOutlined className="ml-2 text-yellow-400" />}
                 </Title>
-                <div className="mb-3 flex flex-col space-y-2 text-sm text-black sm:flex-row sm:space-y-0 sm:space-x-4 sm:text-base dark:text-white">
+                <div className="mb-3 flex flex-col space-y-2 text-sm text-black sm:flex-row sm:space-y-0 sm:space-x-4 sm:text-base">
                   <div className="flex items-center">
                     <EnvironmentOutlined className="mr-2" />
                     {turf.location}
@@ -432,6 +446,20 @@ const TurfDetail: React.FC<TurfDetailProps> = ({ turf }) => {
                 ),
                 children: renderMatchSessionsTab(),
               },
+              ...(canViewTurfWallet
+                ? [
+                    {
+                      key: 'wallet',
+                      label: (
+                        <>
+                          <span className="hidden sm:inline">Wallet</span>
+                          <span className="sm:hidden">Wallet</span>
+                        </>
+                      ),
+                      children: renderWalletTab(),
+                    },
+                  ]
+                : []),
             ]}
           />
         </Card>

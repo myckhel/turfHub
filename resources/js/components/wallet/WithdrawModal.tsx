@@ -10,11 +10,12 @@ const { Option } = Select;
 
 interface WithdrawModalProps {
   open: boolean;
+  turfId?: number;
   onCancel: () => void;
   onSuccess: () => void;
 }
 
-const WithdrawModal: React.FC<WithdrawModalProps> = ({ open, onCancel, onSuccess }) => {
+const WithdrawModal: React.FC<WithdrawModalProps> = ({ open, onCancel, onSuccess, turfId }) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -24,7 +25,7 @@ const WithdrawModal: React.FC<WithdrawModalProps> = ({ open, onCancel, onSuccess
   const fetchBankAccounts = async () => {
     try {
       setLoadingBankAccounts(true);
-      const response = await bankAccountApi.getUserBankAccounts();
+      const response = await (turfId ? bankAccountApi.getTurfBankAccounts(turfId as number) : bankAccountApi.getUserBankAccounts());
       setBankAccounts(response);
     } catch (err: unknown) {
       const error = err as { message?: string };
@@ -48,6 +49,7 @@ const WithdrawModal: React.FC<WithdrawModalProps> = ({ open, onCancel, onSuccess
       await walletApi.withdraw({
         amount: values.amount,
         bank_account_id: values.bank_account_id,
+        turf_id: turfId,
         metadata: {
           withdrawal_type: 'bank_transfer',
         },

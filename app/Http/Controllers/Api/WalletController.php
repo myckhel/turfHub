@@ -194,40 +194,82 @@ class WalletController extends Controller
       $request->validate([
         'amount' => 'required|numeric|min:100|max:500000', // Min ₦100, Max ₦500,000
         'bank_account_id' => 'required|exists:bank_accounts,id',
+        'turf_id' => 'sometimes|exists:turfs,id',
         'metadata' => 'sometimes|array'
       ]);
 
       $user = Auth::user();
+      $walletHolder = $user; // Default to user wallet
+      $accountableType = User::class;
+      $accountableId = $user->id;
+
+      // If turf_id is specified, use turf wallet instead
+      if ($request->has('turf_id')) {
+        $turf = Turf::findOrFail($request->turf_id);
+
+        // Check if user has permission to withdraw from turf wallet
+        if (
+          !$user->hasRoleOnTurf(User::TURF_ROLE_ADMIN, $turf->id) &&
+          !$user->hasRoleOnTurf(User::TURF_ROLE_MANAGER, $turf->id)
+        ) {
+          return response()->json([
+            'status' => false,
+            'message' => 'You do not have permission to withdraw from this turf\'s wallet'
+          ], 403);
+        }
+
+        $walletHolder = $turf;
+        $accountableType = Turf::class;
+        $accountableId = $turf->id;
+      }
+
       $bankAccount = BankAccount::where('id', $request->bank_account_id)
-        ->where('accountable_type', User::class)
-        ->where('accountable_id', $user->id)
+        ->where('accountable_type', $accountableType)
+        ->where('accountable_id', $accountableId)
         ->first();
 
       if (!$bankAccount) {
+        $entityType = $request->has('turf_id') ? 'turf' : 'user';
         return response()->json([
           'status' => false,
-          'message' => 'Bank account not found or does not belong to you'
+          'message' => "Bank account not found or does not belong to this {$entityType}"
         ], 404);
       }
 
+      $metadata = array_merge($request->metadata ?? [], [
+        'withdrawal_type' => $request->has('turf_id') ? 'turf_withdrawal' : 'user_withdrawal',
+        'initiated_by_user_id' => $user->id
+      ]);
+
+      if ($request->has('turf_id')) {
+        $metadata['turf_id'] = $request->turf_id;
+      }
+
       $result = $this->walletService->withdraw(
-        $user,
+        $walletHolder,
         $request->amount,
         $bankAccount,
-        $request->metadata ?? []
+        $metadata
       );
 
       if ($result['success']) {
+        $responseData = [
+          'new_balance' => $result['new_balance'],
+          'formatted_balance' => '₦' . number_format($result['new_balance'], 2),
+          'transaction_id' => $result['transaction']->id,
+          'transfer_code' => $result['transfer_code'],
+          'transfer_reference' => $result['transfer_reference']
+        ];
+
+        if ($request->has('turf_id')) {
+          $responseData['turf_id'] = $request->turf_id;
+          $responseData['turf_name'] = $walletHolder->name;
+        }
+
         return response()->json([
           'status' => true,
           'message' => $result['message'],
-          'data' => [
-            'new_balance' => $result['new_balance'],
-            'formatted_balance' => '₦' . number_format($result['new_balance'], 2),
-            'transaction_id' => $result['transaction']->id,
-            'transfer_code' => $result['transfer_code'],
-            'transfer_reference' => $result['transfer_reference']
-          ]
+          'data' => $responseData
         ]);
       }
 

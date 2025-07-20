@@ -28,6 +28,7 @@ export interface DepositRequest {
 export interface WithdrawRequest {
   amount: number;
   bank_account_id: number;
+  turf_id?: number;
   metadata?: Record<string, unknown>;
 }
 

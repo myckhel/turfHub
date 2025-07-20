@@ -132,37 +132,16 @@ const WalletOverview: React.FC<WalletOverviewProps> = ({ userId, turfId, showAct
               }}
             />
           </Col>
-
-          {!compact && (
-            <Col xs={24} sm={8} md={12}>
-              <div className="flex flex-col gap-3">
-                <div className="hidden text-xs tracking-wide text-gray-500 uppercase sm:block">Quick Actions</div>
-                <div className="flex flex-col gap-2 sm:gap-1">
-                  <Button
-                    type="primary"
-                    ghost
-                    icon={<PlusOutlined />}
-                    onClick={handleDepositClick}
-                    className="min-h-[44px] w-full touch-manipulation"
-                    size="small"
-                  >
-                    Add Money
-                  </Button>
-                  <Button icon={<MinusOutlined />} onClick={handleWithdrawClick} className="min-h-[44px] w-full touch-manipulation" size="small">
-                    Withdraw
-                  </Button>
-                </div>
-              </div>
-            </Col>
-          )}
         </Row>
 
         {/* Mobile action buttons for non-compact mode */}
         {!compact && showActions && (
-          <div className="mt-4 flex flex-col gap-2 md:hidden">
-            <Button type="primary" icon={<PlusOutlined />} onClick={handleDepositClick} className="min-h-[44px] w-full touch-manipulation">
-              Deposit Money
-            </Button>
+          <div className="mt-4 flex flex-col gap-2">
+            {!turfId && (
+              <Button type="primary" icon={<PlusOutlined />} onClick={handleDepositClick} className="min-h-[44px] w-full touch-manipulation">
+                Deposit Money
+              </Button>
+            )}
             <Button icon={<MinusOutlined />} onClick={handleWithdrawClick} className="min-h-[44px] w-full touch-manipulation">
               Withdraw Money
             </Button>
@@ -172,15 +151,17 @@ const WalletOverview: React.FC<WalletOverviewProps> = ({ userId, turfId, showAct
         {/* Compact mode action buttons */}
         {compact && showActions && (
           <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={handleDepositClick}
-              size="small"
-              className="min-h-[44px] flex-1 touch-manipulation"
-            >
-              Deposit
-            </Button>
+            {!turfId && (
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={handleDepositClick}
+                size="small"
+                className="min-h-[44px] flex-1 touch-manipulation"
+              >
+                Deposit
+              </Button>
+            )}
             <Button icon={<MinusOutlined />} onClick={handleWithdrawClick} size="small" className="min-h-[44px] flex-1 touch-manipulation">
               Withdraw
             </Button>
@@ -188,9 +169,9 @@ const WalletOverview: React.FC<WalletOverviewProps> = ({ userId, turfId, showAct
         )}
       </Card>
 
-      <DepositModal open={depositModalOpen} onCancel={() => setDepositModalOpen(false)} onSuccess={handleDepositSuccess} />
+      {!turfId && <DepositModal open={depositModalOpen} onCancel={() => setDepositModalOpen(false)} onSuccess={handleDepositSuccess} />}
 
-      <WithdrawModal open={withdrawModalOpen} onCancel={() => setWithdrawModalOpen(false)} onSuccess={handleWithdrawSuccess} />
+      <WithdrawModal turfId={turfId} open={withdrawModalOpen} onCancel={() => setWithdrawModalOpen(false)} onSuccess={handleWithdrawSuccess} />
     </>
   );
 };

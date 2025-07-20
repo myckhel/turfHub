@@ -25,7 +25,7 @@ export const bankAccountApi = {
   },
 
   // Turf bank accounts
-  getTurfBankAccounts: async (turfId: number): Promise<{ turf_id: number; turf_name: string; bank_accounts: BankAccount[] }> => {
+  getTurfBankAccounts: async (turfId: number): Promise<BankAccount[]> => {
     return api.get(route('api.bank-accounts.turf.index', { turfId }));
   },
 

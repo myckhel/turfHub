@@ -287,9 +287,17 @@ resources/
 │  ├─ pages/
 │  ├─ stores/ ← Zustand logic
 │  ├─ hooks/
+│  |  ├─ teams/
+│  |  └─ turf/
 │  ├─ types/
 │  └─ utils/
 ```
+
+Visual Design UX
+
+- Establish a clear visual hierarchy to guide user attention.
+- Create intuitive navigation patterns.
+- Provide clear calls-to-action to guide user behavior.
 
 **General Tips:**
 
@@ -303,6 +311,8 @@ resources/
 - write short code as possible, utilize short hand functions, avoid long lines of code, and use helper functions to break down complex logic.
 - Avoid passing data with services on inertia pages controllers except for binded route resources, instead use api modules to fetch data in the components.
 - Avoid generating useless files, components, or code that is not needed.
+- Always keep user experience in mind, ensure that the application is easy to use, intuitive, and provides a smooth experience.
+- Avoid passing hook value as prop to component, call the hook in the component instead.
 
 ## Workflow
 

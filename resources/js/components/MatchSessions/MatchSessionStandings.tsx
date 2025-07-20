@@ -25,8 +25,6 @@ interface StandingsTeam extends Team {
 const MatchSessionStandings: React.FC<MatchSessionStandingsProps> = ({ teams, matchSessionId, turfId, maxPlayersPerTeam, className }) => {
   const calculateStandings = (teams: Team[]): StandingsTeam[] => {
     const standings = teams.map((team) => {
-      console.log(team);
-
       const points = team.wins * 3 + team.draws * 1; // 3 points for win, 1 for draw
       const played = team.wins + team.losses + team.draws;
       const goalDifference = team.goals_for - team.goals_against;

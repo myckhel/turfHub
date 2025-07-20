@@ -3,7 +3,6 @@ import {
   ClockCircleOutlined,
   DashboardOutlined,
   GlobalOutlined,
-  MobileOutlined,
   PlayCircleOutlined,
   StarFilled,
   TeamOutlined,
@@ -17,6 +16,7 @@ import { Avatar, Button, Card, Col, Row, Space, Steps, Typography } from 'antd';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import React, { memo, useRef } from 'react';
+import { createSessionImage, matchEventImage, matchQueueImage, teamAssignmentImage, turfDashImage } from '../../assets/images/landing';
 import { useTheme } from '../../hooks/useTheme';
 
 const { Title, Paragraph, Text } = Typography;
@@ -220,30 +220,28 @@ const FeaturesSection: React.FC = memo(() => {
       description: 'Smart algorithm ensures fair play with automatic team balancing and rotation management.',
       icon: <TeamOutlined className="text-4xl text-green-600" />,
       imagePosition: 'right',
+      image: matchQueueImage,
     },
     {
       title: 'Session Scheduling',
       description: 'Flexible morning and evening sessions that fit your schedule and lifestyle.',
       icon: <ClockCircleOutlined className="text-4xl text-blue-600" />,
       imagePosition: 'left',
+      image: createSessionImage,
     },
     {
       title: 'Auto Team Assignment',
       description: 'No more awkward team picking. Our system creates balanced teams automatically.',
       icon: <UsergroupAddOutlined className="text-4xl text-purple-600" />,
       imagePosition: 'right',
-    },
-    {
-      title: 'Mobile-First PWA',
-      description: 'Lightning-fast app that works offline and feels native on any device.',
-      icon: <MobileOutlined className="text-4xl text-orange-600" />,
-      imagePosition: 'left',
+      image: teamAssignmentImage,
     },
     {
       title: 'Match Event Tracking',
       description: 'Track goals, cards, substitutions, and player statistics in real-time.',
       icon: <TrophyOutlined className="text-4xl text-red-600" />,
       imagePosition: 'right',
+      image: matchEventImage,
     },
   ];
 
@@ -296,13 +294,8 @@ const FeaturesSection: React.FC = memo(() => {
                   </div>
                 </Col>
                 <Col xs={24} lg={12} order={feature.imagePosition === 'left' ? 1 : 2}>
-                  <div className="feature-image-mock rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 p-8 shadow-lg dark:from-gray-700 dark:to-gray-800">
-                    <div className="flex h-64 items-center justify-center">
-                      <div className="text-center">
-                        <div className="mb-4 text-6xl">{feature.icon}</div>
-                        <Text className="text-gray-500 dark:text-gray-400">Feature Visualization</Text>
-                      </div>
-                    </div>
+                  <div className="feature-image-mock rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 shadow-lg dark:from-gray-700 dark:to-gray-800">
+                    <img src={feature.image} alt={feature.title} />
                   </div>
                 </Col>
               </Row>
@@ -375,13 +368,8 @@ const TurfManagersSection: React.FC = memo(() => {
             </div>
           </Col>
           <Col xs={24} lg={12}>
-            <div className="feature-image-mock rounded-lg bg-gradient-to-br from-white to-gray-50 p-8 shadow-xl dark:from-gray-800 dark:to-gray-900">
-              <div className="flex h-64 items-center justify-center">
-                <div className="text-center">
-                  <DashboardOutlined className="mb-4 text-6xl text-green-600" />
-                  <Text className="text-gray-500 dark:text-gray-400">Manager Dashboard Preview</Text>
-                </div>
-              </div>
+            <div className="feature-image-mock rounded-lg bg-gradient-to-br from-white to-gray-50 shadow-xl dark:from-gray-800 dark:to-gray-900">
+              <img src={turfDashImage} alt="Turf Manager Dashboard" className="h-auto w-full rounded-lg" />
             </div>
           </Col>
         </Row>

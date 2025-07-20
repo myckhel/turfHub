@@ -1,5 +1,5 @@
-import { MenuOutlined } from '@ant-design/icons';
-import { Link } from '@inertiajs/react';
+import { CloseOutlined, MenuOutlined } from '@ant-design/icons';
+import { Link, usePage } from '@inertiajs/react';
 import { Button, Layout } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 import ThemeToggle from '../shared/ThemeToggle';
@@ -11,174 +11,10 @@ interface GuestLayoutProps {
 }
 
 export const GuestLayout: React.FC<GuestLayoutProps> = ({ children }) => {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const mobileMenuRef = useRef<HTMLDivElement>(null);
-
-  const toggleMobileMenu = () => {
-    setMobileMenuOpen(!mobileMenuOpen);
-  };
-
-  const closeMobileMenu = () => {
-    setMobileMenuOpen(false);
-  };
-
-  // Close mobile menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node)) {
-        closeMobileMenu();
-      }
-    };
-
-    if (mobileMenuOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [mobileMenuOpen]);
-
-  // Close mobile menu on route change
-  useEffect(() => {
-    closeMobileMenu();
-  }, []);
-
   return (
     <Layout className="min-h-screen bg-white dark:bg-gray-900">
       {/* Header */}
-      <Header
-        className="turf-header fixed top-0 z-50 w-full shadow-lg backdrop-blur-md transition-all duration-300"
-        style={{
-          background: 'var(--color-turf-green)',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-        }}
-      >
-        <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-4 md:px-8">
-          {/* Logo */}
-          <Link href={route('welcome')} className="flex items-center space-x-2 transition-transform hover:scale-105">
-            <div
-              className="flex h-8 w-8 items-center justify-center rounded-lg shadow-lg"
-              style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.1))' }}
-            >
-              <span className="text-sm font-bold text-white">TM</span>
-            </div>
-            <span className="text-xl font-bold text-white">TurfMate</span>
-          </Link>
-
-          {/* Desktop Navigation */}
-          <nav className="hidden items-center space-x-6 md:flex">
-            <Link href={route('welcome')} className="text-white transition-colors hover:text-white/80">
-              Home
-            </Link>
-            <Link href={route('welcome')} className="text-white transition-colors hover:text-white/80">
-              About
-            </Link>
-            <Link href={route('welcome')} className="text-white transition-colors hover:text-white/80">
-              Pricing
-            </Link>
-            <Link href={route('welcome')} className="text-white transition-colors hover:text-white/80">
-              Contact
-            </Link>
-          </nav>
-
-          {/* Desktop Auth buttons and Theme Toggle */}
-          <div className="hidden items-center space-x-3 md:flex">
-            <ThemeToggle size="small" className="opacity-60" />
-            <Link href={route('login')}>
-              <Button type="text" className="text-white transition-colors hover:bg-white/10 hover:text-white">
-                Sign In
-              </Button>
-            </Link>
-            <Link href={route('register')}>
-              <Button
-                type="primary"
-                className="border-none bg-white text-green-600 shadow-lg transition-all duration-200 hover:bg-white/90 hover:shadow-xl"
-              >
-                Get Started
-              </Button>
-            </Link>
-          </div>
-
-          {/* Mobile: Sign In always visible, ThemeToggle less prominent */}
-          <div className="flex items-center space-x-2 md:hidden">
-            <ThemeToggle size="small" className="opacity-40" />
-            <Link href={route('login')}>
-              <Button type="text" className="px-2 py-1 text-sm font-medium text-white hover:bg-white/10 hover:text-white">
-                Sign In
-              </Button>
-            </Link>
-            <Button
-              type="text"
-              icon={<MenuOutlined />}
-              onClick={toggleMobileMenu}
-              className="p-2 text-white hover:bg-white/10"
-              aria-label="Toggle mobile menu"
-            />
-          </div>
-        </div>
-
-        {/* Mobile Navigation Dropdown */}
-        {mobileMenuOpen && (
-          <div
-            ref={mobileMenuRef}
-            className="absolute top-full left-0 w-full shadow-lg md:hidden"
-            style={{
-              background: 'var(--color-turf-green)',
-              borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-            }}
-          >
-            <div className="flex flex-col space-y-1 p-4">
-              {/* Mobile Navigation Links */}
-              <Link
-                href={route('welcome')}
-                className="block rounded-lg px-3 py-2 text-white/90 transition-colors hover:bg-white/10 hover:text-white"
-                onClick={closeMobileMenu}
-              >
-                Home
-              </Link>
-              <Link
-                href={route('welcome')}
-                className="block rounded-lg px-3 py-2 text-white/90 transition-colors hover:bg-white/10 hover:text-white"
-                onClick={closeMobileMenu}
-              >
-                About
-              </Link>
-              <Link
-                href={route('welcome')}
-                className="block rounded-lg px-3 py-2 text-white/90 transition-colors hover:bg-white/10 hover:text-white"
-                onClick={closeMobileMenu}
-              >
-                Pricing
-              </Link>
-              <Link
-                href={route('welcome')}
-                className="block rounded-lg px-3 py-2 text-white/90 transition-colors hover:bg-white/10 hover:text-white"
-                onClick={closeMobileMenu}
-              >
-                Contact
-              </Link>
-
-              {/* Mobile Auth Buttons */}
-              <div className="mt-4 flex flex-col space-y-2 border-t pt-4" style={{ borderColor: 'rgba(255, 255, 255, 0.1)' }}>
-                <Link href={route('login')} onClick={closeMobileMenu}>
-                  <Button type="text" className="w-full text-white/90 transition-colors hover:bg-white/10 hover:text-white">
-                    Sign In
-                  </Button>
-                </Link>
-                <Link href={route('register')} onClick={closeMobileMenu}>
-                  <Button
-                    type="primary"
-                    className="w-full border-none bg-white text-green-600 shadow-lg transition-all duration-200 hover:bg-white/90 hover:shadow-xl"
-                  >
-                    Get Started
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </div>
-        )}
-      </Header>
+      <GuestHeader />
 
       {/* Main Content - Add top padding to account for fixed header */}
       <Content className="flex-1 bg-white dark:bg-gray-900">{children}</Content>
@@ -260,5 +96,190 @@ export const GuestLayout: React.FC<GuestLayoutProps> = ({ children }) => {
         </div>
       </Footer>
     </Layout>
+  );
+};
+
+const GuestHeader: React.FC = () => {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const { url, props } = usePage();
+
+  const isLoggedIn = !!props?.auth?.user;
+
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
+
+  const closeMobileMenu = () => {
+    setMobileMenuOpen(false);
+  };
+
+  // Close mobile menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node)) {
+        closeMobileMenu();
+      }
+    };
+
+    if (mobileMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [mobileMenuOpen]);
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    closeMobileMenu();
+  }, [url]);
+
+  return (
+    <Header
+      className="turf-header fixed top-0 z-50 w-full px-1 shadow-lg backdrop-blur-md transition-all duration-300"
+      style={{
+        background: 'var(--color-turf-green)',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+        height: '72px',
+      }}
+    >
+      <div className="mx-auto flex h-full max-w-7xl items-center justify-between sm:px-6 lg:px-8 xl:px-4">
+        {/* Logo */}
+        <Link href={route('welcome')} className="flex items-center space-x-3 transition-transform hover:scale-105">
+          <div
+            className="flex h-9 w-9 items-center justify-center rounded-xl shadow-lg"
+            style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.1))' }}
+          >
+            <span className="text-sm font-bold text-white">TM</span>
+          </div>
+          <span className="text-xl font-bold text-white">TurfMate</span>
+        </Link>
+
+        {/* Desktop Navigation */}
+        <nav className="hidden items-center space-x-8 md:flex lg:space-x-10">
+          <Link href={route('welcome')} className="font-medium text-white/90 transition-all hover:scale-105 hover:text-white">
+            Home
+          </Link>
+          <Link href={route('welcome')} className="font-medium text-white/90 transition-all hover:scale-105 hover:text-white">
+            About
+          </Link>
+          <Link href={route('welcome')} className="font-medium text-white/90 transition-all hover:scale-105 hover:text-white">
+            Pricing
+          </Link>
+          <Link href={route('welcome')} className="font-medium text-white/90 transition-all hover:scale-105 hover:text-white">
+            Contact
+          </Link>
+        </nav>
+
+        {/* Desktop Auth buttons and Theme Toggle */}
+        <div className="hidden items-center space-x-4 md:flex lg:space-x-5">
+          <ThemeToggle size="small" className="opacity-70 transition-all hover:scale-110 hover:opacity-100" />
+          <Link href={route('login')}>
+            <Button
+              type="text"
+              className="h-10 border-none px-4 font-medium text-white/90 transition-all hover:scale-105 hover:bg-white/10 hover:text-white"
+            >
+              {isLoggedIn ? 'Dashboard' : 'Sign In'}
+            </Button>
+          </Link>
+          <Link href={route('register')}>
+            <Button
+              type="primary"
+              className="h-10 rounded-lg border-none bg-white px-6 font-semibold text-green-600 shadow-lg transition-all duration-200 hover:scale-105 hover:bg-white/90 hover:shadow-xl"
+            >
+              Get Started
+            </Button>
+          </Link>
+        </div>
+
+        {/* Mobile: Sign In and Menu Toggle */}
+        <div className="flex items-center space-x-2 sm:space-x-3 md:hidden">
+          <ThemeToggle size="small" className="opacity-60 transition-all hover:scale-110 hover:opacity-100" />
+          <Link href={route('login')}>
+            <Button
+              type="text"
+              className="h-9 border-none px-3 py-1 text-sm font-medium text-white/90 hover:bg-white/10 hover:text-white active:scale-95"
+            >
+              Sign In
+            </Button>
+          </Link>
+          <Button
+            type="text"
+            icon={mobileMenuOpen ? <CloseOutlined /> : <MenuOutlined />}
+            onClick={toggleMobileMenu}
+            className="flex h-10 w-10 items-center justify-center border-none p-2 text-white transition-all hover:scale-110 hover:bg-white/10 active:scale-95"
+            aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+          />
+        </div>
+      </div>
+
+      {/* Mobile Navigation Dropdown */}
+      {mobileMenuOpen && (
+        <div
+          ref={mobileMenuRef}
+          className="absolute top-full left-0 w-full border-t shadow-2xl backdrop-blur-sm duration-200 animate-in slide-in-from-top-2 md:hidden"
+          style={{
+            background: 'linear-gradient(180deg, var(--color-turf-green) 0%, rgba(27, 94, 32, 0.95) 100%)',
+            borderTopColor: 'rgba(255, 255, 255, 0.1)',
+          }}
+        >
+          <div className="flex flex-col px-6 py-6 sm:px-8">
+            {/* Mobile Navigation Links */}
+            <div className="space-y-1">
+              <Link
+                href={route('welcome')}
+                className="block rounded-xl px-4 py-4 font-medium text-white transition-all hover:bg-white/10 hover:text-white active:scale-[0.98] active:bg-white/20"
+                onClick={closeMobileMenu}
+              >
+                Home
+              </Link>
+              <Link
+                href={route('welcome')}
+                className="block rounded-xl px-4 py-4 font-medium text-white transition-all hover:bg-white/10 hover:text-white active:scale-[0.98] active:bg-white/20"
+                onClick={closeMobileMenu}
+              >
+                About
+              </Link>
+              <Link
+                href={route('welcome')}
+                className="block rounded-xl px-4 py-4 font-medium text-white transition-all hover:bg-white/10 hover:text-white active:scale-[0.98] active:bg-white/20"
+                onClick={closeMobileMenu}
+              >
+                Pricing
+              </Link>
+              <Link
+                href={route('welcome')}
+                className="block rounded-xl px-4 py-4 font-medium text-white transition-all hover:bg-white/10 hover:text-white active:scale-[0.98] active:bg-white/20"
+                onClick={closeMobileMenu}
+              >
+                Contact
+              </Link>
+            </div>
+
+            {/* Mobile Auth Buttons */}
+            <div className="mt-8 flex flex-col space-y-4 border-t pt-8" style={{ borderColor: 'rgba(255, 255, 255, 0.1)' }}>
+              <Link href={route('login')} onClick={closeMobileMenu} className="w-full">
+                <Button
+                  type="text"
+                  className="h-14 w-full rounded-xl border border-white/20 font-semibold text-white transition-all hover:border-white/40 hover:bg-white/10 hover:text-white active:scale-[0.98]"
+                >
+                  Sign In
+                </Button>
+              </Link>
+              <Link href={route('register')} onClick={closeMobileMenu} className="w-full">
+                <Button
+                  type="primary"
+                  className="h-14 w-full rounded-xl border-none bg-white font-bold text-green-600 shadow-lg transition-all duration-200 hover:bg-white/90 hover:shadow-xl active:scale-[0.98]"
+                >
+                  Get Started
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+    </Header>
   );
 };

@@ -1,7 +1,7 @@
 import { walletApi, type WalletBalance } from '@/apis/wallet';
 import { EyeInvisibleOutlined, EyeOutlined, MinusOutlined, PlusOutlined, WalletOutlined } from '@ant-design/icons';
 import { Alert, Button, Card, Col, Row, Spin, Statistic, Typography } from 'antd';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 import DepositModal from './DepositModal';
 import WithdrawModal from './WithdrawModal';
 
@@ -176,4 +176,4 @@ const WalletOverview: React.FC<WalletOverviewProps> = ({ userId, turfId, showAct
   );
 };
 
-export default WalletOverview;
+export default memo(WalletOverview);

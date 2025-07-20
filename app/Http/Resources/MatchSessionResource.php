@@ -30,6 +30,7 @@ class MatchSessionResource extends JsonResource
       'updated_at' => $this->updated_at,
 
       // Relationships (loaded when needed)
+      'is_session_player' => !!$this->whenLoaded('sessionPlayer'),
       'turf' => new TurfResource($this->whenLoaded('turf')),
       'teams' => TeamResource::collection($this->whenLoaded('teams')),
       'game_matches' => GameMatchResource::collection($this->whenLoaded('gameMatches')),

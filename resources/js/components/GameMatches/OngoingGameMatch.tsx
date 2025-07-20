@@ -1,7 +1,6 @@
-import { Card, Col, Row, Spin, Typography } from 'antd';
+import { Card, Col, Row, Typography } from 'antd';
 import React, { useCallback, useEffect, useState } from 'react';
 import { gameMatchApi } from '../../apis/gameMatch';
-import { matchSessionApi } from '../../apis/matchSession';
 import { usePermissions } from '../../hooks/usePermissions';
 import type { GameMatch } from '../../types/gameMatch.types';
 import type { MatchSession } from '../../types/matchSession.types';
@@ -17,7 +16,7 @@ interface OngoingGameMatchProps {
   matchSessionId?: number;
 }
 
-const OngoingGameMatch: React.FC<OngoingGameMatchProps> = ({ gameMatch, matchSession, gameMatchId, matchSessionId }) => {
+const OngoingGameMatch: React.FC<OngoingGameMatchProps> = ({ gameMatch, matchSession, gameMatchId }) => {
   const permissions = usePermissions();
   const canManageSessions = permissions.canManageSessions();
 
@@ -26,55 +25,6 @@ const OngoingGameMatch: React.FC<OngoingGameMatchProps> = ({ gameMatch, matchSes
 
   // Determine which IDs to use
   const resolvedGameMatchId = gameMatch?.id || gameMatchId;
-  const resolvedMatchSessionId = matchSession?.id || matchSessionId;
-
-  // Initialize data
-  useEffect(() => {
-    const initializeData = async () => {
-      if (!gameMatch || !matchSession) {
-        setInitialLoading(true);
-        try {
-          const requests = [];
-
-          if (!gameMatch && resolvedGameMatchId) {
-            requests.push({
-              type: 'gameMatch',
-              promise: gameMatchApi.getById(resolvedGameMatchId, {
-                include:
-                  'firstTeam.teamPlayers.player.user,secondTeam.teamPlayers.player.user,winningTeam,matchEvents.player.user,matchEvents.team,matchEvents.relatedPlayer.user',
-              }),
-            });
-          }
-
-          if (!matchSession && resolvedMatchSessionId) {
-            requests.push({
-              type: 'matchSession',
-              promise: matchSessionApi.getById(resolvedMatchSessionId),
-            });
-          }
-
-          const results = await Promise.all(requests.map((req) => req.promise));
-
-          requests.forEach((req, index) => {
-            if (req.type === 'gameMatch') {
-              const result = results[index].data as GameMatch;
-              if (result) {
-                setCurrentMatch(result);
-              }
-            } else if (req.type === 'matchSession') {
-              // Match session data fetched but not currently used in UI
-            }
-          });
-        } catch (error) {
-          console.error('Failed to initialize data:', error);
-        } finally {
-          setInitialLoading(false);
-        }
-      }
-    };
-
-    initializeData();
-  }, [gameMatch, matchSession, resolvedGameMatchId, resolvedMatchSessionId]);
 
   // Reload game match data
   const loadGameMatch = useCallback(async () => {
@@ -83,23 +33,16 @@ const OngoingGameMatch: React.FC<OngoingGameMatchProps> = ({ gameMatch, matchSes
     try {
       const response = await gameMatchApi.getById(resolvedGameMatchId, {
         include:
-          'firstTeam.teamPlayers.player.user,secondTeam.teamPlayers.player.user,winningTeam,matchEvents.player.user,matchEvents.team,matchEvents.relatedPlayer.user',
+          'firstTeam.teamPlayers,secondTeam.teamPlayers.player.user,winningTeam,matchEvents.player.user,matchEvents.team,matchEvents.relatedPlayer.user',
       });
-      setCurrentMatch(response.data);
+
+      setCurrentMatch(response);
     } catch (error) {
       console.error('Failed to load game match:', error);
     }
   }, [resolvedGameMatchId]);
 
-  const handleMatchUpdate = () => {
-    loadGameMatch();
-  };
-
-  useEffect(() => {
-    if (gameMatch) {
-      loadGameMatch();
-    }
-  }, [gameMatch, loadGameMatch]);
+  const handleMatchUpdate = () => loadGameMatch();
 
   // Auto-refresh for ongoing matches
   useEffect(() => {
@@ -109,23 +52,23 @@ const OngoingGameMatch: React.FC<OngoingGameMatchProps> = ({ gameMatch, matchSes
     }
   }, [currentMatch?.status, loadGameMatch]);
 
-  // Show loading state while fetching data
-  if (initialLoading) {
-    return (
-      <Card className="py-8 text-center">
-        <Row justify="center">
-          <Col xs={24}>
-            <Spin size="large" />
-            <div className="mt-4">
-              <Text type="secondary" className="text-sm sm:text-base">
-                Loading match data...
-              </Text>
-            </div>
-          </Col>
-        </Row>
-      </Card>
-    );
-  }
+  // Initialize data
+  useEffect(() => {
+    const initializeData = async () => {
+      if (!gameMatch) {
+        setInitialLoading(true);
+        try {
+          await loadGameMatch();
+        } catch (error) {
+          console.error('Failed to initialize data:', error);
+        } finally {
+          setInitialLoading(false);
+        }
+      }
+    };
+
+    initializeData();
+  }, [gameMatch, resolvedGameMatchId, loadGameMatch]);
 
   // Show error state if no match data
   if (!currentMatch) {

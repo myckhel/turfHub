@@ -215,7 +215,7 @@ const MatchSessionDetails: React.FC<MatchSessionDetailsProps> = ({ turf, matchSe
                 <Descriptions.Item label="Time">
                   <ClockCircleOutlined className="mr-1" />
                   <span className="text-xs sm:text-sm">
-                    {matchSession.start_time} - {matchSession.end_time}
+                    {format(new Date(matchSession.start_time), 'hh:mm a')} - {format(new Date(matchSession.end_time), 'hh:mm a')}
                   </span>
                 </Descriptions.Item>
                 <Descriptions.Item label="Max Teams">

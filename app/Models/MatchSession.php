@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 class MatchSession extends Model
 {
@@ -64,6 +65,14 @@ class MatchSession extends Model
   public function teams(): HasMany
   {
     return $this->hasMany(Team::class);
+  }
+
+  /**
+   * Get the session's player.
+   */
+  public function sessionPlayer(): HasOneThrough
+  {
+    return $this->hasOneThrough(Player::class, Team::class)->where('player.user_id', auth()->id);
   }
 
   /**

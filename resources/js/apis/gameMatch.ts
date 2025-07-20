@@ -27,7 +27,7 @@ export const gameMatchApi = {
     params?: {
       include?: string;
     },
-  ): Promise<ApiResponse<GameMatch>> => {
+  ): Promise<GameMatch> => {
     return api.get(`/game-matches/${id}`, { params });
   },
 

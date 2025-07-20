@@ -99,7 +99,15 @@ const TeamList: React.FC<TeamListProps> = memo(({ teams, matchSession, turf, sho
       </Button>,
       ...(showJoinButtons && !isTeamFull
         ? [
-            <Button key="join" type="primary" icon={<UserAddOutlined />} onClick={() => handleJoinTeam(team.id)} size="small">
+            <Button
+              disabled={isTeamFull || matchSession.is_session_player}
+              title={isTeamFull ? 'Team is full' : matchSession.is_session_player ? 'Already in a team' : 'Join Team'}
+              key="join"
+              type="primary"
+              icon={<UserAddOutlined />}
+              onClick={() => handleJoinTeam(team.id)}
+              size="small"
+            >
               Join Team
             </Button>,
           ]

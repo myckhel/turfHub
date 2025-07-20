@@ -94,7 +94,7 @@ export const matchSessionApi = {
   getCurrentOngoingMatch: (matchSessionId: number): Promise<GameMatchListResponse> => {
     return api.get(`/match-sessions/${matchSessionId}/game-matches`, {
       params: {
-        status: 'in_progress',
+        status: ['in_progress', 'upcoming'],
         per_page: 1,
         include:
           'firstTeam.teamPlayers.player.user,secondTeam.teamPlayers.player.user,winningTeam,matchEvents.player.user,matchEvents.team,matchEvents.relatedPlayer.user',

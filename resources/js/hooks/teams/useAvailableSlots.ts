@@ -17,6 +17,7 @@ export interface UseAvailableSlotsReturn {
   error: string | null;
   activeSessionId: number | null;
   refreshSlots: () => Promise<void>;
+  isSessionPlayer: boolean;
 }
 
 /**
@@ -49,6 +50,7 @@ export const useAvailableSlots = (options: UseAvailableSlotsOptions = {}): UseAv
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeSessionId, setActiveSessionId] = useState<number | null>(null);
+  const [isSessionPlayer, setIsSessionPlayer] = useState<boolean>(false);
 
   /**
    * Get the active match session ID to use for fetching slots
@@ -78,6 +80,8 @@ export const useAvailableSlots = (options: UseAvailableSlotsOptions = {}): UseAv
       if (activeSessions.length > 1) {
         console.warn(`Multiple active sessions found for ${selectedTurf.name}. Using the first one.`);
       }
+
+      setIsSessionPlayer(!!activeSessions[0].is_session_player);
 
       return activeSessions[0].id;
     } catch (error) {
@@ -153,6 +157,7 @@ export const useAvailableSlots = (options: UseAvailableSlotsOptions = {}): UseAv
     error,
     activeSessionId,
     refreshSlots,
+    isSessionPlayer,
   };
 };
 

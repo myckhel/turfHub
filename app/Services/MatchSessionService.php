@@ -36,11 +36,9 @@ class MatchSessionService
    */
   public function getMatchSessionWithRelations(MatchSession $matchSession, array $includes = []): MatchSession
   {
-    $allowedIncludes = ['turf', 'teams', 'gameMatches', 'queueLogic'];
-    $validIncludes = array_intersect($includes, $allowedIncludes);
-
-    if (!empty($validIncludes)) {
-      $matchSession->load($validIncludes);
+    dd($includes);
+    if (!empty($includes)) {
+      $matchSession->load($includes);
     }
 
     return $matchSession;

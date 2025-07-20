@@ -1,5 +1,5 @@
 import { ReloadOutlined } from '@ant-design/icons';
-import { Button, Card, Divider, Empty, Space, Spin, Typography } from 'antd';
+import { Button, Card, Divider, Space, Spin, Typography } from 'antd';
 import React, { useCallback, useEffect, useState } from 'react';
 import { matchSessionApi } from '../../apis/matchSession';
 import type { GameMatch } from '../../types/gameMatch.types';
@@ -18,14 +18,7 @@ interface OngoingMatchesProps {
   title?: string;
 }
 
-const OngoingMatches: React.FC<OngoingMatchesProps> = ({
-  matchSession,
-  matchSessionId,
-  autoRefresh = true,
-  refreshInterval = 30000,
-  showEmptyState = true,
-  title,
-}) => {
+const OngoingMatches: React.FC<OngoingMatchesProps> = ({ matchSession, matchSessionId, autoRefresh = true, refreshInterval = 30000, title }) => {
   const [ongoingMatches, setOngoingMatches] = useState<GameMatch[]>([]);
   const [currentMatchSession, setCurrentMatchSession] = useState<MatchSession | undefined>(matchSession);
   const [loading, setLoading] = useState(true);
@@ -100,10 +93,6 @@ const OngoingMatches: React.FC<OngoingMatchesProps> = ({
     }
   }, [autoRefresh, ongoingMatches.length, refreshInterval, loadOngoingMatches]);
 
-  const handleMatchUpdate = useCallback(() => {
-    loadOngoingMatches(true);
-  }, [loadOngoingMatches]);
-
   const handleRefresh = () => {
     loadOngoingMatches(true);
   };
@@ -116,31 +105,6 @@ const OngoingMatches: React.FC<OngoingMatchesProps> = ({
           <div className="mt-4">
             <Text type="secondary">Loading ongoing matches...</Text>
           </div>
-        </div>
-      </Card>
-    );
-  }
-
-  if (ongoingMatches.length === 0) {
-    if (!showEmptyState) {
-      return null;
-    }
-
-    return (
-      <Card>
-        <div className="py-8 text-center">
-          <Empty
-            image={Empty.PRESENTED_IMAGE_SIMPLE}
-            description={
-              <span>
-                <Text type="secondary">No ongoing matches</Text>
-                <br />
-                <Text type="secondary" className="text-sm">
-                  Active matches will appear here when they start
-                </Text>
-              </span>
-            }
-          />
         </div>
       </Card>
     );
@@ -173,14 +137,7 @@ const OngoingMatches: React.FC<OngoingMatchesProps> = ({
         const sessionForMatch = matchSession || currentMatchSession;
         if (!sessionForMatch) return null;
 
-        return (
-          <OngoingGameMatch
-            key={`${gameMatch.id}-${sessionForMatch.id}`}
-            gameMatch={gameMatch}
-            matchSession={sessionForMatch}
-            onMatchUpdate={handleMatchUpdate}
-          />
-        );
+        return <OngoingGameMatch key={`${gameMatch.id}-${sessionForMatch.id}`} gameMatch={gameMatch} matchSession={sessionForMatch} />;
       })}
 
       {/* Divider after ongoing matches */}

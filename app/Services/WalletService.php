@@ -9,8 +9,6 @@ use App\Models\Payment;
 use App\Events\WalletBalanceUpdated;
 use App\Events\TurfWalletBalanceUpdated;
 use Bavix\Wallet\Interfaces\Wallet;
-use Bavix\Wallet\Models\Transaction;
-use Bavix\Wallet\Models\Wallet as WalletModel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Exception;

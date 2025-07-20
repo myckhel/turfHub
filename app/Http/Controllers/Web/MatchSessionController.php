@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\MatchSessionResource;
 use App\Http\Resources\TurfResource;
 use App\Models\MatchSession;
 use App\Models\Turf;
@@ -51,17 +52,17 @@ class MatchSessionController extends Controller
 
     return Inertia::render('App/MatchSessions/Show', [
       'turf' => new TurfResource($turf->load(['owner'])),
-      'matchSession' => $matchSession->load([
+      'matchSession' => new MatchSessionResource($matchSession->load([
         'turf',
         'teams.teamPlayers.player.user',
-        'gameMatches.firstTeam',
-        'gameMatches.secondTeam',
+        'gameMatches.firstTeam.teamPlayers.player.user',
+        'gameMatches.secondTeam.teamPlayers.player.user',
         'gameMatches.winningTeam',
         'gameMatches.matchEvents.player.user',
         'gameMatches.matchEvents.team',
         'gameMatches.matchEvents.relatedPlayer.user',
         'queueLogic.team'
-      ]),
+      ])),
     ]);
   }
 

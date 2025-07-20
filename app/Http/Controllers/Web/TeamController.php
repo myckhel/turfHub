@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\MatchSessionResource;
 use App\Http\Resources\TeamResource;
 use App\Models\MatchSession;
 use App\Models\Team;
@@ -41,7 +42,7 @@ class TeamController extends Controller
 
     return Inertia::render('App/Teams/Index', [
       'turf' => $turf->load(['owner']),
-      'matchSession' => $matchSession,
+      'matchSession' => new MatchSessionResource($matchSession),
       'teams' => TeamResource::collection($teams),
     ]);
   }

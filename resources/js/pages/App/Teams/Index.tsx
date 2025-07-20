@@ -11,7 +11,7 @@ const { Title, Text } = Typography;
 interface TeamsIndexProps {
   turf: Turf;
   matchSession: MatchSession;
-  teams: { data: TeamDetails[] };
+  teams: TeamDetails[];
 }
 
 const TeamsIndex: React.FC<TeamsIndexProps> = ({ turf, matchSession, teams }) => {
@@ -50,10 +50,11 @@ const TeamsIndex: React.FC<TeamsIndexProps> = ({ turf, matchSession, teams }) =>
                     <strong>Session Date:</strong> {new Date(matchSession.session_date).toLocaleDateString()}
                   </Text>
                   <Text type="secondary">
-                    <strong>Time:</strong> {matchSession.start_time} - {matchSession.end_time}
+                    <strong>Time:</strong> {new Date(matchSession.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} -{' '}
+                    {new Date(matchSession.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </Text>
                   <Text type="secondary">
-                    <strong>Teams:</strong> {teams.data.length} / {matchSession.max_teams}
+                    <strong>Teams:</strong> {teams.length} / {matchSession.max_teams}
                   </Text>
                 </Space>
               </div>
@@ -64,7 +65,7 @@ const TeamsIndex: React.FC<TeamsIndexProps> = ({ turf, matchSession, teams }) =>
           <Row gutter={[16, 16]}>
             <Col span={24}>
               <TeamList
-                teams={teams.data}
+                teams={teams}
                 matchSession={matchSession}
                 turf={turf}
                 showJoinButtons={true}

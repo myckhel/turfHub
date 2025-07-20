@@ -36,7 +36,8 @@ const GameMatchesTable: React.FC<GameMatchesTableProps> = ({
     setLoading(true);
     try {
       const response = await gameMatchApi.getByMatchSession(matchSessionId, {
-        include: 'firstTeam,secondTeam,winningTeam,matchEvents',
+        include:
+          'firstTeam.teamPlayers.player.user,secondTeam.teamPlayers.player.user,winningTeam,matchEvents.player.user,matchEvents.team,matchEvents.relatedPlayer.user',
       });
       // Sort matches by match_time in descending order (most recent first)
       const sortedMatches = (response.data || []).sort((a, b) => new Date(b.match_time).getTime() - new Date(a.match_time).getTime());

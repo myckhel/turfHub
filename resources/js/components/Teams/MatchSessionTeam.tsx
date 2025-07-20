@@ -16,7 +16,7 @@ const MatchSessionTeam: React.FC<MatchSessionTeamProps> = memo(({ matchSessionId
   const [selectedTeam, setSelectedTeam] = useState<TeamDetails | null>(null);
 
   // Use the new hook for fetching available slots
-  const { availableSlots, loading, error, refreshSlots } = useAvailableSlots({
+  const { availableSlots, loading, error, refreshSlots, isSessionPlayer } = useAvailableSlots({
     matchSessionId,
     autoRefresh: true,
     refreshInterval: 30000,
@@ -129,7 +129,14 @@ const MatchSessionTeam: React.FC<MatchSessionTeamProps> = memo(({ matchSessionId
                       size="small"
                       className={`h-full ${isTeamFull ? 'opacity-60' : 'hover:shadow-md'}`}
                       actions={[
-                        <Button key="join" type="primary" icon={<UserAddOutlined />} disabled={isTeamFull} onClick={() => handleJoinTeam(team)}>
+                        <Button
+                          key="join"
+                          type="primary"
+                          icon={<UserAddOutlined />}
+                          title={isTeamFull ? 'Team is full' : isSessionPlayer ? 'Already in a team' : 'Join Team'}
+                          disabled={isTeamFull || isSessionPlayer}
+                          onClick={() => handleJoinTeam(team)}
+                        >
                           Join Team
                         </Button>,
                       ]}

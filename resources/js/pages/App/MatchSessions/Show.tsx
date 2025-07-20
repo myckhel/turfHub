@@ -5,15 +5,15 @@ import type { MatchSession } from '../../../types/matchSession.types';
 import type { Turf } from '../../../types/turf.types';
 
 interface ShowProps {
-  turf: { data: Turf };
+  turf: Turf;
   matchSession: MatchSession;
 }
 
 const Show: React.FC<ShowProps> = ({ turf, matchSession }) => {
   return (
     <>
-      <Head title={`${matchSession.name} - ${turf.data.name}`} />
-      <MatchSessionDetails turf={turf.data} matchSession={matchSession} />
+      <Head title={`${matchSession.name} - ${turf.name}`} />
+      <MatchSessionDetails turf={turf} matchSession={matchSession} />
     </>
   );
 };

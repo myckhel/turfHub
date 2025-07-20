@@ -47,8 +47,8 @@ const MatchEventsList: React.FC<MatchEventsListProps> = memo(({ gameMatch }) => 
   }, [gameMatch.id]);
 
   useEffect(() => {
-    loadEvents();
-  }, [loadEvents]);
+    if (events?.length === 0) loadEvents();
+  }, [loadEvents, events?.length]);
 
   const handleAddEvent = () => {
     form.resetFields();

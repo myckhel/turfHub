@@ -24,11 +24,8 @@ class GameMatchService
    */
   public function getGameMatchWithRelations(GameMatch $gameMatch, array $includes = []): GameMatch
   {
-    $allowedIncludes = ['matchSession', 'firstTeam', 'secondTeam', 'winningTeam', 'matchEvents', 'firstTeam.teamPlayers', 'secondTeam.teamPlayers', 'firstTeam.teamPlayers.player', 'secondTeam.teamPlayers.player', 'firstTeam.teamPlayers.player.user', 'secondTeam.teamPlayers.player.user'];
-    $validIncludes = array_intersect($includes, $allowedIncludes);
-
-    if (!empty($validIncludes)) {
-      $gameMatch->load($validIncludes);
+    if (!empty($includes)) {
+      $gameMatch->load($includes);
     }
 
     return $gameMatch;
@@ -106,10 +103,9 @@ class GameMatchService
     // Load relationships if requested
     if ($request->filled('include')) {
       $includes = explode(',', $request->include);
-      $validIncludes = $includes;
 
-      if (!empty($validIncludes)) {
-        $query->with($validIncludes);
+      if (!empty($includes)) {
+        $query->with($includes);
       }
     }
 

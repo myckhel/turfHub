@@ -151,7 +151,13 @@ const TeamDetailsComponent: React.FC<TeamDetailsProps> = memo(({ team, matchSess
           <Col>
             <Space direction="vertical">
               {canJoin && (
-                <Button type="primary" icon={<UserAddOutlined />} onClick={handleJoinTeam}>
+                <Button
+                  title={isTeamFull ? 'Team is full' : matchSession.is_session_player ? 'Already in a team' : 'Join Team'}
+                  disabled={isTeamFull || matchSession.is_session_player}
+                  type="primary"
+                  icon={<UserAddOutlined />}
+                  onClick={handleJoinTeam}
+                >
                   Join Team
                 </Button>
               )}

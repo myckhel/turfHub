@@ -245,13 +245,7 @@ class BankAccountController extends Controller
       ], 403);
     }
 
-    $bankAccounts = $turf->bankAccounts()->active()->get();
-
-    return [
-      'turf_id' => $turf->id,
-      'turf_name' => $turf->name,
-      'bank_accounts' => $bankAccounts
-    ];
+    return $turf->bankAccounts()->active()->get();
   }
 
   /**

@@ -1,6 +1,6 @@
 import { DeleteOutlined, EditOutlined, PlusOutlined, SaveOutlined, UserOutlined } from '@ant-design/icons';
 import { Button, Card, Col, Form, Input, InputNumber, Modal, Popconfirm, Row, Select, Space, Table, Tag, Typography, message } from 'antd';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { matchEventApi } from '../../apis/gameMatch';
 import type { CreateMatchEventRequest, GameMatch, MatchEvent, UpdateMatchEventRequest } from '../../types/gameMatch.types';
 
@@ -10,7 +10,6 @@ const { TextArea } = Input;
 
 interface MatchEventsListProps {
   gameMatch: GameMatch;
-  onEventUpdate?: () => void;
 }
 
 interface EventFormData {
@@ -22,7 +21,7 @@ interface EventFormData {
   related_player_id?: number;
 }
 
-const MatchEventsList: React.FC<MatchEventsListProps> = ({ gameMatch, onEventUpdate }) => {
+const MatchEventsList: React.FC<MatchEventsListProps> = memo(({ gameMatch }) => {
   const [events, setEvents] = useState<MatchEvent[]>(gameMatch.match_events || []);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingEvent, setEditingEvent] = useState<MatchEvent | null>(null);
@@ -75,7 +74,6 @@ const MatchEventsList: React.FC<MatchEventsListProps> = ({ gameMatch, onEventUpd
       await matchEventApi.delete(eventId);
       message.success('Event deleted successfully');
       await loadEvents();
-      onEventUpdate?.();
     } catch (error) {
       console.error('Failed to delete event:', error);
       message.error('Failed to delete event');
@@ -112,7 +110,6 @@ const MatchEventsList: React.FC<MatchEventsListProps> = ({ gameMatch, onEventUpd
 
       setIsModalVisible(false);
       await loadEvents();
-      onEventUpdate?.();
     } catch (error) {
       console.error('Failed to save event:', error);
       message.error('Failed to save event');
@@ -332,7 +329,7 @@ const MatchEventsList: React.FC<MatchEventsListProps> = ({ gameMatch, onEventUpd
       </Modal>
     </>
   );
-};
+});
 
 export { MatchEventsList };
 export default MatchEventsList;

@@ -201,9 +201,7 @@ const MatchSessionDetails: React.FC<MatchSessionDetailsProps> = ({ turf, matchSe
         </Card>
 
         {/* Ongoing Game Match */}
-        {ongoingMatch && (
-          <OngoingGameMatch gameMatch={ongoingMatch as GameMatchType} matchSession={matchSession} onMatchUpdate={() => window.location.reload()} />
-        )}
+        {ongoingMatch && <OngoingGameMatch gameMatch={ongoingMatch as GameMatchType} matchSession={matchSession} />}
 
         <Row gutter={[12, 16]}>
           {/* Session Details */}

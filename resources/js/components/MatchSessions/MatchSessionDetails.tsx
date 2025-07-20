@@ -17,7 +17,7 @@ import type { GameMatch as GameMatchType } from '../../types/gameMatch.types';
 import type { MatchSession } from '../../types/matchSession.types';
 import { Turf } from '../../types/turf.types';
 import { GameMatchesTable, OngoingGameMatch } from '../GameMatches';
-import { PlayerTeamFlow } from '../Teams';
+import MatchSessionTeam from '../Teams/MatchSessionTeam';
 import { Button, Card } from '../ui';
 import { MatchSessionStandings, QueueStatus } from './index';
 
@@ -250,15 +250,7 @@ const MatchSessionDetails: React.FC<MatchSessionDetailsProps> = ({ turf, matchSe
         </Row>
 
         {/* Player Team Flow - For players to join teams */}
-        {!canManageSessions && (
-          <PlayerTeamFlow
-            matchSessionId={matchSessionId}
-            onJoinSuccess={() => {
-              // loadMatchSession();
-              window.location.reload(); // Temporary solution, ideally use state management
-            }}
-          />
-        )}
+        {!canManageSessions && <MatchSessionTeam matchSessionId={matchSessionId} />}
 
         {/* Standings */}
         <MatchSessionStandings

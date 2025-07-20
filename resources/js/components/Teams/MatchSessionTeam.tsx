@@ -1,38 +1,26 @@
 import { TeamOutlined, UserAddOutlined } from '@ant-design/icons';
 import { Alert, Button, Card, Col, Row, Space, Spin, Tag, Typography, message } from 'antd';
-import React, { memo, useCallback, useEffect, useState } from 'react';
-import { teamApi } from '../../apis/team';
-import type { AvailableTeamSlotsResponse, TeamDetails } from '../../types/team.types';
+import React, { memo, useCallback, useState } from 'react';
+import { useAvailableSlots } from '../../hooks/teams';
+import type { TeamDetails } from '../../types/team.types';
 import JoinTeamPaymentModal from './JoinTeamPaymentModal';
 
 const { Text } = Typography;
 
-interface PlayerTeamFlowProps {
-  matchSessionId: number;
+interface MatchSessionTeamProps {
+  matchSessionId?: number;
 }
 
-const MatchSessionTeam: React.FC<PlayerTeamFlowProps> = memo(({ matchSessionId }) => {
-  const [loading, setLoading] = useState(true);
-  const [availableSlots, setAvailableSlots] = useState<AvailableTeamSlotsResponse | null>(null);
+const MatchSessionTeam: React.FC<MatchSessionTeamProps> = memo(({ matchSessionId }) => {
   const [joinModalVisible, setJoinModalVisible] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState<TeamDetails | null>(null);
 
-  const loadAvailableSlots = useCallback(async () => {
-    setLoading(true);
-    try {
-      const response = await teamApi.getAvailableSlots(matchSessionId);
-      setAvailableSlots(response.data);
-    } catch (error) {
-      console.error('Failed to load available slots:', error);
-      message.error('Failed to load available team slots');
-    } finally {
-      setLoading(false);
-    }
-  }, [matchSessionId]);
-
-  useEffect(() => {
-    loadAvailableSlots();
-  }, [loadAvailableSlots]);
+  // Use the new hook for fetching available slots
+  const { availableSlots, loading, error, refreshSlots } = useAvailableSlots({
+    matchSessionId,
+    autoRefresh: true,
+    refreshInterval: 30000,
+  });
 
   const handleJoinTeam = useCallback((team: TeamDetails) => {
     setSelectedTeam(team);
@@ -43,8 +31,8 @@ const MatchSessionTeam: React.FC<PlayerTeamFlowProps> = memo(({ matchSessionId }
     setJoinModalVisible(false);
     setSelectedTeam(null);
     message.success('Successfully joined the team!');
-    loadAvailableSlots();
-  }, [loadAvailableSlots]);
+    refreshSlots();
+  }, [refreshSlots]);
 
   const getTeamStatusColor = (status: string) => {
     switch (status) {
@@ -74,11 +62,21 @@ const MatchSessionTeam: React.FC<PlayerTeamFlowProps> = memo(({ matchSessionId }
     );
   }
 
+  if (error) {
+    return (
+      <Card>
+        <div className="py-8 text-center">
+          <Alert message="Unable to Load Team Slots" description={error} type="warning" showIcon />
+        </div>
+      </Card>
+    );
+  }
+
   if (!availableSlots) {
     return (
       <Card>
         <div className="py-8 text-center">
-          <Text type="secondary">Unable to load team slots</Text>
+          <Text type="secondary">No team slot information available</Text>
         </div>
       </Card>
     );
@@ -124,7 +122,7 @@ const MatchSessionTeam: React.FC<PlayerTeamFlowProps> = memo(({ matchSessionId }
             )}
 
             <Row gutter={[16, 16]}>
-              {teams.map((team) => {
+              {teams.map((team: TeamDetails) => {
                 const playerCount = team.teamPlayers?.length || 0;
                 const maxPlayers = availableSlots.max_players_per_team;
                 const isTeamFull = playerCount >= maxPlayers;

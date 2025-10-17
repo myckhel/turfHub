@@ -15,7 +15,19 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+        sans: [
+          'Fredoka One',
+          'Anton',
+          'Oswald',
+          'Inter',
+          '-apple-system',
+          'BlinkMacSystemFont',
+          'Segoe UI',
+          'Roboto',
+          'Helvetica Neue',
+          'Arial',
+          'sans-serif',
+        ],
         display: ['Fredoka One', 'Anton', 'Bangers', 'Bebas Neue', 'Oswald', 'Russo One', 'Impact', 'Arial Black', 'sans-serif'],
         naija: ['Fredoka One', 'Anton', 'Bangers', 'sans-serif'],
         block: ['Bebas Neue', 'Anton', 'Oswald', 'Impact', 'sans-serif'],

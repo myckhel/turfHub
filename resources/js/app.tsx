@@ -14,21 +14,31 @@ const appName = import.meta.env.VITE_APP_NAME || 'TurfMate';
 
 // Preload Afro-grunge fonts for better performance
 const preloadFonts = () => {
-  const fonts = [
-    'https://fonts.googleapis.com/css2?family=Fredoka+One:wght@400&display=swap',
-    'https://fonts.googleapis.com/css2?family=Anton:wght@400&display=swap',
-    'https://fonts.googleapis.com/css2?family=Bangers:wght@400&display=swap',
-    'https://fonts.googleapis.com/css2?family=Bebas+Neue:wght@400&display=swap',
-    'https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&display=swap',
-    'https://fonts.googleapis.com/css2?family=Russo+One:wght@400&display=swap',
-  ];
+  // Remove any existing font links
+  const existingLinks = document.querySelectorAll('link[href*="googleapis.com/css"]');
+  existingLinks.forEach((link) => link.remove());
+
+  // Add primary font link
+  const fontLink = document.createElement('link');
+  fontLink.rel = 'stylesheet';
+  fontLink.href =
+    'https://fonts.googleapis.com/css2?family=Fredoka+One:wght@400&family=Anton:wght@400&family=Bangers:wght@400&family=Bebas+Neue:wght@400&family=Oswald:wght@300;400;500;600;700&family=Russo+One:wght@400&display=swap';
+  fontLink.onload = () => {
+    console.log('Afro-grunge fonts loaded successfully');
+    // Force font application
+    document.body.style.fontFamily = '"Fredoka One", "Anton", "Oswald", "Inter", sans-serif';
+  };
+  document.head.appendChild(fontLink);
+
+  // Add preload hints for faster loading
+  const fonts = ['Fredoka+One:wght@400', 'Anton:wght@400', 'Oswald:wght@400'];
 
   fonts.forEach((font) => {
-    const link = document.createElement('link');
-    link.rel = 'preload';
-    link.as = 'style';
-    link.href = font;
-    document.head.appendChild(link);
+    const preloadLink = document.createElement('link');
+    preloadLink.rel = 'preload';
+    preloadLink.as = 'style';
+    preloadLink.href = `https://fonts.googleapis.com/css2?family=${font}&display=swap`;
+    document.head.appendChild(preloadLink);
   });
 };
 

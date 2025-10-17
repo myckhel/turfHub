@@ -11,7 +11,7 @@ const { Title, Text } = Typography;
 interface TeamShowProps {
   turf: Turf;
   matchSession: MatchSession;
-  team: { data: TeamDetails };
+  team: TeamDetails;
 }
 
 const TeamShow: React.FC<TeamShowProps> = ({ turf, matchSession, team }) => {
@@ -26,7 +26,7 @@ const TeamShow: React.FC<TeamShowProps> = ({ turf, matchSession, team }) => {
 
   return (
     <>
-      <Head title={`${team.data.name} - ${matchSession.name} - ${turf.name}`} />
+      <Head title={`${team.name} - ${matchSession.name} - ${turf.name}`} />
 
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-green-900">
         <div className="container mx-auto px-3 py-4 sm:px-4 sm:py-6">
@@ -39,7 +39,7 @@ const TeamShow: React.FC<TeamShowProps> = ({ turf, matchSession, team }) => {
                 </Button>
 
                 <Title level={2} className="mb-2 text-lg sm:text-xl lg:text-2xl">
-                  {team.data.name}
+                  {team.name}
                 </Title>
 
                 <div className="flex flex-col gap-2 sm:gap-1">
@@ -50,7 +50,7 @@ const TeamShow: React.FC<TeamShowProps> = ({ turf, matchSession, team }) => {
                     <strong>Turf:</strong> {turf.name}
                   </Text>
                   <Text type="secondary" className="text-sm sm:text-base">
-                    <strong>Status:</strong> {team.data.status}
+                    <strong>Status:</strong> {team.status}
                   </Text>
                 </div>
               </div>
@@ -59,7 +59,7 @@ const TeamShow: React.FC<TeamShowProps> = ({ turf, matchSession, team }) => {
 
           {/* Team Details */}
           <TeamDetailsComponent
-            team={team.data}
+            team={team}
             matchSession={matchSession}
             turf={turf}
             onUpdate={() => {

@@ -29,10 +29,19 @@ const MatchEventsList: React.FC<MatchEventsListProps> = memo(({ gameMatch }) => 
   const [form] = Form.useForm<EventFormData>();
 
   // merge both teams' players into a single list
-  const teamPlayers = useMemo(
+  const allTeamPlayers = useMemo(
     () => [...(gameMatch.first_team?.teamPlayers || []), ...(gameMatch.second_team?.teamPlayers || [])],
-    [gameMatch.first_team, gameMatch.second_team],
+    [gameMatch.first_team?.teamPlayers, gameMatch.second_team?.teamPlayers],
   );
+
+  // watch for team selection changes to filter players
+  const selectedTeamId = Form.useWatch('team_id', form);
+
+  // filter players based on selected team
+  const filteredPlayers = useMemo(() => {
+    if (!selectedTeamId) return [];
+    return allTeamPlayers.filter((player) => player.team_id === selectedTeamId);
+  }, [allTeamPlayers, selectedTeamId]);
 
   // Load events
   const loadEvents = useCallback(async () => {
@@ -79,6 +88,14 @@ const MatchEventsList: React.FC<MatchEventsListProps> = memo(({ gameMatch }) => 
       message.error('Failed to delete event');
     }
   };
+
+  const handleTeamChange = useCallback(
+    (teamId: number) => {
+      // Clear player selection when team changes
+      form.setFieldValue('player_id', undefined);
+    },
+    [form],
+  );
 
   const handleSubmit = async (values: EventFormData) => {
     setLoading(true);
@@ -277,7 +294,7 @@ const MatchEventsList: React.FC<MatchEventsListProps> = memo(({ gameMatch }) => 
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item name="team_id" label="Team" rules={[{ required: true, message: 'Please select team' }]}>
-                <Select placeholder="Select team">
+                <Select placeholder="Select team" onChange={handleTeamChange}>
                   <Option value={gameMatch.first_team_id}>{gameMatch.first_team?.name}</Option>
                   <Option value={gameMatch.second_team_id}>{gameMatch.second_team?.name}</Option>
                 </Select>
@@ -285,11 +302,15 @@ const MatchEventsList: React.FC<MatchEventsListProps> = memo(({ gameMatch }) => 
             </Col>
             <Col span={12}>
               <Form.Item name="player_id" label="Player" rules={[{ required: true, message: 'Please select player' }]}>
-                <Select placeholder="Select player" showSearch optionFilterProp="children">
-                  {teamPlayers.map((player) => (
+                <Select
+                  placeholder={selectedTeamId ? 'Select player' : 'Select team first'}
+                  showSearch
+                  optionFilterProp="children"
+                  disabled={!selectedTeamId}
+                >
+                  {filteredPlayers.map((player) => (
                     <Option key={player.player_id} value={player.player_id}>
-                      {player.player.user.name} (
-                      {player.team_id === gameMatch.first_team_id ? gameMatch.first_team?.name : gameMatch.second_team?.name})
+                      {player.player?.user?.name}
                     </Option>
                   ))}
                 </Select>
@@ -302,11 +323,10 @@ const MatchEventsList: React.FC<MatchEventsListProps> = memo(({ gameMatch }) => 
               const eventType = getFieldValue('type');
               return eventType === 'substitution_in' || eventType === 'substitution_out' ? (
                 <Form.Item name="related_player_id" label="Related Player (for substitution)">
-                  <Select placeholder="Select related player" allowClear>
-                    {teamPlayers.map((player) => (
+                  <Select placeholder={selectedTeamId ? 'Select related player' : 'Select team first'} allowClear disabled={!selectedTeamId}>
+                    {filteredPlayers.map((player) => (
                       <Option key={player.player_id} value={player.player_id}>
-                        {player.player.user.name} (
-                        {player.team_id === gameMatch.first_team_id ? gameMatch.first_team?.name : gameMatch.second_team?.name})
+                        {player.player?.user?.name}
                       </Option>
                     ))}
                   </Select>

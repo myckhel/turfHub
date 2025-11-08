@@ -1,10 +1,12 @@
-import { EyeOutlined, TeamOutlined, TrophyOutlined } from '@ant-design/icons';
+import { DollarOutlined, EyeOutlined, SettingOutlined, TeamOutlined, TrophyOutlined } from '@ant-design/icons';
 import { router } from '@inertiajs/react';
-import { Button, Card, Table, Tag, Typography, message } from 'antd';
+import { Button, Card, Space, Table, Tag, Typography, message } from 'antd';
 import { format } from 'date-fns';
 import React, { memo, useCallback, useEffect, useState } from 'react';
-import { gameMatchApi } from '../../apis/gameMatch';
+import { gameMatchApi, matchEventApi } from '../../apis/gameMatch';
+import { usePermissions } from '../../hooks/usePermissions';
 import type { GameMatch } from '../../types/gameMatch.types';
+import GameMatchBettingMarketsModal from '../betting/GameMatchBettingMarketsModal';
 
 const { Text } = Typography;
 
@@ -29,6 +31,12 @@ const GameMatchesTable: React.FC<GameMatchesTableProps> = ({
 }) => {
   const [gameMatches, setGameMatches] = useState<GameMatch[]>([]);
   const [loading, setLoading] = useState(false);
+  const [bettingToggleLoading, setBettingToggleLoading] = useState<number | null>(null);
+  const [marketsModalOpen, setMarketsModalOpen] = useState(false);
+  const [selectedGameMatch, setSelectedGameMatch] = useState<GameMatch | null>(null);
+
+  const permissions = usePermissions();
+  const canManageBetting = permissions.canManageSessions(); // Assuming betting management requires session management permissions
 
   const loadGameMatches = useCallback(async () => {
     if (!matchSessionId) return;
@@ -61,6 +69,36 @@ const GameMatchesTable: React.FC<GameMatchesTableProps> = ({
     const interval = setInterval(loadGameMatches, refreshInterval);
     return () => clearInterval(interval);
   }, [autoRefresh, refreshInterval, loadGameMatches]);
+
+  // Handle betting enable/disable
+  const handleToggleBetting = useCallback(
+    async (gameMatch: GameMatch) => {
+      setBettingToggleLoading(gameMatch.id);
+      try {
+        if (gameMatch.betting_enabled) {
+          await matchEventApi.disableBetting(gameMatch.id);
+          message.success('Betting disabled for this match');
+        } else {
+          await matchEventApi.enableBetting(gameMatch.id);
+          message.success('Betting enabled for this match');
+        }
+        // Refresh the game matches to get updated betting status
+        await loadGameMatches();
+      } catch (error) {
+        console.error('Failed to toggle betting:', error);
+        message.error('Failed to update betting status');
+      } finally {
+        setBettingToggleLoading(null);
+      }
+    },
+    [loadGameMatches],
+  );
+
+  // Handle opening betting markets management
+  const handleManageMarkets = useCallback((gameMatch: GameMatch) => {
+    setSelectedGameMatch(gameMatch);
+    setMarketsModalOpen(true);
+  }, []);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -160,66 +198,110 @@ const GameMatchesTable: React.FC<GameMatchesTableProps> = ({
       title: 'Actions',
       key: 'actions',
       render: (record: GameMatch) => (
-        <Button
-          type="link"
-          icon={<EyeOutlined />}
-          onClick={(e) => {
-            e.stopPropagation();
-            handleViewMatch(record);
-          }}
-          className="h-auto p-0 text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-          size="small"
-        >
-          <span className="ml-1 hidden sm:inline">View</span>
-        </Button>
+        <Space size="small">
+          <Button
+            type="link"
+            icon={<EyeOutlined />}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleViewMatch(record);
+            }}
+            className="h-auto p-0 text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+            size="small"
+          >
+            <span className="ml-1 hidden sm:inline">View</span>
+          </Button>
+
+          {/* Betting Controls - Only show for upcoming matches and if user can manage betting */}
+          {canManageBetting && (
+            <>
+              <Button
+                type="link"
+                icon={<DollarOutlined />}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleToggleBetting(record);
+                }}
+                loading={bettingToggleLoading === record.id}
+                className={`h-auto p-0 ${record.betting_enabled ? 'text-red-500 hover:text-red-700' : 'text-green-500 hover:text-green-700'}`}
+                size="small"
+                title={record.betting_enabled ? 'Disable Betting' : 'Enable Betting'}
+              >
+                <span className="ml-1 hidden sm:inline">{record.betting_enabled ? 'Disable' : 'Enable'}</span>
+              </Button>
+
+              {/* Markets Management - Only show if betting is enabled */}
+              {record.betting_enabled && (
+                <Button
+                  type="link"
+                  icon={<SettingOutlined />}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleManageMarkets(record);
+                  }}
+                  className="h-auto p-0 text-purple-500 hover:text-purple-700"
+                  size="small"
+                  title="Manage Markets"
+                >
+                  <span className="ml-1 hidden sm:inline">Markets</span>
+                </Button>
+              )}
+            </>
+          )}
+        </Space>
       ),
-      width: 60,
+      width: 120,
     },
   ];
 
   return (
-    <Card
-      title={
-        <div className="flex items-center space-x-2">
-          <TeamOutlined />
-          <span>{title}</span>
-          {gameMatches.length > 0 && (
-            <Tag color="blue" className="ml-2">
-              {gameMatches.length} {gameMatches.length === 1 ? 'match' : 'matches'}
-            </Tag>
-          )}
-        </div>
-      }
-      className={className}
-      size="small"
-    >
-      {gameMatches.length > 0 ? (
-        <Table
-          dataSource={gameMatches}
-          columns={columns}
-          rowKey="id"
-          loading={loading}
-          pagination={showPagination ? { pageSize: 10, size: 'small' } : false}
-          size="small"
-          scroll={{ x: 600 }}
-          className="game-matches-table"
-          rowClassName="hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors"
-          onRow={(record) => ({
-            onClick: () => handleViewMatch(record),
-          })}
-        />
-      ) : (
-        <div className="py-8 text-center">
-          <TrophyOutlined className="mb-2 text-4xl text-gray-300 dark:text-gray-600" />
-          <Text type="secondary" className="block">
-            No matches played yet
-          </Text>
-          <Text type="secondary" className="text-sm">
-            Matches will appear here once they are scheduled
-          </Text>
-        </div>
-      )}
-    </Card>
+    <>
+      <Card
+        title={
+          <div className="flex items-center space-x-2">
+            <TeamOutlined />
+            <span>{title}</span>
+            {gameMatches.length > 0 && (
+              <Tag color="blue" className="ml-2">
+                {gameMatches.length} {gameMatches.length === 1 ? 'match' : 'matches'}
+              </Tag>
+            )}
+          </div>
+        }
+        className={className}
+        size="small"
+      >
+        {gameMatches.length > 0 ? (
+          <Table
+            dataSource={gameMatches}
+            columns={columns}
+            rowKey="id"
+            loading={loading}
+            pagination={showPagination ? { pageSize: 10, size: 'small' } : false}
+            size="small"
+            scroll={{ x: 600 }}
+            className="game-matches-table"
+            rowClassName="hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors"
+            onRow={(record) => ({
+              onClick: () => handleViewMatch(record),
+            })}
+          />
+        ) : (
+          <div className="py-8 text-center">
+            <TrophyOutlined className="mb-2 text-4xl text-gray-300 dark:text-gray-600" />
+            <Text type="secondary" className="block">
+              No matches played yet
+            </Text>
+            <Text type="secondary" className="text-sm">
+              Matches will appear here once they are scheduled
+            </Text>
+          </div>
+        )}
+      </Card>
+
+      {/* Betting Markets Management Modal */}
+      <GameMatchBettingMarketsModal open={marketsModalOpen} onClose={() => setMarketsModalOpen(false)} gameMatch={selectedGameMatch} />
+    </>
   );
 };
 

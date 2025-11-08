@@ -1,3 +1,4 @@
+import type { PageProps } from '@/types/global.types';
 import { CloseOutlined, MenuOutlined } from '@ant-design/icons';
 import { Link, usePage } from '@inertiajs/react';
 import { Button, Layout } from 'antd';
@@ -102,7 +103,7 @@ export const GuestLayout: React.FC<GuestLayoutProps> = ({ children }) => {
 const GuestHeader: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
-  const { url, props } = usePage();
+  const { url, props } = usePage<PageProps>();
 
   const isLoggedIn = !!props?.auth?.user;
 

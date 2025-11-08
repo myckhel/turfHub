@@ -25,10 +25,36 @@ class GameMatchService
   public function getGameMatchWithRelations(GameMatch $gameMatch, array $includes = []): GameMatch
   {
     if (!empty($includes)) {
-      $gameMatch->load($includes);
+      $mappedIncludes = $this->mapRelationshipNames($includes);
+      $gameMatch->load($mappedIncludes);
     }
 
     return $gameMatch;
+  }
+
+  /**
+   * Map snake_case relationship names to camelCase method names.
+   */
+  private function mapRelationshipNames(array $includes): array
+  {
+    $relationshipMap = [
+      'first_team' => 'firstTeam',
+      'second_team' => 'secondTeam',
+      'winning_team' => 'winningTeam',
+      'match_session' => 'matchSession',
+      'match_events' => 'matchEvents',
+      'betting_markets' => 'bettingMarkets',
+      'active_betting_markets' => 'activeBettingMarkets',
+      // Support nested relationships
+      'match_session.turf' => 'matchSession.turf',
+      'first_team.players' => 'firstTeam.players',
+      'second_team.players' => 'secondTeam.players',
+    ];
+
+    // Convert snake_case includes to proper relationship names
+    return array_map(function ($include) use ($relationshipMap) {
+      return $relationshipMap[$include] ?? $include;
+    }, $includes);
   }
 
   /**
@@ -105,7 +131,8 @@ class GameMatchService
       $includes = explode(',', $request->include);
 
       if (!empty($includes)) {
-        $query->with($includes);
+        $mappedIncludes = $this->mapRelationshipNames($includes);
+        $query->with($mappedIncludes);
       }
     }
 

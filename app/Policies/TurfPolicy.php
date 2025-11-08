@@ -173,4 +173,13 @@ class TurfPolicy
   {
     return true;
   }
+
+  /**
+   * Determine whether the user can manage betting for this turf.
+   */
+  public function manageBetting(User $user, Turf $turf): bool
+  {
+    // Only turf owners can manage betting
+    return $turf->owner_id === $user->id;
+  }
 }

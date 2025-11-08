@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\BettingController;
+use App\Http\Controllers\Api\BettingMarketController;
 use App\Http\Controllers\Api\GameMatchController;
 use App\Http\Controllers\Api\MatchEventController;
 use App\Http\Controllers\Api\MatchSessionController;
@@ -191,5 +193,59 @@ Route::middleware('auth:sanctum')->name('api.')->group(function () {
 
   Route::prefix('match-sessions/{matchSession}')->group(function () {
     Route::get('payment-stats', [App\Http\Controllers\Api\PaymentController::class, 'matchSessionStats'])->name('match-sessions.payment-stats');
+  });
+
+  // Betting routes
+  Route::prefix('betting')->name('betting.')->group(function () {
+    // General betting routes
+    Route::get('markets', [App\Http\Controllers\Api\BettingController::class, 'getMarkets'])->name('markets');
+    Route::post('bets', [App\Http\Controllers\Api\BettingController::class, 'placeBet'])->name('place-bet');
+    Route::get('history', [App\Http\Controllers\Api\BettingController::class, 'getBettingHistory'])->name('history');
+    Route::get('stats', [App\Http\Controllers\Api\BettingController::class, 'getBettingStats'])->name('stats');
+    Route::get('bets/{bet}', [App\Http\Controllers\Api\BettingController::class, 'getBet'])->name('bets.show');
+    Route::patch('bets/{bet}/cancel', [App\Http\Controllers\Api\BettingController::class, 'cancelBet'])->name('bets.cancel');
+    Route::patch('bets/{bet}/confirm-payment', [App\Http\Controllers\Api\BettingController::class, 'confirmPayment'])->name('bets.confirm-payment');
+    Route::post('bets/{bet}/verify-payment', [App\Http\Controllers\Api\BettingController::class, 'verifyPayment'])->name('bets.verify-payment');
+
+    // Turf owner analytics route
+    Route::get('turf-analytics/{turf}', [App\Http\Controllers\Api\BettingController::class, 'getTurfAnalytics'])->name('turf-analytics');
+
+    // Game match specific betting routes
+    Route::prefix('game-matches/{gameMatch}')->name('game-matches.')->group(function () {
+      Route::get('markets', [App\Http\Controllers\Api\BettingController::class, 'getGameMatchMarkets'])->name('markets');
+      Route::post('enable-betting', [App\Http\Controllers\Api\BettingMarketController::class, 'enableBetting'])->name('enable-betting');
+      Route::post('disable-betting', [App\Http\Controllers\Api\BettingMarketController::class, 'disableBetting'])->name('disable-betting');
+      Route::post('markets', [App\Http\Controllers\Api\BettingMarketController::class, 'store'])->name('markets.store');
+      Route::get('stats', [App\Http\Controllers\Api\BettingMarketController::class, 'getGameMatchStats'])->name('stats');
+    });
+
+    // Betting market management routes
+    Route::prefix('markets/{bettingMarket}')->name('markets.')->group(function () {
+      Route::get('/', [App\Http\Controllers\Api\BettingMarketController::class, 'show'])->name('show');
+      Route::patch('/', [App\Http\Controllers\Api\BettingMarketController::class, 'update'])->name('update');
+      Route::patch('settle', [App\Http\Controllers\Api\BettingMarketController::class, 'settleMarket'])->name('settle');
+      Route::patch('cancel', [App\Http\Controllers\Api\BettingMarketController::class, 'cancelMarket'])->name('cancel');
+    });
+
+    // Admin/Manager specific routes
+    Route::post('confirm-offline-payment', [App\Http\Controllers\Api\BettingMarketController::class, 'confirmOfflinePayment'])->name('confirm-offline-payment');
+  });
+
+  // Turf-specific betting management routes (for turf managers/admins)
+  Route::prefix('turfs/{turf}/betting')->name('turfs.betting.')->middleware(['auth:sanctum'])->group(function () {
+    // Turf betting statistics and overview
+    Route::get('stats', [App\Http\Controllers\Api\BettingController::class, 'getTurfBettingStats'])->name('stats');
+    Route::get('period-stats', [App\Http\Controllers\Api\BettingController::class, 'getTurfPeriodStats'])->name('period-stats');
+
+    // Turf market management
+    Route::get('markets', [App\Http\Controllers\Api\BettingMarketController::class, 'getTurfMarkets'])->name('markets');
+    Route::post('markets/{bettingMarket}/settle', [App\Http\Controllers\Api\BettingMarketController::class, 'settleMarket'])->name('markets.settle');
+    Route::post('markets/{bettingMarket}/cancel', [App\Http\Controllers\Api\BettingMarketController::class, 'cancelMarket'])->name('markets.cancel');
+    Route::patch('markets/{bettingMarket}/settings', [App\Http\Controllers\Api\BettingMarketController::class, 'updateMarketSettings'])->name('markets.settings');
+
+    // Turf bet management
+    Route::get('bets', [App\Http\Controllers\Api\BettingController::class, 'getTurfBets'])->name('bets');
+    Route::post('bets/{bet}/cancel', [App\Http\Controllers\Api\BettingController::class, 'adminCancelBet'])->name('bets.cancel');
+    Route::post('confirm-offline-payment', [App\Http\Controllers\Api\BettingController::class, 'confirmOfflinePayment'])->name('confirm-offline-payment');
   });
 });

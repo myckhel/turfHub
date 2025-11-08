@@ -124,6 +124,35 @@ export const routeConfigs: Record<string, RouteConfig> = {
     roles: ['player', 'manager', 'admin'],
     layout: 'dashboard',
   },
+
+  // Betting routes
+  'app.betting.index': {
+    name: 'betting.index',
+    component: 'App/Betting/Index',
+    roles: ['player', 'manager', 'admin'],
+    layout: 'dashboard',
+  },
+  'app.betting.history': {
+    name: 'betting.history',
+    component: 'App/Betting/History',
+    roles: ['player', 'manager', 'admin'],
+    layout: 'dashboard',
+  },
+  'app.betting.gamematch': {
+    name: 'betting.game-matches.show',
+    component: 'App/Betting/GameMatch',
+    roles: ['player', 'manager', 'admin'],
+    layout: 'dashboard',
+  },
+
+  // Turf Betting Management routes
+  'app.turfs.bettingmanagement': {
+    name: 'turfs.betting.management',
+    component: 'App/Turfs/BettingManagement',
+    roles: ['manager', 'admin'],
+    permissions: ['manage turf betting'],
+    layout: 'dashboard',
+  },
 };
 
 export const resolveComponent = (name: string) => {

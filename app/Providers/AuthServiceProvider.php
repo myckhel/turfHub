@@ -7,11 +7,13 @@ use App\Models\Team;
 use App\Models\MatchSession;
 use App\Models\Turf;
 use App\Models\Payment;
+use App\Models\Bet;
 use App\Policies\PlayerPolicy;
 use App\Policies\TeamPolicy;
 use App\Policies\MatchSessionPolicy;
 use App\Policies\TurfPolicy;
 use App\Policies\PaymentPolicy;
+use App\Policies\BetPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -27,6 +29,7 @@ class AuthServiceProvider extends ServiceProvider
         MatchSession::class => MatchSessionPolicy::class,
         Turf::class => TurfPolicy::class,
         Payment::class => PaymentPolicy::class,
+        Bet::class => BetPolicy::class,
     ];
 
     /**

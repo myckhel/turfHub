@@ -8,7 +8,7 @@ import {
   SearchOutlined,
   TeamOutlined,
 } from '@ant-design/icons';
-import { router } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { Button, Empty, Input, Skeleton, Spin, Typography, message } from 'antd';
 import React, { useCallback, useEffect, useState } from 'react';
 import { turfApi } from '../../../apis/turf';
@@ -30,6 +30,8 @@ const TurfListHeader: React.FC = () => {
 
   return (
     <div className="my-4 sm:my-6">
+      <Head title="Turfs" />
+
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <Title level={2} className="mb-2 text-lg text-white sm:text-xl lg:text-2xl">

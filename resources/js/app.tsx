@@ -76,6 +76,7 @@ const ThemeInitializer: React.FC<{ children: React.ReactNode }> = ({ children })
 // Layout resolver based on route configuration with Afro-grunge theming
 const getLayout = (routeName: string, page: React.ReactElement) => {
   const config = routeConfigs[routeName];
+  console.log({ routeName, config });
   const layout = config?.layout || 'guest';
 
   const wrappedPage = <AppLayout>{page}</AppLayout>;

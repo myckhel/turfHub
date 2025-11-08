@@ -263,4 +263,28 @@ class User extends Authenticatable implements MustVerifyEmail, Wallet
       ->where('is_active', true)
       ->orderBy('created_at', 'asc');
   }
+
+  /**
+   * Get all bets placed by this user.
+   */
+  public function bets(): HasMany
+  {
+    return $this->hasMany(Bet::class);
+  }
+
+  /**
+   * Get pending bets for this user.
+   */
+  public function pendingBets(): HasMany
+  {
+    return $this->bets()->where('status', Bet::STATUS_PENDING);
+  }
+
+  /**
+   * Get settled bets for this user.
+   */
+  public function settledBets(): HasMany
+  {
+    return $this->bets()->whereIn('status', [Bet::STATUS_WON, Bet::STATUS_LOST]);
+  }
 }

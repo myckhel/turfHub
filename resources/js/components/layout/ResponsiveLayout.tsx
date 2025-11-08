@@ -2,7 +2,10 @@ import {
   AppstoreOutlined,
   ArrowLeftOutlined,
   BellOutlined,
+  ControlOutlined,
   DashboardOutlined,
+  DollarCircleOutlined,
+  HistoryOutlined,
   LogoutOutlined,
   MenuOutlined,
   SettingOutlined,
@@ -22,8 +25,9 @@ import { useResponsive } from '../../hooks/useResponsive';
 import { useTheme } from '../../hooks/useTheme';
 import { useLayoutStore } from '../../stores';
 import { useTurfStore } from '../../stores/turf.store';
-import TurfSwitcher from '../Turf/TurfSwitcher';
+import MobileBettingFloatButton from '../betting/MobileBettingFloatButton';
 import ThemeToggle from '../shared/ThemeToggle';
+import TurfSwitcher from '../Turf/TurfSwitcher';
 
 const { Content, Header, Sider } = AntLayout;
 
@@ -71,7 +75,7 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = memo(
     const { reducedMotion } = useTheme();
     const { isMobile, isTablet } = useResponsive();
     const { user, logout } = useAuth();
-    const { isTurfPlayer, isTurfManager, isTurfAdmin } = usePermissions();
+    const { isTurfPlayer, isTurfManager, isTurfAdmin, isTurfOwner, canAccessSuperAdmin } = usePermissions();
     const { selectedTurf } = useTurfStore();
     const { sidebarCollapsed, mobileMenuOpen, toggleSidebar, setMobileMenuOpen } = useLayoutStore();
 
@@ -133,6 +137,23 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = memo(
           label: <Link href={route('web.turfs.index')}>Browse Turfs</Link>,
         },
         {
+          key: 'betting',
+          icon: <DollarCircleOutlined />,
+          label: 'Betting',
+          children: [
+            {
+              key: 'betting-markets',
+              icon: <TrophyOutlined />,
+              label: <Link href={route('web.betting.index')}>Betting Markets</Link>,
+            },
+            {
+              key: 'betting-history',
+              icon: <HistoryOutlined />,
+              label: <Link href={route('web.betting.history')}>Betting History</Link>,
+            },
+          ],
+        },
+        {
           key: 'wallet',
           icon: <WalletOutlined />,
           label: <Link href={route('web.wallet.index')}>My Wallet</Link>,
@@ -156,12 +177,21 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = memo(
         });
       }
 
-      if (isTurfManager() || isTurfAdmin()) {
+      if (isTurfManager() || isTurfAdmin() || isTurfOwner()) {
         items.push({
           key: 'reports',
           icon: <TrophyOutlined />,
           label: <Link href={route('dashboard')}>Reports</Link>,
         });
+
+        // Add betting management for turf managers/admins if they have a selected turf
+        if (selectedTurf) {
+          items.push({
+            key: 'turf-betting-management',
+            icon: <DollarCircleOutlined />,
+            label: <Link href={route('web.turfs.betting.management', { turf: selectedTurf.id })}>Betting Management</Link>,
+          });
+        }
       }
 
       if (isTurfAdmin()) {
@@ -177,6 +207,27 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = memo(
             label: <Link href={route('dashboard')}>Settings</Link>,
           },
         );
+      }
+
+      // Super Admin menu items
+      if (canAccessSuperAdmin()) {
+        items.push({
+          key: 'admin',
+          icon: <ControlOutlined />,
+          label: 'Admin Panel',
+          children: [
+            {
+              key: 'admin-dashboard',
+              icon: <DashboardOutlined />,
+              label: <Link href={route('web.admin.dashboard')}>Admin Dashboard</Link>,
+            },
+            {
+              key: 'admin-betting',
+              icon: <DollarCircleOutlined />,
+              label: <Link href={route('web.admin.betting')}>Betting Management</Link>,
+            },
+          ],
+        });
       }
 
       return items;
@@ -311,7 +362,10 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = memo(
           </Sider>
         )}
 
-        <AntLayout style={{ marginLeft: useDesktopLayout ? (actuallyCollapsed ? 80 : 280) : 0 }}>
+        <AntLayout
+          className="bg-transparent"
+          style={{ marginLeft: useDesktopLayout ? (actuallyCollapsed ? 80 : 280) : 0, background: 'transparent' }}
+        >
           {/* Enhanced Header for both desktop and mobile */}
           {showHeader && (
             <Header
@@ -392,10 +446,14 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = memo(
           {/* Main Content */}
           <Content
             ref={contentRef}
-            className={`turf-content flex-1 transition-all duration-300 ease-out ${showHeader ? '' : ''} ${useMobileLayout ? 'min-h-[calc(100vh-theme(spacing.16))]' : 'min-h-screen'}`}
+            className={`turf-content flex-1 bg-transparent transition-all duration-300 ease-out ${showHeader ? '' : ''} ${useMobileLayout ? 'min-h-[calc(100vh-theme(spacing.16))]' : 'min-h-screen'}`}
+            style={{ background: 'transparent' }}
           >
             <div className={useDesktopLayout ? 'mx-auto max-w-full' : 'mx-auto max-w-screen-xl'}>{children}</div>
           </Content>
+
+          {/* Mobile Betting Float Button */}
+          <MobileBettingFloatButton />
         </AntLayout>
       </AntLayout>
     );

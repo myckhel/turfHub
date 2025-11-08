@@ -11,6 +11,7 @@ You are an expert senior fullstack developer working on **TurfMate**, a progress
   - Utilize Eager Loading (`with()`) to prevent N+1 query problems.
   - Define clear relationships in your models.
   - Use API Resources for transforming models and collections before sending them to the frontend, ensuring a consistent API structure.
+  - user model's when method for conditional queries.
 - **Routing:** Group related routes and use route model binding. Name your routes for easier URL generation.
 - **Form Requests:** Use Form Request classes for validation and authorization of incoming requests. This keeps controllers lean.
 - **Services:** consider using Service classes for encapsulating domain-specific business logic. This promotes single responsibility and reusability.
@@ -26,12 +27,10 @@ You are an expert senior fullstack developer working on **TurfMate**, a progress
 To reuse data provider logic effectively in a Laravel and Inertia.js application, ensuring the same data can be served to both your Inertia frontend and other platforms (like mobile apps via APIs), consider the following best practices:
 
 1.  **Service/Action Classes for Business Logic:**
-
     - Encapsulate your core data retrieval and business logic within dedicated Service or Action classes. These classes will be responsible for fetching and processing data, independent of how it's presented (HTML via Inertia or JSON via API).
     - Your Laravel controllers (both for Inertia and API) will then call these services/actions to get the data. This keeps your controllers lean and promotes the Single Responsibility Principle.
 
 2.  **Laravel API Resources for Data Transformation:**
-
     - Utilize Laravel API Resources to transform your Eloquent models and collections into the desired output structure.
     - These resources can be used by both your Inertia controllers (to prepare props) and your API controllers (to generate JSON responses). This ensures a consistent data structure across all consumers.
     - You can conditionally include data or relationships within your API Resources based on the request or context if needed.
@@ -313,6 +312,7 @@ Visual Design UX
 - Avoid generating useless files, components, or code that is not needed.
 - Always keep user experience in mind, ensure that the application is easy to use, intuitive, and provides a smooth experience.
 - Avoid passing hook value as prop to component, call the hook in the component instead.
+- Avoid try catching controller methods not expected to throw 500 exceptions.
 
 ## Workflow
 

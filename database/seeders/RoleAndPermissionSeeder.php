@@ -47,6 +47,11 @@ class RoleAndPermissionSeeder extends Seeder
             'view payment history',
             'process refunds',
 
+            // Betting permissions
+            'manage turf betting',
+            'view betting analytics',
+            'settle betting markets',
+
             // Player permissions
             'join teams',
             'leave teams',
@@ -93,6 +98,9 @@ class RoleAndPermissionSeeder extends Seeder
             'view match history',
             'view payment history',
             'process refunds',
+            'manage turf betting',
+            'view betting analytics',
+            'settle betting markets',
         ]);
 
         // Assign permissions to turf manager role
@@ -110,6 +118,9 @@ class RoleAndPermissionSeeder extends Seeder
             'edit match events',
             'view match history',
             'view payment history',
+            'manage turf betting',
+            'view betting analytics',
+            'settle betting markets',
         ]);
 
         // Assign permissions to turf player role

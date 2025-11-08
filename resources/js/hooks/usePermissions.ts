@@ -123,8 +123,8 @@ export const usePermissions = () => {
     },
 
     canAccessSuperAdmin: () => {
-      // This would need to be a super admin check against backend
-      return false;
+      // Check if user has super-admin role
+      return !!user?.roles?.some((role) => role.name === 'super-admin');
     },
   };
 

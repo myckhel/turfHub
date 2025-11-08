@@ -31,14 +31,29 @@ return new class extends Migration
             $table->timestamp('refund_processed_at')->nullable()->after('refund_amount');
             $table->string('refund_reference')->nullable()->after('refund_processed_at');
 
-            // Update payment_method enum to include wallet
-            $table->enum('payment_method', ['online', 'offline', 'wallet'])->default('online')->change();
-
             // Add index for performance
             $table->index(['payment_status', 'payment_confirmed_at']);
             $table->index(['payout_status', 'payout_processed_at']);
             $table->index(['user_id', 'status', 'placed_at']);
         });
+
+        // Update payment_method enum to include wallet (PostgreSQL & MySQL compatible)
+        $driver = Schema::getConnection()->getDriverName();
+
+        if ($driver === 'pgsql') {
+            // PostgreSQL: Drop and recreate the column
+            Schema::table('bets', function (Blueprint $table) {
+                $table->dropColumn('payment_method');
+            });
+            Schema::table('bets', function (Blueprint $table) {
+                $table->enum('payment_method', ['online', 'offline', 'wallet'])->default('online')->after('amount');
+            });
+        } else {
+            // MySQL: Use change() method
+            Schema::table('bets', function (Blueprint $table) {
+                $table->enum('payment_method', ['online', 'offline', 'wallet'])->default('online')->change();
+            });
+        }
     }
 
     /**
@@ -46,6 +61,24 @@ return new class extends Migration
      */
     public function down(): void
     {
+        // Revert payment_method enum first (PostgreSQL & MySQL compatible)
+        $driver = Schema::getConnection()->getDriverName();
+
+        if ($driver === 'pgsql') {
+            // PostgreSQL: Drop and recreate the column
+            Schema::table('bets', function (Blueprint $table) {
+                $table->dropColumn('payment_method');
+            });
+            Schema::table('bets', function (Blueprint $table) {
+                $table->enum('payment_method', ['online', 'offline'])->default('online')->after('amount');
+            });
+        } else {
+            // MySQL: Use change() method
+            Schema::table('bets', function (Blueprint $table) {
+                $table->enum('payment_method', ['online', 'offline'])->default('online')->change();
+            });
+        }
+
         Schema::table('bets', function (Blueprint $table) {
             $table->dropIndex(['payment_status', 'payment_confirmed_at']);
             $table->dropIndex(['payout_status', 'payout_processed_at']);
@@ -64,9 +97,6 @@ return new class extends Migration
                 'refund_processed_at',
                 'refund_reference',
             ]);
-
-            // Revert payment_method enum
-            $table->enum('payment_method', ['online', 'offline'])->default('online')->change();
         });
     }
 };

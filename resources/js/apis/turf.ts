@@ -181,6 +181,56 @@ export const turfApi = {
   > => {
     return api.post(`/turfs/${turfId}/process-team-slot-payment`);
   },
+
+  // Get turf settings
+  getSettings: async (
+    turfId: number,
+  ): Promise<{
+    settings: {
+      payment_methods: {
+        cash_enabled: boolean;
+        wallet_enabled: boolean;
+        online_enabled: boolean;
+      };
+    };
+    payment_methods: {
+      enabled: string[];
+      cash_enabled: boolean;
+      wallet_enabled: boolean;
+      online_enabled: boolean;
+    };
+  }> => {
+    return api.get(route('api.turfs.settings', { turf: turfId }));
+  },
+
+  // Update turf settings
+  updateSettings: async (
+    turfId: number,
+    settings: {
+      payment_methods?: {
+        cash_enabled?: boolean;
+        wallet_enabled?: boolean;
+        online_enabled?: boolean;
+      };
+    },
+  ): Promise<{
+    message: string;
+    settings: {
+      payment_methods: {
+        cash_enabled: boolean;
+        wallet_enabled: boolean;
+        online_enabled: boolean;
+      };
+    };
+    payment_methods: {
+      enabled: string[];
+      cash_enabled: boolean;
+      wallet_enabled: boolean;
+      online_enabled: boolean;
+    };
+  }> => {
+    return api.patch(route('api.turfs.settings.update', { turf: turfId }), { settings });
+  },
 };
 
 export default turfApi;

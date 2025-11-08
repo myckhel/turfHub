@@ -57,6 +57,13 @@ export const routeConfigs: Record<string, RouteConfig> = {
     roles: ['manager', 'admin'],
     layout: 'dashboard',
   },
+  'app.turfs.settings': {
+    name: 'turfs.settings',
+    component: 'App/Turfs/Settings',
+    roles: ['manager', 'admin'],
+    permissions: ['manage turf settings'],
+    layout: 'dashboard',
+  },
 
   // Match Session routes
   'app.matchsessions.index': {

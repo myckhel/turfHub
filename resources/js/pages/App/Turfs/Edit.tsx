@@ -108,14 +108,23 @@ const TurfEdit: React.FC<TurfEditProps> = ({ turf }) => {
     return null; // Will redirect in useEffect
   }
 
+  const handleGoToSettings = () => {
+    router.visit(route('web.turfs.settings', { turf: turf.id }));
+  };
+
   return (
     <div className="min-h-screen">
       <div className="container mx-auto px-4 py-6">
         {/* Header */}
         <div className="mb-6">
-          <Button type="text" icon={<ArrowLeftOutlined />} onClick={handleBack} className="mb-4 text-white hover:text-gray-300">
-            Back to Turf
-          </Button>
+          <div className="mb-4 flex items-center justify-between">
+            <Button type="text" icon={<ArrowLeftOutlined />} onClick={handleBack} className="text-white hover:text-gray-300">
+              Back to Turf
+            </Button>
+            <Button type="default" onClick={handleGoToSettings}>
+              Advanced Settings
+            </Button>
+          </div>
           <Title level={2} className="mb-2 text-white">
             Edit Turf: {turf.name}
           </Title>

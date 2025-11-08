@@ -91,6 +91,10 @@ Route::middleware('auth:sanctum')->name('api.')->group(function () {
     Route::get('join-cost', [TurfController::class, 'getJoinCost'])->name('turfs.join-cost');
     Route::get('team-slot-fee-info', [TurfController::class, 'getTeamSlotFeeInfo'])->name('turfs.team-slot-fee-info');
     Route::post('process-team-slot-payment', [TurfController::class, 'processTeamSlotPayment'])->name('turfs.process-team-slot-payment');
+
+    // Settings routes
+    Route::get('settings', [TurfController::class, 'getSettings'])->name('turfs.settings');
+    Route::patch('settings', [TurfController::class, 'updateSettings'])->name('turfs.settings.update');
   });
 
   // Player-specific routes for the player flow

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreTurfRequest;
 use App\Http\Requests\UpdateTurfRequest;
+use App\Http\Requests\UpdateTurfSettingsRequest;
 use App\Http\Requests\JoinTurfRequest;
 use App\Http\Resources\TurfResource;
 use App\Http\Resources\PlayerResource;
@@ -177,6 +178,44 @@ class TurfController extends Controller
     return response()->json([
       'data' => \App\Http\Resources\PlayerResource::collection($players),
       'message' => 'Available players retrieved successfully'
+    ]);
+  }
+
+  /**
+   * Get turf settings.
+   */
+  public function getSettings(Turf $turf): JsonResponse
+  {
+    return response()->json([
+      'settings' => $turf->getSettings(),
+      'payment_methods' => [
+        'enabled' => $turf->getPaymentMethods(),
+        'cash_enabled' => $turf->isPaymentMethodEnabled('cash'),
+        'wallet_enabled' => $turf->isPaymentMethodEnabled('wallet'),
+        'online_enabled' => $turf->isPaymentMethodEnabled('online'),
+      ],
+    ]);
+  }
+
+  /**
+   * Update turf settings.
+   */
+  public function updateSettings(UpdateTurfSettingsRequest $request, Turf $turf): JsonResponse
+  {
+    $this->authorize('update', $turf);
+
+    $settings = $request->validated()['settings'] ?? [];
+    $turf->updateSettings($settings);
+
+    return response()->json([
+      'message' => 'Turf settings updated successfully',
+      'settings' => $turf->fresh()->getSettings(),
+      'payment_methods' => [
+        'enabled' => $turf->getPaymentMethods(),
+        'cash_enabled' => $turf->isPaymentMethodEnabled('cash'),
+        'wallet_enabled' => $turf->isPaymentMethodEnabled('wallet'),
+        'online_enabled' => $turf->isPaymentMethodEnabled('online'),
+      ],
     ]);
   }
 }

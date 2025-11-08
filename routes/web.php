@@ -22,6 +22,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
   Route::get('turfs/create', [TurfController::class, 'create'])->name('web.turfs.create');
   Route::get('turfs/{turf}', [TurfController::class, 'show'])->name('web.turfs.show');
   Route::get('turfs/{turf}/edit', [TurfController::class, 'edit'])->name('web.turfs.edit');
+  Route::get('turfs/{turf}/settings', [TurfController::class, 'settings'])->name('web.turfs.settings');
 
   // Wallet routes
   Route::get('wallet', [WalletController::class, 'index'])->name('web.wallet.index');

@@ -4947,17 +4947,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"laravel-vite-plugin@npm:^1.0":
-  version: 1.3.0
-  resolution: "laravel-vite-plugin@npm:1.3.0"
+"laravel-vite-plugin@npm:^2.0.1":
+  version: 2.0.1
+  resolution: "laravel-vite-plugin@npm:2.0.1"
   dependencies:
     picocolors: "npm:^1.0.0"
     vite-plugin-full-reload: "npm:^1.1.0"
   peerDependencies:
-    vite: ^5.0.0 || ^6.0.0
+    vite: ^7.0.0
   bin:
     clean-orphaned-assets: bin/clean.js
-  checksum: 10c0/550ea8c06085ec317a424ce36ee15eb2c29c2a60943f9d057f3231127335a559413110bd67fd3704fcdc0e3e2b051f221821d8b5d0f1f788bdc02896424c4e65
+  checksum: 10c0/3af833faa6b3926404a7084f67107a61d4e44e7f5101836c7ccb43a9b7d5d40ef2e7a6ec2a09e7f19f073ef0cb71e9c5cd4a5a0d4127c65f52a7d21ca94d7215
   languageName: node
   linkType: hard
 
@@ -6694,7 +6694,7 @@ __metadata:
     globals: "npm:^15.14.0"
     gsap: "npm:^3.13.0"
     immer: "npm:^10.1.3"
-    laravel-vite-plugin: "npm:^1.0"
+    laravel-vite-plugin: "npm:^2.0.1"
     lightningcss-linux-x64-gnu: "npm:^1.29.1"
     lodash: "npm:^4.17.21"
     prettier: "npm:^3.4.2"

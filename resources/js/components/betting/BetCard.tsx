@@ -10,16 +10,12 @@ import {
 import { Card, Tag, Tooltip, Typography } from 'antd';
 import { format, formatDistanceToNow } from 'date-fns';
 import { memo } from 'react';
-import { useBettingStore } from '../../stores';
 import type { BetCardProps } from '../../types/betting.types';
-import { Button } from '../ui/Button';
 import OddsDisplay from './OddsDisplay';
 
 const { Text, Title } = Typography;
 
-const BetCard = memo(({ bet, onConfirmPayment, showActions = true }: BetCardProps) => {
-  const confirmPayment = useBettingStore((state) => state.confirmPayment);
-
+const BetCard = memo(({ bet }: BetCardProps) => {
   const getStatusConfig = (status: string) => {
     switch (status) {
       case 'pending':
@@ -85,17 +81,6 @@ const BetCard = memo(({ bet, onConfirmPayment, showActions = true }: BetCardProp
       return dateString;
     }
   };
-
-  const handleConfirmPayment = async () => {
-    try {
-      await confirmPayment(bet.id);
-      onConfirmPayment?.(bet.id);
-    } catch (error) {
-      console.error('Failed to confirm payment:', error);
-    }
-  };
-
-  const canConfirmPayment = bet.status === 'pending' && bet.payment_method === 'offline';
 
   return (
     <Card className="bet-card transition-all duration-200 hover:shadow-lg" size="small">
@@ -181,17 +166,6 @@ const BetCard = memo(({ bet, onConfirmPayment, showActions = true }: BetCardProp
             <span className="font-bold text-green-700 dark:text-green-300">₦{bet.payout_amount.toLocaleString()}</span>
           </div>
           {bet.settled_at && <div className="mt-1 text-xs text-green-600 dark:text-green-400">Settled {formatTimeAgo(bet.settled_at)}</div>}
-        </div>
-      )}
-
-      {/* Actions */}
-      {showActions && (
-        <div className="flex space-x-2">
-          {canConfirmPayment && (
-            <Button variant="primary" size="small" onClick={handleConfirmPayment} className="flex-1">
-              Confirm Payment
-            </Button>
-          )}
         </div>
       )}
 

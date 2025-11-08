@@ -58,12 +58,19 @@ class BettingController extends Controller
      */
     public function placeBet(Request $request): JsonResponse
     {
-        $request->validate([
+        $rules = [
             'market_option_id' => 'required|exists:market_options,id',
             'stake_amount' => 'required|numeric|min:10',
             'payment_method' => 'required|in:online,offline,wallet',
             'payment_reference' => 'nullable|string|max:255',
-        ]);
+        ];
+
+        // Add receipt validation for offline payments
+        if ($request->payment_method === 'offline') {
+            $rules['receipt'] = 'required|file|mimes:jpeg,jpg,png,webp,pdf|max:5120'; // 5MB max
+        }
+
+        $request->validate($rules);
 
         try {
             $marketOption = MarketOption::findOrFail($request->market_option_id);
@@ -72,7 +79,8 @@ class BettingController extends Controller
                 marketOption: $marketOption,
                 stakeAmount: $request->stake_amount,
                 paymentMethod: $request->payment_method,
-                paymentReference: $request->payment_reference
+                paymentReference: $request->payment_reference,
+                receiptFile: $request->file('receipt')
             );
 
             return response()->json($result);
@@ -403,6 +411,49 @@ class BettingController extends Controller
     }
 
     /**
+     * Upload payment receipt for a bet (for offline payments).
+     */
+    public function uploadReceipt(Request $request, Bet $bet): JsonResponse
+    {
+        $this->authorize('update', $bet);
+
+        $request->validate([
+            'receipt' => 'required|file|mimes:jpeg,jpg,png,webp,pdf|max:5120', // 5MB max
+        ]);
+
+        if ($bet->payment_method !== Bet::PAYMENT_OFFLINE) {
+            return response()->json([
+                'message' => 'Receipt upload is only allowed for offline payment bets.'
+            ], 400);
+        }
+
+        if ($bet->payment_status === Bet::PAYMENT_CONFIRMED) {
+            return response()->json([
+                'message' => 'Payment is already confirmed. Cannot upload new receipt.'
+            ], 400);
+        }
+
+        try {
+            // Clear existing receipt if any
+            $bet->clearMediaCollection('payment_receipts');
+
+            // Upload new receipt
+            $media = $bet->addMedia($request->file('receipt'))
+                ->toMediaCollection('payment_receipts');
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Receipt uploaded successfully',
+                'data' => new BetResource($bet->fresh())
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to upload receipt: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Confirm offline payment for a bet.
      */
     public function confirmOfflinePayment(Request $request): JsonResponse
@@ -431,6 +482,37 @@ class BettingController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Failed to confirm offline payment: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Reject offline payment for a bet.
+     */
+    public function rejectOfflinePayment(Request $request): JsonResponse
+    {
+        $request->validate([
+            'bet_id' => 'required|exists:bets,id',
+            'reason' => 'nullable|string|max:500'
+        ]);
+
+        try {
+            $bet = Bet::findOrFail($request->bet_id);
+            $result = $this->bettingService->rejectOfflinePayment($bet, $request->reason);
+
+            if ($result['success']) {
+                return response()->json([
+                    'message' => 'Offline payment rejected successfully',
+                    'data' => new BetResource($bet->fresh())
+                ]);
+            }
+
+            return response()->json([
+                'message' => $result['message']
+            ], 400);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to reject offline payment: ' . $e->getMessage()
             ], 500);
         }
     }

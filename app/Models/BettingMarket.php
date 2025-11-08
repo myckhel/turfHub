@@ -105,9 +105,9 @@ class BettingMarket extends Model
             return false;
         }
 
-        if ($this->closes_at && $now->gt($this->closes_at)) {
-            return false;
-        }
+        // if ($this->closes_at && $now->gt($this->closes_at)) {
+        //     return false;
+        // }
 
         return true;
     }

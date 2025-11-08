@@ -14,6 +14,7 @@ import { useBettingSelectors, useBettingStore } from '../../stores';
 import type { BetSlipProps, PaymentMethod, PlaceBetRequest } from '../../types/betting.types';
 import { Button } from '../ui/Button';
 import OddsDisplay from './OddsDisplay';
+import ReceiptUpload from './ReceiptUpload';
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -33,6 +34,7 @@ const BetSlip = memo(
     const [isOpen, setIsOpen] = useState(false);
     const [placingBets, setPlacingBets] = useState(false);
     const [localPaymentMethod, setLocalPaymentMethod] = useState<PaymentMethod>(paymentMethod);
+    const [receiptFile, setReceiptFile] = useState<File | null>(null);
 
     const {
       betSlipOpen,
@@ -73,6 +75,10 @@ const BetSlip = memo(
 
     const handlePaymentMethodChange = (method: PaymentMethod) => {
       setLocalPaymentMethod(method);
+      // Clear receipt when changing payment method
+      if (method !== 'offline') {
+        setReceiptFile(null);
+      }
       if (onPaymentMethodChange) {
         onPaymentMethodChange(method);
       } else {
@@ -83,6 +89,12 @@ const BetSlip = memo(
     const handlePlaceBets = async () => {
       if (options.length === 0) return;
 
+      // Validate receipt for offline payments
+      if (currentPaymentMethod === 'offline' && !receiptFile) {
+        message.error('Please upload payment receipt for offline payment');
+        return;
+      }
+
       setPlacingBets(true);
 
       try {
@@ -90,6 +102,7 @@ const BetSlip = memo(
           market_option_id: option.id,
           stake_amount: stakeAmounts[option.id] || 100,
           payment_method: currentPaymentMethod,
+          receipt: currentPaymentMethod === 'offline' ? receiptFile || undefined : undefined,
         }));
 
         if (onPlaceBets) {
@@ -99,6 +112,9 @@ const BetSlip = memo(
         }
 
         message.success('Bet(s) placed successfully!');
+
+        // Clear receipt file after successful placement
+        setReceiptFile(null);
 
         // Close bet slip after successful placement
         if (!selectedOptions.length) {
@@ -362,12 +378,19 @@ const BetSlip = memo(
                 </Space>
               </Card>
 
+              {/* Receipt Upload (Offline Payment) */}
+              {currentPaymentMethod === 'offline' && (
+                <div className="mt-4">
+                  <ReceiptUpload value={receiptFile || undefined} onChange={(file) => setReceiptFile(file)} disabled={placingBets} />
+                </div>
+              )}
+
               {/* Warnings */}
               {currentPaymentMethod === 'offline' && (
                 <Alert
-                  type="info"
-                  message="Cash Payment"
-                  description="You'll need to confirm your cash payment with the turf manager before your bet is active."
+                  type="warning"
+                  message="Cash Payment Requires Receipt"
+                  description="Your bet will be pending until the turf manager confirms your payment receipt."
                   showIcon
                 />
               )}

@@ -227,7 +227,6 @@ public function registerMediaCollections(): void
 {
     $this->addMediaCollection('custom')
         ->acceptsMimeTypes(['image/jpeg', 'image/png'])
-        ->maxFileSize(5 * 1024 * 1024) // 5MB
         ->singleFile()
         ->useDisk('s3')
         ->registerMediaConversions(function (Media $media) {
@@ -236,6 +235,15 @@ public function registerMediaCollections(): void
                 ->height(300);
         });
 }
+```
+
+**Note:** File size validation should be done in your Form Request or controller validation rules, not in the media collection registration:
+
+```php
+// In your Form Request or Controller
+$request->validate([
+    'custom_file' => 'required|file|mimes:jpeg,png|max:5120', // 5MB max (in KB)
+]);
 ```
 
 ### Using Different Disks

@@ -133,7 +133,8 @@ class BettingService
         MarketOption $marketOption,
         float $stakeAmount,
         string $paymentMethod = Bet::PAYMENT_ONLINE,
-        ?string $paymentReference = null
+        ?string $paymentReference = null,
+        $receiptFile = null
     ): array {
         if (!$marketOption->canAcceptBets()) {
             throw ValidationException::withMessages([
@@ -144,6 +145,13 @@ class BettingService
         if ($stakeAmount < 10) {
             throw ValidationException::withMessages([
                 'stake' => 'Minimum stake amount is ₦10.'
+            ]);
+        }
+
+        // Validate receipt for offline payments
+        if ($paymentMethod === Bet::PAYMENT_OFFLINE && !$receiptFile) {
+            throw ValidationException::withMessages([
+                'receipt' => 'Payment receipt is required for offline payments.'
             ]);
         }
 
@@ -166,6 +174,12 @@ class BettingService
                 'payment_status' => Bet::PAYMENT_PENDING,
                 'payment_reference' => $paymentReference,
             ]);
+
+            // Attach receipt for offline payments
+            if ($paymentMethod === Bet::PAYMENT_OFFLINE && $receiptFile) {
+                $bet->addMedia($receiptFile)
+                    ->toMediaCollection('payment_receipts');
+            }
 
             DB::commit();
 
@@ -729,6 +743,14 @@ class BettingService
                 ];
             }
 
+            // Check if receipt exists
+            if (!$bet->hasReceipt()) {
+                return [
+                    'success' => false,
+                    'message' => 'Cannot confirm payment: Receipt not found'
+                ];
+            }
+
             $bet->update([
                 'payment_status' => Bet::PAYMENT_CONFIRMED,
                 'payment_confirmed_at' => now(),
@@ -736,9 +758,22 @@ class BettingService
                 'notes' => $notes
             ]);
 
+            // Get receipt information
+            $receipt = $bet->getFirstMedia('payment_receipts');
+            $receiptInfo = $receipt ? [
+                'url' => $receipt->getUrl(),
+                'preview_url' => $receipt->hasGeneratedConversion('preview') ? $receipt->getUrl('preview') : null,
+                'thumb_url' => $receipt->hasGeneratedConversion('thumb') ? $receipt->getUrl('thumb') : null,
+                'file_name' => $receipt->file_name,
+                'size' => $receipt->size,
+                'mime_type' => $receipt->mime_type,
+                'uploaded_at' => $receipt->created_at?->toIso8601String(),
+            ] : null;
+
             return [
                 'success' => true,
-                'message' => 'Offline payment confirmed successfully'
+                'message' => 'Offline payment confirmed successfully',
+                'receipt' => $receiptInfo
             ];
         } catch (\Exception $e) {
             Log::error('Failed to confirm offline payment', [
@@ -749,6 +784,53 @@ class BettingService
             return [
                 'success' => false,
                 'message' => 'Failed to confirm payment: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    /**
+     * Reject offline payment for a bet.
+     */
+    public function rejectOfflinePayment(Bet $bet, ?string $reason = null): array
+    {
+        try {
+            if ($bet->payment_method !== 'offline') {
+                return [
+                    'success' => false,
+                    'message' => 'Only offline payment bets can be rejected'
+                ];
+            }
+
+            if ($bet->payment_status === Bet::PAYMENT_CONFIRMED) {
+                return [
+                    'success' => false,
+                    'message' => 'Cannot reject a confirmed payment'
+                ];
+            }
+
+            // Update bet status to cancelled/failed
+            $bet->update([
+                'payment_status' => Bet::PAYMENT_FAILED,
+                'status' => Bet::STATUS_CANCELLED,
+                'notes' => $reason ?? 'Payment receipt rejected by manager'
+            ]);
+
+            // Optionally delete the receipt if needed
+            // $bet->clearMediaCollection('payment_receipts');
+
+            return [
+                'success' => true,
+                'message' => 'Offline payment rejected successfully'
+            ];
+        } catch (\Exception $e) {
+            Log::error('Failed to reject offline payment', [
+                'bet_id' => $bet->id,
+                'error' => $e->getMessage()
+            ]);
+
+            return [
+                'success' => false,
+                'message' => 'Failed to reject payment: ' . $e->getMessage()
             ];
         }
     }

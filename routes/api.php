@@ -210,6 +210,7 @@ Route::middleware('auth:sanctum')->name('api.')->group(function () {
     Route::patch('bets/{bet}/cancel', [App\Http\Controllers\Api\BettingController::class, 'cancelBet'])->name('bets.cancel');
     Route::patch('bets/{bet}/confirm-payment', [App\Http\Controllers\Api\BettingController::class, 'confirmPayment'])->name('bets.confirm-payment');
     Route::post('bets/{bet}/verify-payment', [App\Http\Controllers\Api\BettingController::class, 'verifyPayment'])->name('bets.verify-payment');
+    Route::post('bets/{bet}/upload-receipt', [App\Http\Controllers\Api\BettingController::class, 'uploadReceipt'])->name('bets.upload-receipt');
 
     // Turf owner analytics route
     Route::get('turf-analytics/{turf}', [App\Http\Controllers\Api\BettingController::class, 'getTurfAnalytics'])->name('turf-analytics');
@@ -251,5 +252,6 @@ Route::middleware('auth:sanctum')->name('api.')->group(function () {
     Route::get('bets', [App\Http\Controllers\Api\BettingController::class, 'getTurfBets'])->name('bets');
     Route::post('bets/{bet}/cancel', [App\Http\Controllers\Api\BettingController::class, 'adminCancelBet'])->name('bets.cancel');
     Route::post('confirm-offline-payment', [App\Http\Controllers\Api\BettingController::class, 'confirmOfflinePayment'])->name('confirm-offline-payment');
+    Route::post('reject-offline-payment', [App\Http\Controllers\Api\BettingController::class, 'rejectOfflinePayment'])->name('reject-offline-payment');
   });
 });

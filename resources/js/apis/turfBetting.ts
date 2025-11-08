@@ -35,6 +35,11 @@ interface ConfirmOfflinePaymentRequest {
   notes?: string;
 }
 
+interface RejectOfflinePaymentRequest {
+  bet_id: number;
+  reason?: string;
+}
+
 export const turfBettingApi = {
   /**
    * Get betting statistics for a specific turf
@@ -83,6 +88,12 @@ export const turfBettingApi = {
    */
   confirmOfflinePayment: (turfId: number, data: ConfirmOfflinePaymentRequest): Promise<BetResponse> =>
     api.post(route('api.turfs.betting.confirm-offline-payment', { turf: turfId }), data),
+
+  /**
+   * Reject offline payment for a bet
+   */
+  rejectOfflinePayment: (turfId: number, data: RejectOfflinePaymentRequest): Promise<BetResponse> =>
+    api.post(route('api.turfs.betting.reject-offline-payment', { turf: turfId }), data),
 
   /**
    * Cancel a bet (manager override)

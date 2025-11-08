@@ -1,21 +1,24 @@
 import {
   CheckOutlined,
+  CloseOutlined,
   DollarOutlined,
   ExclamationCircleOutlined,
   EyeOutlined,
+  FileImageOutlined,
   ReloadOutlined,
   SettingOutlined,
   TrophyOutlined,
 } from '@ant-design/icons';
 import { usePage } from '@inertiajs/react';
-import { App, Button, Card, Col, Form, Input, message, Modal, Row, Select, Space, Statistic, Table, Tag, Tooltip, Typography } from 'antd';
+import { App, Button, Card, Checkbox, Col, Form, Input, message, Modal, Row, Space, Statistic, Table, Tag, Tooltip, Typography } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { turfBettingApi } from '../../../apis/turfBetting';
-import type { Bet, BetStatus, BettingMarket } from '../../../types/betting.types';
+import BetReceiptDisplay from '../../../components/betting/BetReceiptDisplay';
+import type { Bet, BetStatus, BettingMarket, MarketOption } from '../../../types/betting.types';
 import type { PageProps } from '../../../types/global.types';
+import { formatCurrency } from '../../../utils/format';
 
-const { Title } = Typography;
-const { Option } = Select;
+const { Title, Text } = Typography;
 
 interface BettingManagementPageProps extends PageProps {
   turfId: number;
@@ -32,6 +35,7 @@ const BettingManagement: React.FC = () => {
   const [settleModalVisible, setSettleModalVisible] = useState(false);
   const [betDetailsModalVisible, setBetDetailsModalVisible] = useState(false);
   const [settlingMarket, setSettlingMarket] = useState(false);
+  const [selectedWinningOptions, setSelectedWinningOptions] = useState<number[]>([]);
   const [form] = Form.useForm();
 
   const fetchData = async () => {
@@ -54,7 +58,18 @@ const BettingManagement: React.FC = () => {
 
   const handleSettleMarket = (market: BettingMarket) => {
     setSelectedMarket(market);
+    setSelectedWinningOptions([]);
     setSettleModalVisible(true);
+  };
+
+  const handleOptionSelect = (optionId: number, checked: boolean) => {
+    setSelectedWinningOptions((prev) => {
+      if (checked) {
+        return [...prev, optionId];
+      } else {
+        return prev.filter((id) => id !== optionId);
+      }
+    });
   };
 
   const handleViewBetDetails = (bet: Bet) => {
@@ -65,17 +80,23 @@ const BettingManagement: React.FC = () => {
   const onSettleMarket = async () => {
     if (!selectedMarket) return;
 
+    if (selectedWinningOptions.length === 0) {
+      message.error('Please select at least one winning option');
+      return;
+    }
+
     try {
       setSettlingMarket(true);
       const values = await form.validateFields();
       await turfBettingApi.settleMarket(turfId, selectedMarket.id, {
-        winning_option_ids: [values.winningOptionId],
+        winning_option_ids: selectedWinningOptions,
         settlement_notes: values.settlementNotes,
         settlement_result: 'settled',
       });
       message.success(`Market "${selectedMarket.name}" settled successfully`);
       setSettleModalVisible(false);
       setSelectedMarket(null);
+      setSelectedWinningOptions([]);
       form.resetFields();
       await fetchData();
     } catch (error) {
@@ -93,17 +114,56 @@ const BettingManagement: React.FC = () => {
   const handleConfirmOfflinePayment = (bet: Bet) => {
     modal.confirm({
       title: 'Confirm Offline Payment',
-      content: `Are you sure you want to confirm offline payment for bet #${bet.id}?`,
-      icon: <ExclamationCircleOutlined />,
-      okText: 'Confirm',
+      content: `Are you sure you want to confirm offline payment for bet #${bet.id}? This will activate the bet and the user will be eligible for payouts if they win.`,
+      icon: <CheckOutlined className="text-green-500" />,
+      okText: 'Confirm Payment',
+      okType: 'primary',
       cancelText: 'Cancel',
       onOk: async () => {
         try {
           await turfBettingApi.confirmOfflinePayment(turfId, { bet_id: bet.id });
           message.success('Offline payment confirmed successfully');
-          fetchData();
+          setBetDetailsModalVisible(false);
+          await fetchData();
         } catch {
           message.error('Failed to confirm payment');
+        }
+      },
+    });
+  };
+
+  const handleRejectOfflinePayment = (bet: Bet) => {
+    let reason = '';
+
+    modal.confirm({
+      title: 'Reject Offline Payment',
+      content: (
+        <div className="space-y-3">
+          <p className="text-red-600">Are you sure you want to reject this payment? This action cannot be undone.</p>
+          <div>
+            <label className="mb-1 block text-sm font-medium">Rejection Reason (Optional):</label>
+            <Input.TextArea
+              placeholder="e.g., Invalid receipt, incorrect amount, unclear image..."
+              rows={3}
+              maxLength={500}
+              onChange={(e) => (reason = e.target.value)}
+              className="w-full"
+            />
+          </div>
+        </div>
+      ),
+      icon: <CloseOutlined className="text-red-500" />,
+      okText: 'Reject Payment',
+      okType: 'danger',
+      cancelText: 'Cancel',
+      onOk: async () => {
+        try {
+          await turfBettingApi.rejectOfflinePayment(turfId, { bet_id: bet.id, reason: reason || undefined });
+          message.success('Payment rejected successfully');
+          setBetDetailsModalVisible(false);
+          await fetchData();
+        } catch {
+          message.error('Failed to reject payment');
         }
       },
     });
@@ -184,6 +244,16 @@ const BettingManagement: React.FC = () => {
       dataIndex: 'id',
       key: 'id',
       width: 80,
+      render: (id: number, record: Bet) => (
+        <div className="flex items-center gap-2">
+          <span>{id}</span>
+          {record.has_receipt && (
+            <Tooltip title="Has payment receipt">
+              <FileImageOutlined className="text-blue-500" />
+            </Tooltip>
+          )}
+        </div>
+      ),
     },
     {
       title: 'User',
@@ -208,8 +278,8 @@ const BettingManagement: React.FC = () => {
     },
     {
       title: 'Amount',
-      dataIndex: 'amount',
-      key: 'amount',
+      dataIndex: 'stake_amount',
+      key: 'stake_amount',
       render: (amount: number) => `₦${(amount || 0).toLocaleString()}`,
     },
     {
@@ -248,10 +318,15 @@ const BettingManagement: React.FC = () => {
           <Tooltip title="View Details">
             <Button icon={<EyeOutlined />} size="small" onClick={() => handleViewBetDetails(record)} />
           </Tooltip>
-          {record.status === 'pending' && record.payment_method === 'offline' && (
-            <Tooltip title="Confirm Offline Payment">
-              <Button icon={<CheckOutlined />} size="small" type="primary" onClick={() => handleConfirmOfflinePayment(record)} />
-            </Tooltip>
+          {record.status === 'pending' && record.payment_method === 'offline' && record.has_receipt && (
+            <>
+              <Tooltip title="Confirm Payment">
+                <Button icon={<CheckOutlined />} size="small" type="primary" onClick={() => handleViewBetDetails(record)} />
+              </Tooltip>
+              <Tooltip title="Reject Payment">
+                <Button icon={<CloseOutlined />} size="small" danger onClick={() => handleViewBetDetails(record)} />
+              </Tooltip>
+            </>
           )}
         </Space>
       ),
@@ -319,39 +394,166 @@ const BettingManagement: React.FC = () => {
           open={settleModalVisible}
           onCancel={() => {
             setSettleModalVisible(false);
+            setSelectedWinningOptions([]);
             form.resetFields();
           }}
           footer={null}
-          width={600}
+          width={800}
         >
           <Form form={form} onFinish={onSettleMarket} layout="vertical">
-            <Form.Item name="winningOptionId" label="Winning Option" rules={[{ required: true, message: 'Please select the winning option' }]}>
-              <Select placeholder="Select the winning option" size="large">
-                {selectedMarket?.market_options?.map((option) => (
-                  <Option key={option.id} value={option.id}>
-                    <div className="flex items-center justify-between">
-                      <span>{option.name}</span>
-                      <Tag color="blue">Odds: {option.odds}</Tag>
+            <div className="space-y-4">
+              <Card title="Market Information" size="small">
+                <div className="space-y-2">
+                  <div>
+                    <Text strong>Market: </Text>
+                    <Text>{selectedMarket?.name}</Text>
+                  </div>
+                  {selectedMarket?.game_match && (
+                    <div>
+                      <Text strong>Match: </Text>
+                      <Text>
+                        {selectedMarket.game_match.first_team?.name || 'Team 1'} vs {selectedMarket.game_match.second_team?.name || 'Team 2'}
+                      </Text>
+                      {selectedMarket.game_match.first_team_score !== undefined && selectedMarket.game_match.second_team_score !== undefined && (
+                        <Text>
+                          {' '}
+                          ({selectedMarket.game_match.first_team_score} - {selectedMarket.game_match.second_team_score})
+                        </Text>
+                      )}
                     </div>
-                  </Option>
-                ))}
-              </Select>
-            </Form.Item>
-            <Form.Item name="settlementNotes" label="Settlement Notes (Optional)" help="Provide additional context for this settlement if needed">
-              <Input.TextArea rows={3} placeholder="Enter any notes about this settlement..." maxLength={1000} showCount />
-            </Form.Item>
-            <div className="mt-4 rounded-lg bg-blue-50 p-3 dark:bg-blue-900/20">
-              <p className="text-sm text-blue-700 dark:text-blue-300">
-                <strong>Note:</strong> Once settled, all confirmed bets will be processed automatically. Winning bets will receive payouts, and losing
-                bets will be marked as lost.
-              </p>
+                  )}
+                  <div>
+                    <Text strong>Total Bets: </Text>
+                    <Text>{selectedMarket?.total_bets || 0}</Text>
+                  </div>
+                  <div>
+                    <Text strong>Total Stake: </Text>
+                    <Text>{formatCurrency(selectedMarket?.total_stake || 0)}</Text>
+                  </div>
+                </div>
+              </Card>
+
+              <Card title="Select Winning Options" size="small">
+                <div className="mb-4 rounded-lg bg-blue-50 p-3 dark:bg-blue-900/20">
+                  <p className="text-sm text-blue-700 dark:text-blue-300">
+                    <strong>Settlement Instructions:</strong> Select the winning betting options based on the actual match result. Multiple options
+                    can be selected if applicable.
+                  </p>
+                </div>
+
+                <Table
+                  dataSource={selectedMarket?.market_options}
+                  rowKey="id"
+                  pagination={false}
+                  size="small"
+                  columns={[
+                    {
+                      title: 'Select Winner',
+                      key: 'select',
+                      width: 120,
+                      align: 'center' as const,
+                      render: (_: unknown, record: MarketOption) => (
+                        <div className="flex items-center justify-center">
+                          <Checkbox
+                            checked={selectedWinningOptions.includes(record.id)}
+                            onChange={(e) => handleOptionSelect(record.id, e.target.checked)}
+                            disabled={selectedMarket?.status !== 'active'}
+                          />
+                        </div>
+                      ),
+                    },
+                    {
+                      title: 'Option',
+                      dataIndex: 'name',
+                      key: 'name',
+                      render: (name: string) => <Text strong>{name}</Text>,
+                    },
+                    {
+                      title: 'Odds',
+                      dataIndex: 'odds',
+                      key: 'odds',
+                      render: (odds: string | number) => <Text>{odds ? parseFloat(String(odds)).toFixed(2) : '-'}</Text>,
+                    },
+                    {
+                      title: 'Total Bets',
+                      dataIndex: 'bet_count',
+                      key: 'bet_count',
+                      render: (count: number) => count || 0,
+                    },
+                    {
+                      title: 'Total Stake',
+                      dataIndex: 'total_stake',
+                      key: 'total_stake',
+                      render: (stake: string | number) => formatCurrency(parseFloat(String(stake)) || 0),
+                    },
+                  ]}
+                />
+              </Card>
+
+              {selectedWinningOptions.length > 0 && (
+                <Card title="Settlement Summary" size="small">
+                  <div className="space-y-2">
+                    <div>
+                      <Text strong>Selected Winners: </Text>
+                      <Text>
+                        {selectedWinningOptions
+                          .map((optionId) => {
+                            const option = selectedMarket?.market_options?.find((opt) => opt.id === optionId);
+                            return option?.name;
+                          })
+                          .join(', ')}
+                      </Text>
+                    </div>
+                    <div>
+                      <Text strong>Estimated Total Payout: </Text>
+                      <Text strong style={{ color: '#f5222d' }}>
+                        <DollarOutlined />{' '}
+                        {formatCurrency(
+                          selectedWinningOptions.reduce((total, optionId) => {
+                            const option = selectedMarket?.market_options?.find((opt) => opt.id === optionId);
+                            if (option) {
+                              const stake = parseFloat(String(option.total_stake || 0));
+                              const odds = parseFloat(String(option.odds || 0));
+                              return total + stake * odds;
+                            }
+                            return total;
+                          }, 0),
+                        )}
+                      </Text>
+                    </div>
+                    <div>
+                      <Text type="secondary" style={{ fontSize: '12px' }}>
+                        * This is an estimate. Actual payouts will be calculated based on individual bet amounts and odds.
+                      </Text>
+                    </div>
+                  </div>
+                </Card>
+              )}
+
+              <Form.Item name="settlementNotes" label="Settlement Notes (Optional)" help="Provide additional context for this settlement if needed">
+                <Input.TextArea rows={3} placeholder="Enter any notes about this settlement..." maxLength={1000} showCount />
+              </Form.Item>
             </div>
+
             <Form.Item className="mt-6 mb-0">
               <Space className="w-full justify-end">
-                <Button onClick={() => setSettleModalVisible(false)} disabled={settlingMarket}>
+                <Button
+                  onClick={() => {
+                    setSettleModalVisible(false);
+                    setSelectedWinningOptions([]);
+                    form.resetFields();
+                  }}
+                  disabled={settlingMarket}
+                >
                   Cancel
                 </Button>
-                <Button type="primary" htmlType="submit" icon={<CheckOutlined />} loading={settlingMarket}>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  icon={<CheckOutlined />}
+                  loading={settlingMarket}
+                  disabled={selectedWinningOptions.length === 0}
+                >
                   Settle Market
                 </Button>
               </Space>
@@ -364,38 +566,76 @@ const BettingManagement: React.FC = () => {
           title={`Bet Details #${selectedBet?.id}`}
           open={betDetailsModalVisible}
           onCancel={() => setBetDetailsModalVisible(false)}
-          footer={[
-            <Button key="close" onClick={() => setBetDetailsModalVisible(false)}>
-              Close
-            </Button>,
-          ]}
+          width={700}
+          footer={
+            selectedBet?.payment_method === 'offline' && selectedBet?.status === 'pending' && selectedBet?.has_receipt ? (
+              <Space>
+                <Button key="reject" icon={<CloseOutlined />} danger onClick={() => handleRejectOfflinePayment(selectedBet)}>
+                  Reject Payment
+                </Button>
+                <Button key="confirm" icon={<CheckOutlined />} type="primary" onClick={() => handleConfirmOfflinePayment(selectedBet)}>
+                  Confirm Payment
+                </Button>
+                <Button key="close" onClick={() => setBetDetailsModalVisible(false)}>
+                  Close
+                </Button>
+              </Space>
+            ) : (
+              <Button key="close" onClick={() => setBetDetailsModalVisible(false)}>
+                Close
+              </Button>
+            )
+          }
         >
           {selectedBet && (
             <div className="space-y-4">
-              <div>
-                <strong>User:</strong> {selectedBet.user?.name} (ID: {selectedBet.user_id})
+              <div className="rounded-lg bg-gray-50 p-4 dark:bg-gray-900/50">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <strong className="text-gray-600 dark:text-gray-400">User:</strong>
+                    <div>{selectedBet.user?.name}</div>
+                    <div className="text-sm text-gray-500">ID: {selectedBet.user_id}</div>
+                  </div>
+                  <div>
+                    <strong className="text-gray-600 dark:text-gray-400">Status:</strong>
+                    <div>
+                      <Tag color="blue">{selectedBet.status.toUpperCase()}</Tag>
+                      {selectedBet.payment_status && <Tag color="orange">{selectedBet.payment_status.toUpperCase()}</Tag>}
+                    </div>
+                  </div>
+                  <div>
+                    <strong className="text-gray-600 dark:text-gray-400">Market:</strong>
+                    <div>{selectedBet.market_option?.betting_market?.name}</div>
+                  </div>
+                  <div>
+                    <strong className="text-gray-600 dark:text-gray-400">Option:</strong>
+                    <div>{selectedBet.market_option?.name}</div>
+                  </div>
+                  <div>
+                    <strong className="text-gray-600 dark:text-gray-400">Stake Amount:</strong>
+                    <div className="text-lg font-semibold text-green-600">₦{selectedBet.stake_amount.toLocaleString()}</div>
+                  </div>
+                  <div>
+                    <strong className="text-gray-600 dark:text-gray-400">Potential Payout:</strong>
+                    <div className="text-lg font-semibold text-blue-600">₦{selectedBet.potential_payout.toLocaleString()}</div>
+                  </div>
+                  <div>
+                    <strong className="text-gray-600 dark:text-gray-400">Payment Method:</strong>
+                    <div className="uppercase">{selectedBet.payment_method}</div>
+                  </div>
+                  <div>
+                    <strong className="text-gray-600 dark:text-gray-400">Created At:</strong>
+                    <div className="text-sm">{new Date(selectedBet.created_at).toLocaleString()}</div>
+                  </div>
+                </div>
               </div>
-              <div>
-                <strong>Market:</strong> {selectedBet.market_option?.betting_market?.name}
-              </div>
-              <div>
-                <strong>Option:</strong> {selectedBet.market_option?.name}
-              </div>
-              <div>
-                <strong>Amount:</strong> ₦{selectedBet.stake_amount.toLocaleString()}
-              </div>
-              <div>
-                <strong>Potential Payout:</strong> ₦{selectedBet.potential_payout.toLocaleString()}
-              </div>
-              <div>
-                <strong>Status:</strong> <Tag color="blue">{selectedBet.status.toUpperCase()}</Tag>
-              </div>
-              <div>
-                <strong>Payment Method:</strong> {selectedBet.payment_method?.toUpperCase()}
-              </div>
-              <div>
-                <strong>Created At:</strong> {new Date(selectedBet.created_at).toLocaleString()}
-              </div>
+
+              {/* Receipt Display */}
+              {selectedBet.has_receipt && selectedBet.receipt && (
+                <div className="mt-4">
+                  <BetReceiptDisplay bet={selectedBet} showActions={false} />
+                </div>
+              )}
             </div>
           )}
         </Modal>

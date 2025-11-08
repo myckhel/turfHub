@@ -36,6 +36,21 @@ class BetResource extends JsonResource
             'created_at' => $this->created_at->toISOString(),
             'updated_at' => $this->updated_at->toISOString(),
 
+            // Payment receipt information
+            'has_receipt' => $this->hasReceipt(),
+            'receipt' => $this->when($this->hasReceipt(), function () {
+                $receipt = $this->getFirstMedia('payment_receipts');
+                return $receipt ? [
+                    'url' => $receipt->getUrl(),
+                    'preview_url' => $receipt->hasGeneratedConversion('preview') ? $receipt->getUrl('preview') : null,
+                    'thumb_url' => $receipt->hasGeneratedConversion('thumb') ? $receipt->getUrl('thumb') : null,
+                    'file_name' => $receipt->file_name,
+                    'size' => $receipt->size,
+                    'mime_type' => $receipt->mime_type,
+                    'uploaded_at' => $receipt->created_at?->toIso8601String(),
+                ] : null;
+            }),
+
             // User relationship
             'user' => $this->whenLoaded('user', [
                 'id' => $this->user->id,

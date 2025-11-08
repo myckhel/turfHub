@@ -70,7 +70,39 @@ export const bettingApi = {
    * Place a new bet
    */
   placeBet: async (betData: PlaceBetRequest): Promise<BetResponse> => {
+    // If receipt is provided, use FormData for multipart upload
+    if (betData.receipt) {
+      const formData = new FormData();
+      formData.append('market_option_id', String(betData.market_option_id));
+      formData.append('stake_amount', String(betData.stake_amount));
+      formData.append('payment_method', betData.payment_method);
+      if (betData.payment_reference) {
+        formData.append('payment_reference', betData.payment_reference);
+      }
+      formData.append('receipt', betData.receipt);
+
+      return api.post(route('api.betting.place-bet'), formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+    }
+
     return api.post(route('api.betting.place-bet'), betData);
+  },
+
+  /**
+   * Upload receipt for an existing bet (offline payments only)
+   */
+  uploadReceipt: async (betId: number, receipt: File): Promise<BetActionResponse> => {
+    const formData = new FormData();
+    formData.append('receipt', receipt);
+
+    return api.post(route('api.betting.bets.upload-receipt', { bet: betId }), formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
   },
 
   /**
@@ -146,6 +178,16 @@ export const bettingApi = {
    */
   getGameMatchMarkets: async (gameMatchId: number): Promise<BettingMarketResponse> => {
     return api.get(route('api.betting.game-matches.markets', { gameMatch: gameMatchId }));
+  },
+
+  /**
+   * Confirm offline payment for a bet (Manager/Admin only)
+   */
+  confirmOfflinePayment: async (betId: number, notes?: string): Promise<BetActionResponse> => {
+    return api.post(route('api.betting.confirm-offline-payment'), {
+      bet_id: betId,
+      notes,
+    });
   },
 };
 

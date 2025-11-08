@@ -61,9 +61,20 @@ export interface Bet {
   potential_payout: number;
   status: BetStatus;
   payment_method: PaymentMethod;
+  payment_status?: 'pending' | 'confirmed' | 'failed';
   payment_confirmed_at?: string;
   settled_at?: string;
   payout_amount?: number;
+  has_receipt?: boolean;
+  receipt?: {
+    url: string;
+    preview_url?: string;
+    thumb_url?: string;
+    file_name: string;
+    size: number;
+    mime_type: string;
+    uploaded_at: string;
+  };
   created_at: string;
   updated_at: string;
 
@@ -100,6 +111,7 @@ export interface PlaceBetRequest {
   stake_amount: number; // Keep for backwards compatibility
   payment_method: PaymentMethod;
   payment_reference?: string;
+  receipt?: File; // Payment receipt for offline payments
 }
 
 export interface CreateMarketRequest {
@@ -232,7 +244,7 @@ export interface BetSlipProps {
   stakes?: Record<number, number>;
   onUpdateStake?: (optionId: number, stake: number) => void;
   onRemoveOption?: (optionId: number) => void;
-  onPlaceBets?: (bets: PlaceBetRequest[]) => void;
+  onPlaceBets?: (bets: PlaceBetRequest[]) => Promise<void>;
   paymentMethod?: PaymentMethod;
   onPaymentMethodChange?: (method: PaymentMethod) => void;
   isLoading?: boolean;

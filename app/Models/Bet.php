@@ -2,13 +2,16 @@
 
 namespace App\Models;
 
+use App\Traits\HasMediaLibrary;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-class Bet extends Model
+class Bet extends Model implements HasMedia
 {
-    use HasFactory;
+    use HasFactory, HasMediaLibrary;
 
     // Status Constants
     public const STATUS_PENDING = 'pending';
@@ -248,5 +251,45 @@ class Bet extends Model
     public function scopeRecent($query, int $days = 30)
     {
         return $query->where('placed_at', '>=', now()->subDays($days));
+    }
+
+    /**
+     * Register media collections for bet receipts.
+     */
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('payment_receipts')
+            ->singleFile()
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp', 'image/jpg', 'application/pdf'])
+            ->registerMediaConversions(function (Media $media) {
+                if ($media->mime_type !== 'application/pdf') {
+                    $this->addMediaConversion('thumb')
+                        ->width(200)
+                        ->height(200)
+                        ->sharpen(10)
+                        ->nonQueued();
+
+                    $this->addMediaConversion('preview')
+                        ->width(800)
+                        ->height(600)
+                        ->sharpen(10);
+                }
+            });
+    }
+
+    /**
+     * Get the payment receipt URL.
+     */
+    public function getReceiptUrl(string $conversion = ''): ?string
+    {
+        return $this->getFirstMediaUrl('payment_receipts', $conversion) ?: null;
+    }
+
+    /**
+     * Check if bet has a payment receipt.
+     */
+    public function hasReceipt(): bool
+    {
+        return $this->hasMediaInCollection('payment_receipts');
     }
 }

@@ -23,6 +23,7 @@ class Payment extends Model
     public const TYPE_MEMBERSHIP_FEE = 'membership_fee';
     public const TYPE_EQUIPMENT_RENTAL = 'equipment_rental';
     public const TYPE_TOURNAMENT_FEE = 'tournament_fee';
+    public const TYPE_BET = 'bet';
 
     /**
      * The attributes that are mass assignable.

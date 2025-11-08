@@ -45,4 +45,16 @@ class GameMatchPolicy
     // Only turf admins and managers can manage match events
     return $user->hasAnyTurfRole([User::TURF_ROLE_ADMIN, User::TURF_ROLE_MANAGER], $gameMatch->matchSession->turf_id);
   }
+
+  /**
+   * Determine whether the user can manage betting for the game match.
+   */
+  public function manageBetting(User $user, GameMatch $gameMatch): bool
+  {
+    // Only turf owners, admins and managers can manage betting
+    return $gameMatch->matchSession->turf->owner_id === $user->id ||
+           $user->hasAnyTurfRole([User::TURF_ROLE_ADMIN, User::TURF_ROLE_MANAGER], $gameMatch->matchSession->turf_id) ||
+           $user->hasRole('super-admin') ||
+           $user->hasPermissionTo('manage-betting');
+  }
 }

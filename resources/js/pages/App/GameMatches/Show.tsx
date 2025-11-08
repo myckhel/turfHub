@@ -1,4 +1,4 @@
-import { ArrowLeftOutlined, CalendarOutlined, ClockCircleOutlined, TrophyOutlined, UserOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, CalendarOutlined, ClockCircleOutlined, DollarCircleOutlined, TrophyOutlined, UserOutlined } from '@ant-design/icons';
 import { router, usePage } from '@inertiajs/react';
 import { Col, Descriptions, Row, Space, Tag, Timeline, Typography } from 'antd';
 import { format } from 'date-fns';
@@ -142,6 +142,21 @@ const Show: React.FC = () => {
                 )}
               </div>
             </div>
+
+            {/* Betting Actions */}
+            {(gameMatch.status === 'upcoming' || gameMatch.status === 'in_progress') && (
+              <div className="mt-4 flex justify-center lg:justify-end">
+                <Button
+                  variant="primary"
+                  icon={<DollarCircleOutlined />}
+                  onClick={() => router.visit(route('web.betting.game-matches.show', { gameMatch: gameMatch.id }))}
+                  size="large"
+                  className="border-0 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600"
+                >
+                  Place Bet
+                </Button>
+              </div>
+            )}
           </Card>
         </div>
 

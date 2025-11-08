@@ -35,27 +35,41 @@ export const pwaConfig: Partial<VitePWAOptions> = {
         type: 'image/png',
       },
     ],
-    categories: ['sports', 'lifestyle', 'business'],
+    categories: ['sports', 'lifestyle', 'business', 'entertainment'],
     shortcuts: [
       {
         name: 'Dashboard',
         short_name: 'Dashboard',
         description: 'Go to your dashboard',
-        url: '/dashboard',
+        url: '/app/dashboard',
         icons: [{ src: 'logo.svg', sizes: '96x96' }],
       },
       {
-        name: 'Book Field',
-        short_name: 'Book',
-        description: 'Book a sports field',
-        url: '/player/bookings/create',
+        name: 'Browse Turfs',
+        short_name: 'Turfs',
+        description: 'Find and join turf sessions',
+        url: '/app/turfs',
         icons: [{ src: 'logo.svg', sizes: '96x96' }],
       },
       {
-        name: 'My Bookings',
-        short_name: 'Bookings',
-        description: 'View your bookings',
-        url: '/player/bookings',
+        name: 'Betting Markets',
+        short_name: 'Betting',
+        description: 'View live betting markets',
+        url: '/app/betting',
+        icons: [{ src: 'logo.svg', sizes: '96x96' }],
+      },
+      {
+        name: 'My Wallet',
+        short_name: 'Wallet',
+        description: 'Manage your wallet and payments',
+        url: '/app/wallet',
+        icons: [{ src: 'logo.svg', sizes: '96x96' }],
+      },
+      {
+        name: 'Betting History',
+        short_name: 'Bets',
+        description: 'View your betting history',
+        url: '/app/betting/history',
         icons: [{ src: 'logo.svg', sizes: '96x96' }],
       },
     ],
@@ -108,14 +122,59 @@ export const pwaConfig: Partial<VitePWAOptions> = {
         },
       },
       {
+        urlPattern: /\/api\/betting\/.*/i,
+        handler: 'NetworkFirst',
+        options: {
+          cacheName: 'betting-api-cache',
+          networkTimeoutSeconds: 5,
+          expiration: {
+            maxEntries: 100,
+            maxAgeSeconds: 2 * 60, // 2 minutes for betting data
+          },
+          cacheableResponse: {
+            statuses: [0, 200],
+          },
+        },
+      },
+      {
+        urlPattern: /\/api\/turfs\/.*\/betting\/.*/i,
+        handler: 'NetworkFirst',
+        options: {
+          cacheName: 'turf-betting-cache',
+          networkTimeoutSeconds: 5,
+          expiration: {
+            maxEntries: 50,
+            maxAgeSeconds: 5 * 60, // 5 minutes for turf betting management
+          },
+          cacheableResponse: {
+            statuses: [0, 200],
+          },
+        },
+      },
+      {
+        urlPattern: /\/api\/wallet\/.*/i,
+        handler: 'NetworkFirst',
+        options: {
+          cacheName: 'wallet-api-cache',
+          networkTimeoutSeconds: 8,
+          expiration: {
+            maxEntries: 30,
+            maxAgeSeconds: 1 * 60, // 1 minute for wallet data
+          },
+          cacheableResponse: {
+            statuses: [0, 200],
+          },
+        },
+      },
+      {
         urlPattern: /\/api\/.*/i,
         handler: 'NetworkFirst',
         options: {
           cacheName: 'api-cache',
           networkTimeoutSeconds: 10,
           expiration: {
-            maxEntries: 50,
-            maxAgeSeconds: 5 * 60, // 5 minutes
+            maxEntries: 200,
+            maxAgeSeconds: 5 * 60, // 5 minutes for general API
           },
           cacheableResponse: {
             statuses: [0, 200],

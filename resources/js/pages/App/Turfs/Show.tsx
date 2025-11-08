@@ -17,6 +17,7 @@ import React, { useState } from 'react';
 
 import { turfApi } from '@/apis/turf';
 import { MatchSessionList } from '../../../components/MatchSessions';
+import { BettingAnalytics } from '../../../components/betting';
 import { Button, Card } from '../../../components/ui';
 import { BankAccountList, TransactionHistory, WalletOverview } from '../../../components/wallet';
 import TurfWalletBalanceDisplay from '../../../components/wallet/TurfWalletBalanceDisplay';
@@ -302,6 +303,26 @@ const TurfDetail: React.FC<TurfDetailProps> = ({ turf }) => {
     </div>
   );
 
+  const renderBettingTab = () => (
+    <div className="space-y-6">
+      {/* Betting Analytics Overview */}
+      <BettingAnalytics turfId={turf.id} />
+
+      {/* Note: Betting markets are now managed directly from individual game matches */}
+      <Card variant="outlined" className="py-8 text-center">
+        <Typography.Title level={4} className="mb-2">
+          Betting Market Management
+        </Typography.Title>
+        <Typography.Text type="secondary" className="mb-4 block">
+          Betting markets are now managed directly from individual game matches.
+        </Typography.Text>
+        <Typography.Text type="secondary" className="text-sm">
+          Go to Match Sessions → View a session → Enable betting on upcoming matches → Manage markets
+        </Typography.Text>
+      </Card>
+    </div>
+  );
+
   return (
     <div className="min-h-screen">
       <div className="container mx-auto px-3 py-4 sm:px-4 sm:py-6">
@@ -457,6 +478,20 @@ const TurfDetail: React.FC<TurfDetailProps> = ({ turf }) => {
                         </>
                       ),
                       children: renderWalletTab(),
+                    },
+                  ]
+                : []),
+              ...(isOwner
+                ? [
+                    {
+                      key: 'betting',
+                      label: (
+                        <>
+                          <span className="hidden sm:inline">Betting</span>
+                          <span className="sm:hidden">Betting</span>
+                        </>
+                      ),
+                      children: renderBettingTab(),
                     },
                   ]
                 : []),

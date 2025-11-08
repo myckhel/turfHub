@@ -28,7 +28,7 @@ const TeamShow: React.FC<TeamShowProps> = ({ turf, matchSession, team }) => {
     <>
       <Head title={`${team.name} - ${matchSession.name} - ${turf.name}`} />
 
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-green-900">
+      <div className="min-h-screen">
         <div className="container mx-auto px-3 py-4 sm:px-4 sm:py-6">
           {/* Header */}
           <Card className="mb-4 sm:mb-6">

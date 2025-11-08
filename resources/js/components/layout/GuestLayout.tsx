@@ -1,7 +1,9 @@
+import type { PageProps } from '@/types/global.types';
 import { CloseOutlined, MenuOutlined } from '@ant-design/icons';
 import { Link, usePage } from '@inertiajs/react';
 import { Button, Layout } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
+import { UserMenu } from '../auth/UserMenu';
 import ThemeToggle from '../shared/ThemeToggle';
 
 const { Header, Content, Footer } = Layout;
@@ -102,7 +104,7 @@ export const GuestLayout: React.FC<GuestLayoutProps> = ({ children }) => {
 const GuestHeader: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
-  const { url, props } = usePage();
+  const { url, props } = usePage<PageProps>();
 
   const isLoggedIn = !!props?.auth?.user;
 
@@ -159,16 +161,16 @@ const GuestHeader: React.FC = () => {
 
         {/* Desktop Navigation */}
         <nav className="hidden items-center space-x-8 md:flex lg:space-x-10">
-          <Link href={route('welcome')} className="font-medium text-white/90 transition-all hover:scale-105 hover:text-white">
+          <Link href={route('welcome')} className="font-medium text-white transition-all hover:scale-105 hover:text-white/80">
             Home
           </Link>
-          <Link href={route('welcome')} className="font-medium text-white/90 transition-all hover:scale-105 hover:text-white">
+          <Link href={route('welcome')} className="font-medium text-white transition-all hover:scale-105 hover:text-white/80">
             About
           </Link>
-          <Link href={route('welcome')} className="font-medium text-white/90 transition-all hover:scale-105 hover:text-white">
+          <Link href={route('welcome')} className="font-medium text-white transition-all hover:scale-105 hover:text-white/80">
             Pricing
           </Link>
-          <Link href={route('welcome')} className="font-medium text-white/90 transition-all hover:scale-105 hover:text-white">
+          <Link href={route('welcome')} className="font-medium text-white transition-all hover:scale-105 hover:text-white/80">
             Contact
           </Link>
         </nav>
@@ -176,35 +178,49 @@ const GuestHeader: React.FC = () => {
         {/* Desktop Auth buttons and Theme Toggle */}
         <div className="hidden items-center space-x-4 md:flex lg:space-x-5">
           <ThemeToggle size="small" className="opacity-70 transition-all hover:scale-110 hover:opacity-100" />
-          <Link href={route('login')}>
-            <Button
-              type="text"
-              className="h-10 border-none px-4 font-medium text-white/90 transition-all hover:scale-105 hover:bg-white/10 hover:text-white"
-            >
-              {isLoggedIn ? 'Dashboard' : 'Sign In'}
-            </Button>
-          </Link>
-          <Link href={route('register')}>
-            <Button
-              type="primary"
-              className="h-10 rounded-lg border-none bg-white px-6 font-semibold text-green-600 shadow-lg transition-all duration-200 hover:scale-105 hover:bg-white/90 hover:shadow-xl"
-            >
-              Get Started
-            </Button>
-          </Link>
+
+          {isLoggedIn ? (
+            <>
+              <Link href={route('dashboard')}>
+                <Button type="text" className="h-10 border-none px-4 font-medium text-white transition-all hover:scale-105 hover:bg-white/10">
+                  Dashboard
+                </Button>
+              </Link>
+              <UserMenu placement="bottomRight" />
+            </>
+          ) : (
+            <>
+              <Link href={route('login')}>
+                <Button type="text" className="h-10 border-none px-4 font-medium text-white transition-all hover:scale-105 hover:bg-white/10">
+                  Sign In
+                </Button>
+              </Link>
+              <Link href={route('register')}>
+                <Button
+                  type="primary"
+                  className="h-10 rounded-lg border-none bg-white px-6 font-semibold text-green-600 shadow-lg transition-all duration-200 hover:scale-105 hover:bg-white/90 hover:shadow-xl"
+                >
+                  Get Started
+                </Button>
+              </Link>
+            </>
+          )}
         </div>
 
-        {/* Mobile: Sign In and Menu Toggle */}
+        {/* Mobile: Auth and Menu Toggle */}
         <div className="flex items-center space-x-2 sm:space-x-3 md:hidden">
           <ThemeToggle size="small" className="opacity-60 transition-all hover:scale-110 hover:opacity-100" />
-          <Link href={route('login')}>
-            <Button
-              type="text"
-              className="h-9 border-none px-3 py-1 text-sm font-medium text-white/90 hover:bg-white/10 hover:text-white active:scale-95"
-            >
-              Sign In
-            </Button>
-          </Link>
+
+          {isLoggedIn ? (
+            <UserMenu placement="bottomRight" />
+          ) : (
+            <Link href={route('login')}>
+              <Button type="text" className="h-9 border-none px-3 py-1 text-sm font-medium text-white hover:bg-white/10 active:scale-95">
+                Sign In
+              </Button>
+            </Link>
+          )}
+
           <Button
             type="text"
             icon={mobileMenuOpen ? <CloseOutlined /> : <MenuOutlined />}
@@ -230,53 +246,69 @@ const GuestHeader: React.FC = () => {
             <div className="space-y-1">
               <Link
                 href={route('welcome')}
-                className="block rounded-xl px-4 py-4 font-medium text-white transition-all hover:bg-white/10 hover:text-white active:scale-[0.98] active:bg-white/20"
+                className="block rounded-xl px-4 py-4 font-medium text-white transition-all hover:bg-white/10 active:scale-[0.98] active:bg-white/20"
                 onClick={closeMobileMenu}
               >
                 Home
               </Link>
               <Link
                 href={route('welcome')}
-                className="block rounded-xl px-4 py-4 font-medium text-white transition-all hover:bg-white/10 hover:text-white active:scale-[0.98] active:bg-white/20"
+                className="block rounded-xl px-4 py-4 font-medium text-white transition-all hover:bg-white/10 active:scale-[0.98] active:bg-white/20"
                 onClick={closeMobileMenu}
               >
                 About
               </Link>
               <Link
                 href={route('welcome')}
-                className="block rounded-xl px-4 py-4 font-medium text-white transition-all hover:bg-white/10 hover:text-white active:scale-[0.98] active:bg-white/20"
+                className="block rounded-xl px-4 py-4 font-medium text-white transition-all hover:bg-white/10 active:scale-[0.98] active:bg-white/20"
                 onClick={closeMobileMenu}
               >
                 Pricing
               </Link>
               <Link
                 href={route('welcome')}
-                className="block rounded-xl px-4 py-4 font-medium text-white transition-all hover:bg-white/10 hover:text-white active:scale-[0.98] active:bg-white/20"
+                className="block rounded-xl px-4 py-4 font-medium text-white transition-all hover:bg-white/10 active:scale-[0.98] active:bg-white/20"
                 onClick={closeMobileMenu}
               >
                 Contact
               </Link>
             </div>
 
-            {/* Mobile Auth Buttons */}
-            <div className="mt-8 flex flex-col space-y-4 border-t pt-8" style={{ borderColor: 'rgba(255, 255, 255, 0.1)' }}>
-              <Link href={route('login')} onClick={closeMobileMenu} className="w-full">
-                <Button
-                  type="text"
-                  className="h-14 w-full rounded-xl border border-white/20 font-semibold text-white transition-all hover:border-white/40 hover:bg-white/10 hover:text-white active:scale-[0.98]"
-                >
-                  Sign In
-                </Button>
-              </Link>
-              <Link href={route('register')} onClick={closeMobileMenu} className="w-full">
-                <Button
-                  type="primary"
-                  className="h-14 w-full rounded-xl border-none bg-white font-bold text-green-600 shadow-lg transition-all duration-200 hover:bg-white/90 hover:shadow-xl active:scale-[0.98]"
-                >
-                  Get Started
-                </Button>
-              </Link>
-            </div>
+            {/* Mobile Auth Buttons - Only show for guests */}
+            {!isLoggedIn && (
+              <div className="mt-8 flex flex-col space-y-4 border-t pt-8" style={{ borderColor: 'rgba(255, 255, 255, 0.1)' }}>
+                <Link href={route('login')} onClick={closeMobileMenu} className="w-full">
+                  <Button
+                    type="text"
+                    className="h-14 w-full rounded-xl border border-white/20 font-semibold text-white transition-all hover:border-white/40 hover:bg-white/10 active:scale-[0.98]"
+                  >
+                    Sign In
+                  </Button>
+                </Link>
+                <Link href={route('register')} onClick={closeMobileMenu} className="w-full">
+                  <Button
+                    type="primary"
+                    className="h-14 w-full rounded-xl border-none bg-white font-bold text-green-600 shadow-lg transition-all duration-200 hover:bg-white/90 hover:shadow-xl active:scale-[0.98]"
+                  >
+                    Get Started
+                  </Button>
+                </Link>
+              </div>
+            )}
+
+            {/* Mobile Dashboard Link - Only show for authenticated users */}
+            {isLoggedIn && (
+              <div className="mt-8 border-t pt-8" style={{ borderColor: 'rgba(255, 255, 255, 0.1)' }}>
+                <Link href={route('dashboard')} onClick={closeMobileMenu} className="w-full">
+                  <Button
+                    type="primary"
+                    className="h-14 w-full rounded-xl border-none bg-white font-bold text-green-600 shadow-lg transition-all duration-200 hover:bg-white/90 hover:shadow-xl active:scale-[0.98]"
+                  >
+                    Go to Dashboard
+                  </Button>
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       )}

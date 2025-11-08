@@ -69,6 +69,15 @@ class TurfResource extends JsonResource
         'formatted_fee' => $this->requiresTeamSlotFee() ?
           number_format($this->getTeamSlotFee(), 2) : null,
       ],
+
+      // Settings information
+      'settings' => $this->getSettings(),
+      'payment_methods' => [
+        'enabled' => $this->getPaymentMethods(),
+        'cash_enabled' => $this->isPaymentMethodEnabled('cash'),
+        'wallet_enabled' => $this->isPaymentMethodEnabled('wallet'),
+        'online_enabled' => $this->isPaymentMethodEnabled('online'),
+      ],
     ];
   }
 

@@ -85,11 +85,30 @@ export interface ApiError {
 export default apiClient;
 
 // Re-export API modules
+export { bettingApi } from './betting';
+export { bettingMarketApi } from './bettingMarket';
 export { matchSessionApi } from './matchSession';
 export { playerApi } from './player';
 export { turfApi } from './turf';
 
 // Re-export types
+export type {
+  Bet,
+  BetResponse,
+  BetStatus,
+  BettingFilters,
+  BettingHistoryResponse,
+  BettingMarket,
+  BettingMarketResponse,
+  BettingStatsFilters,
+  BettingStatsResponse,
+  CreateMarketRequest,
+  MarketStatus,
+  MarketType,
+  PaymentMethod,
+  PlaceBetRequest,
+  SettleMarketRequest,
+} from '../types/betting.types';
 export type {
   AddPlayerToTeamRequest,
   CreateMatchSessionRequest,

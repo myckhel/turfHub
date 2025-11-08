@@ -32,6 +32,7 @@ class Turf extends Model implements Wallet
     'max_players_per_team',
     'team_slot_fee',
     'is_active',
+    'settings',
   ];
 
   /**
@@ -46,6 +47,7 @@ class Turf extends Model implements Wallet
       'membership_fee' => 'decimal:2',
       'team_slot_fee' => 'decimal:2',
       'is_active' => 'boolean',
+      'settings' => 'array',
     ];
   }
 
@@ -162,5 +164,74 @@ class Turf extends Model implements Wallet
     return $this->morphOne(BankAccount::class, 'accountable')
       ->where('is_active', true)
       ->orderBy('created_at', 'asc');
+  }
+
+  /**
+   * Get turf settings with defaults.
+   */
+  public function getSettings(): array
+  {
+    $defaultSettings = [
+      'payment_methods' => [
+        'cash_enabled' => true,
+        'wallet_enabled' => true,
+        'online_enabled' => true,
+      ],
+    ];
+
+    if (!$this->settings) {
+      return $defaultSettings;
+    }
+
+    return array_merge($defaultSettings, $this->settings);
+  }
+
+  /**
+   * Update turf settings.
+   */
+  public function updateSettings(array $settings): bool
+  {
+    $currentSettings = $this->getSettings();
+    $mergedSettings = array_replace_recursive($currentSettings, $settings);
+
+    return $this->update(['settings' => $mergedSettings]);
+  }
+
+  /**
+   * Get enabled payment methods.
+   */
+  public function getPaymentMethods(): array
+  {
+    $settings = $this->getSettings();
+    $paymentMethods = $settings['payment_methods'] ?? [];
+
+    $enabled = [];
+    if ($paymentMethods['cash_enabled'] ?? false) {
+      $enabled[] = 'cash';
+    }
+    if ($paymentMethods['wallet_enabled'] ?? false) {
+      $enabled[] = 'wallet';
+    }
+    if ($paymentMethods['online_enabled'] ?? false) {
+      $enabled[] = 'online';
+    }
+
+    return $enabled;
+  }
+
+  /**
+   * Check if a specific payment method is enabled.
+   */
+  public function isPaymentMethodEnabled(string $method): bool
+  {
+    $settings = $this->getSettings();
+    $paymentMethods = $settings['payment_methods'] ?? [];
+
+    return match($method) {
+      'cash', 'offline' => $paymentMethods['cash_enabled'] ?? false,
+      'wallet' => $paymentMethods['wallet_enabled'] ?? false,
+      'online', 'paystack' => $paymentMethods['online_enabled'] ?? false,
+      default => false,
+    };
   }
 }

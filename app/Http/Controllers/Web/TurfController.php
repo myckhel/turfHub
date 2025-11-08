@@ -67,4 +67,21 @@ class TurfController extends Controller
       'turf' => $turfWithRelations
     ]);
   }
+
+  /**
+   * Show the settings page for the specified turf.
+   */
+  public function settings(Turf $turf): Response
+  {
+    // Check authorization - only owner or users with can_manage_turf permission
+    $this->authorize('update', $turf);
+
+    // Load relationships if needed
+    $includes = ['owner'];
+    $turfWithRelations = $this->turfService->getTurfWithRelations($turf, $includes);
+
+    return Inertia::render('App/Turfs/Settings', [
+      'turf' => $turfWithRelations
+    ]);
+  }
 }

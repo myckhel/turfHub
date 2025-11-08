@@ -86,6 +86,16 @@ export const matchEventApi = {
   getByGameMatch: async (gameMatchId: number, params?: Omit<MatchEventFilters, 'game_match_id'>): Promise<MatchEventListResponse> => {
     return matchEventApi.getAll({ ...params, game_match_id: gameMatchId });
   },
+
+  // Enable betting for a game match (moved to bettingMarketApi for better organization)
+  enableBetting: async (gameMatchId: number): Promise<{ message: string }> => {
+    return api.post(route('api.betting.game-matches.enable-betting', { gameMatch: gameMatchId }));
+  },
+
+  // Disable betting for a game match (moved to bettingMarketApi for better organization)
+  disableBetting: async (gameMatchId: number): Promise<{ message: string }> => {
+    return api.post(route('api.betting.game-matches.disable-betting', { gameMatch: gameMatchId }));
+  },
 };
 
 export default { gameMatchApi, matchEventApi };

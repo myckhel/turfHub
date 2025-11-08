@@ -1,0 +1,318 @@
+# Betting Receipt Payment Flow
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    BETTING RECEIPT PAYMENT FLOW                          │
+└─────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────┐
+│   PLAYER     │
+└──────┬───────┘
+       │
+       │ 1. Select Market & Stake
+       ↓
+┌──────────────────────────┐
+│   Payment Method?        │
+└──────┬───────────────────┘
+       │
+   ┌───┴───┬───────────┬──────────┐
+   │       │           │          │
+   ↓       ↓           ↓          ↓
+ Online  Offline     Wallet    Cancel
+(Paystack) (Cash)   (Balance)
+   │       │           │
+   │       │ 2. Upload Receipt (Required!)
+   │       ↓
+   │  ┌────────────────┐
+   │  │ Receipt File   │
+   │  │ • jpeg/png/pdf │
+   │  │ • Max 5MB      │
+   │  └────────┬───────┘
+   │           │
+   │           │ 3. Validate & Store
+   │           ↓
+   │  ┌─────────────────────┐
+   │  │ Media Library       │
+   │  │ • Store original    │
+   │  │ • Generate thumb    │
+   │  │ • Generate preview  │
+   │  └────────┬────────────┘
+   │           │
+   ↓           ↓
+┌──────────────────────────┐
+│   BET CREATED            │
+│   status: pending        │
+│   payment_status: pending│
+│   has_receipt: true      │
+└──────────┬───────────────┘
+           │
+           │ 4. Notify Manager
+           ↓
+    ┌──────────────┐
+    │   MANAGER    │
+    └──────┬───────┘
+           │
+           │ 5. View Pending Bets
+           ↓
+    ┌──────────────────────┐
+    │ Filter: payment_status│
+    │       = pending      │
+    └──────┬───────────────┘
+           │
+           │ 6. Click Bet Details
+           ↓
+    ┌──────────────────────┐
+    │ View Bet Information │
+    │ • Player details     │
+    │ • Stake amount       │
+    │ • Market option      │
+    │ • Receipt image      │
+    └──────┬───────────────┘
+           │
+           │ 7. View Receipt
+           ↓
+    ┌──────────────────────┐
+    │ Receipt Display      │
+    │ • Click to view full │
+    │ • Download option    │
+    │ • Zoom/preview       │
+    └──────┬───────────────┘
+           │
+           │ 8. Verify Payment Offline
+           │    (Check cash/bank)
+           ↓
+    ┌──────────────────────┐
+    │ Verify Payment?      │
+    └──────┬───────────────┘
+           │
+      ┌────┴────┐
+      │         │
+      ↓         ↓
+   Confirm   Reject
+      │         │
+      │         │ Cancel bet &
+      │         │ notify player
+      │         ↓
+      │    [END]
+      │
+      │ 9. Add Notes (optional)
+      ↓
+┌──────────────────────────┐
+│ Confirm Payment          │
+│ • Add notes              │
+│ • Click confirm          │
+└──────┬───────────────────┘
+       │
+       │ 10. Update Bet Status
+       ↓
+┌──────────────────────────┐
+│   BET CONFIRMED          │
+│   status: active         │
+│   payment_status:        │
+│        confirmed         │
+│   payment_confirmed_at:  │
+│        timestamp         │
+└──────┬───────────────────┘
+       │
+       │ 11. Notify Player
+       ↓
+┌──────────────────────────┐
+│   PLAYER NOTIFIED        │
+│   • Email/SMS            │
+│   • In-app notification  │
+└──────────────────────────┘
+
+
+═══════════════════════════════════════════════════════════════════
+
+                        TECHNICAL FLOW
+
+┌─────────────────────────────────────────────────────────────────┐
+│ POST /api/betting/bets                                          │
+├─────────────────────────────────────────────────────────────────┤
+│ Request:                                                        │
+│   FormData {                                                    │
+│     market_option_id: 1                                         │
+│     stake_amount: 100                                           │
+│     payment_method: "offline"                                   │
+│     receipt: File                                               │
+│   }                                                             │
+│                                                                 │
+│ ↓ BettingController::placeBet()                                │
+│   • Validate request                                            │
+│   • Check receipt for offline                                   │
+│                                                                 │
+│ ↓ BettingService::placeBet()                                   │
+│   • Create bet record                                           │
+│   • Attach receipt to bet                                       │
+│   • Generate conversions                                        │
+│                                                                 │
+│ ↓ Bet Model                                                     │
+│   • HasMedia interface                                          │
+│   • payment_receipts collection                                 │
+│   • Auto conversions: thumb, preview                            │
+│                                                                 │
+│ Response:                                                       │
+│   {                                                             │
+│     "id": 1,                                                    │
+│     "status": "pending",                                        │
+│     "payment_status": "pending",                                │
+│     "has_receipt": true,                                        │
+│     "receipt": {                                                │
+│       "url": "...",                                             │
+│       "preview_url": "...",                                     │
+│       "thumb_url": "..."                                        │
+│     }                                                           │
+│   }                                                             │
+└─────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────────────────────────┐
+│ POST /api/betting/confirm-offline-payment                       │
+├─────────────────────────────────────────────────────────────────┤
+│ Request:                                                        │
+│   {                                                             │
+│     "bet_id": 1,                                                │
+│     "notes": "Cash payment verified at turf"                    │
+│   }                                                             │
+│                                                                 │
+│ ↓ BettingController::confirmOfflinePayment()                   │
+│   • Find bet                                                    │
+│   • Authorize (manager/admin)                                   │
+│                                                                 │
+│ ↓ BettingService::confirmOfflinePayment()                      │
+│   • Check payment_method = offline                              │
+│   • Check receipt exists                                        │
+│   • Update bet status → active                                  │
+│   • Update payment_status → confirmed                           │
+│   • Set payment_confirmed_at                                    │
+│   • Get receipt information                                     │
+│                                                                 │
+│ Response:                                                       │
+│   {                                                             │
+│     "status": true,                                             │
+│     "message": "Payment confirmed",                             │
+│     "data": { ...bet with receipt... },                         │
+│     "receipt": { ...receipt info... }                           │
+│   }                                                             │
+└─────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════
+
+                        FILE STORAGE
+
+┌─────────────────────────────────────────────────────────────────┐
+│                         Media Library                            │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  storage/app/public/media/                                      │
+│    └── 1/                        ← Media ID                     │
+│        ├── receipt.jpg           ← Original                     │
+│        └── conversions/                                         │
+│            ├── receipt-thumb.jpg    (200x200)                   │
+│            └── receipt-preview.jpg  (800x600)                   │
+│                                                                 │
+│  Database: media table                                          │
+│    ├── id: 1                                                    │
+│    ├── model_type: "App\Models\Bet"                            │
+│    ├── model_id: 1                                              │
+│    ├── collection_name: "payment_receipts"                      │
+│    ├── file_name: "receipt.jpg"                                 │
+│    ├── mime_type: "image/jpeg"                                  │
+│    ├── size: 245678                                             │
+│    ├── generated_conversions: ["thumb", "preview"]              │
+│    └── created_at: "2025-11-08 12:00:00"                       │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════
+
+                      STATE TRANSITIONS
+
+┌─────────────┐
+│ Bet Created │
+└──────┬──────┘
+       │ payment_method: offline
+       │ receipt: uploaded
+       ↓
+┌─────────────────────────┐
+│ PENDING                 │
+│ status: pending         │
+│ payment_status: pending │
+└──────┬──────────────────┘
+       │
+       │ Manager confirms
+       ↓
+┌─────────────────────────┐
+│ ACTIVE                  │
+│ status: active          │
+│ payment_status:         │
+│      confirmed          │
+└──────┬──────────────────┘
+       │
+       │ Market settles
+       ↓
+┌─────────────────────────┐
+│ SETTLED                 │
+│ status: won/lost        │
+│ settled_at: timestamp   │
+└─────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════
+
+                    AUTHORIZATION MATRIX
+
+┌──────────────┬─────────┬─────────┬─────────┬─────────┐
+│   Action     │ Player  │  Owner  │ Manager │  Admin  │
+├──────────────┼─────────┼─────────┼─────────┼─────────┤
+│ Place Bet    │   ✓     │   ✓     │   ✓     │   ✓     │
+│ Upload       │   ✗     │   ✓     │   ✗     │   ✗     │
+│ Receipt      │         │ (owner) │         │         │
+│ View Receipt │   ✗     │   ✓     │   ✓     │   ✓     │
+│ Confirm      │   ✗     │   ✗     │   ✓     │   ✓     │
+│ Payment      │         │         │         │         │
+└──────────────┴─────────┴─────────┴─────────┴─────────┘
+
+═══════════════════════════════════════════════════════════════════
+
+                    ERROR SCENARIOS
+
+❌ No receipt uploaded (offline payment)
+   → 422 Validation Error: "Receipt is required"
+
+❌ Invalid file type
+   → 422 Validation Error: "Invalid file format"
+
+❌ File too large (>5MB)
+   → 422 Validation Error: "File size exceeds limit"
+
+❌ Upload receipt for online payment
+   → 400 Bad Request: "Receipt only for offline payments"
+
+❌ Confirm without receipt
+   → 400 Bad Request: "Cannot confirm: Receipt not found"
+
+❌ Upload after confirmation
+   → 400 Bad Request: "Cannot upload: Payment confirmed"
+
+❌ Unauthorized upload
+   → 403 Forbidden: "Not authorized"
+
+═══════════════════════════════════════════════════════════════════
+
+                    BEST PRACTICES
+
+✅ Always validate file before upload
+✅ Show upload progress to user
+✅ Display receipt preview after upload
+✅ Allow zoom/fullscreen for receipt viewing
+✅ Provide download option for managers
+✅ Show clear error messages
+✅ Auto-retry failed conversions
+✅ Log receipt upload events
+✅ Notify manager of pending confirmations
+✅ Send confirmation notification to player
+
+═══════════════════════════════════════════════════════════════════
+```

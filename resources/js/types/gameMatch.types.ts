@@ -11,6 +11,7 @@ export interface GameMatch {
   outcome?: 'win' | 'loss' | 'draw';
   match_time: string;
   status: 'upcoming' | 'in_progress' | 'completed' | 'postponed';
+  betting_enabled?: boolean;
   created_at: string;
   updated_at: string;
 
@@ -19,6 +20,11 @@ export interface GameMatch {
     id: number;
     name: string;
     status: string;
+    turf?: {
+      id: number;
+      name: string;
+      location?: string;
+    };
   };
   first_team?: {
     id: number;

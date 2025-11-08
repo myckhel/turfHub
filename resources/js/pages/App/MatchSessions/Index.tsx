@@ -24,7 +24,7 @@ const Index: React.FC<IndexProps> = ({ turf }) => {
   return (
     <>
       <Head title={`Match Sessions - ${turf.name}`} />
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-green-900">
+      <div className="min-h-screen">
         <div className="container mx-auto px-4 py-6">
           {/* Header Section */}
           {canManageSessions && (

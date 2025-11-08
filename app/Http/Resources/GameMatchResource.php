@@ -25,6 +25,7 @@ class GameMatchResource extends JsonResource
             'outcome' => $this->outcome,
             'match_time' => $this->match_time,
             'status' => $this->status,
+            'betting_enabled' => $this->betting_enabled,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
 

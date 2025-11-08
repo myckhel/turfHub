@@ -7,6 +7,11 @@ export interface User {
   email: string;
   avatar?: string;
   email_verified_at?: string;
+  roles?: Array<{
+    id: number;
+    name: string;
+    guard_name: string;
+  }>;
 }
 
 interface AuthState {

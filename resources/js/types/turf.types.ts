@@ -1,3 +1,18 @@
+export interface TurfSettings {
+  payment_methods: {
+    cash_enabled: boolean;
+    wallet_enabled: boolean;
+    online_enabled: boolean;
+  };
+}
+
+export interface TurfPaymentMethods {
+  enabled: string[];
+  cash_enabled: boolean;
+  wallet_enabled: boolean;
+  online_enabled: boolean;
+}
+
 export interface Turf {
   id: number;
   name: string;
@@ -12,6 +27,8 @@ export interface Turf {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  settings?: TurfSettings;
+  payment_methods?: TurfPaymentMethods;
   owner?: {
     id: number;
     name: string;

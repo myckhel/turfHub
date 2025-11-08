@@ -192,7 +192,8 @@ class TurfPermissionService
         'remove players',
         'manage match sessions',
         'create teams',
-        'view turf analytics'
+        'view turf analytics',
+        'manage teams',
       ];
       return in_array($permission, $managerPermissions);
     }

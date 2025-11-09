@@ -16,10 +16,12 @@ use Illuminate\Support\Facades\DB;
 class PlayerService
 {
   protected PaymentService $paymentService;
+  protected TurfPermissionService $turfPermissionService;
 
-  public function __construct(PaymentService $paymentService)
+  public function __construct(PaymentService $paymentService, TurfPermissionService $turfPermissionService)
   {
     $this->paymentService = $paymentService;
+    $this->turfPermissionService = $turfPermissionService;
   }
 
   /**
@@ -571,5 +573,40 @@ class PlayerService
         'message' => 'Failed to add player to match session: ' . $e->getMessage()
       ];
     }
+  }
+
+  /**
+   * Update a player's role within their turf.
+   */
+  public function updatePlayerRole(Player $player, string $newRole): Player
+  {
+    $currentRole = $this->getPlayerRole($player);
+
+    // Remove old role if exists
+    if ($currentRole) {
+      $this->turfPermissionService->removeRoleFromUserInTurf($player->user, $currentRole, $player->turf_id);
+    }
+
+    // Assign new role
+    $this->turfPermissionService->assignRoleToUserInTurf($player->user, $newRole, $player->turf_id);
+
+    // Refresh player to get updated relationships
+    return $player->fresh();
+  }
+
+  /**
+   * Get a player's current role in their turf.
+   */
+  public function getPlayerRole(Player $player): ?string
+  {
+    $roles = [\App\Models\User::TURF_ROLE_ADMIN, \App\Models\User::TURF_ROLE_MANAGER, \App\Models\User::TURF_ROLE_PLAYER];
+
+    foreach ($roles as $role) {
+      if ($player->hasRoleInTurf($role)) {
+        return $role;
+      }
+    }
+
+    return null;
   }
 }

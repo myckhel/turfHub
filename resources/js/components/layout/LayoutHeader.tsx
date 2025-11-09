@@ -1,11 +1,4 @@
-import {
-  ArrowLeftOutlined,
-  BellOutlined,
-  LogoutOutlined,
-  MenuOutlined,
-  SettingOutlined,
-  UserOutlined,
-} from '@ant-design/icons';
+import { ArrowLeftOutlined, BellOutlined, LogoutOutlined, MenuOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
 import { Link } from '@inertiajs/react';
 import { Avatar, Badge, Button, Dropdown, Layout, MenuProps } from 'antd';
 import { memo } from 'react';

@@ -17,7 +17,7 @@ class UserResource extends JsonResource
     return [
       'id' => $this->id,
       'name' => $this->name,
-      'email' => $this->email,
+      // 'email' => $this->email,
       // 'role' - removed as roles are now managed through Laravel Permission package
       // Use getRoleNames() or hasRole() methods to check user roles
       'email_verified_at' => $this->email_verified_at,

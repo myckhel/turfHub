@@ -72,6 +72,10 @@ Route::middleware('auth:sanctum')->name('api.')->group(function () {
   Route::apiResource('users', UserController::class);
   Route::apiResource('turfs', TurfController::class);
   Route::apiResource('players', PlayerController::class);
+
+  // Player role management
+  Route::put('players/{player}/role', [PlayerController::class, 'updateRole'])->name('players.update-role');
+
   Route::apiResource('teams', TeamController::class);
   Route::apiResource('match-sessions', MatchSessionController::class);
   Route::apiResource('game-matches', GameMatchController::class);

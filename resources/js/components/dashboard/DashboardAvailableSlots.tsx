@@ -24,7 +24,7 @@ const DashboardAvailableSlots: React.FC<DashboardAvailableSlotsProps> = memo(({ 
       title={
         <div className="flex items-center gap-2">
           <TeamOutlined className="text-blue-500" />
-          <span>Live Match Session</span>
+          <span>Active Match Session</span>
           <Tag color="green" className="ml-auto">
             ACTIVE
           </Tag>

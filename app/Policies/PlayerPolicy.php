@@ -94,4 +94,14 @@ class PlayerPolicy
         // User can make payments only for their own player record
         return $player->user_id === $user->id && $player->status === 'active';
     }
+
+    /**
+     * Determine whether the user can update a player's role.
+     * Only turf admins can manage player roles.
+     */
+    public function updateRole(User $user, Player $player): bool
+    {
+        // Only turf admins can manage roles
+        return $user->hasRoleOnTurf(User::TURF_ROLE_ADMIN, $player->turf_id);
+    }
 }

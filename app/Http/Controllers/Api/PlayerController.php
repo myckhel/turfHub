@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StorePlayerRequest;
 use App\Http\Requests\UpdatePlayerRequest;
+use App\Http\Requests\UpdatePlayerRoleRequest;
 use App\Http\Requests\JoinTeamRequest;
 use App\Http\Requests\LeaveTeamRequest;
 use App\Http\Resources\PlayerResource;
@@ -13,6 +14,7 @@ use App\Http\Resources\TeamResource;
 use App\Models\Player;
 use App\Models\MatchSession;
 use App\Models\Team;
+use App\Models\Turf;
 use App\Services\PlayerService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
@@ -34,9 +36,14 @@ class PlayerController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request): AnonymousResourceCollection
+    public function index(Request $request, ?Turf $turf = null): AnonymousResourceCollection
     {
         $this->authorize('viewAny', Player::class);
+
+        // Add turf_id to request when turf binding is present
+        if ($turf) {
+            $request->merge(['turf_id' => $turf->id]);
+        }
 
         $players = $this->playerService->getPlayers($request);
 
@@ -239,5 +246,18 @@ class PlayerController extends Controller
                 'reason' => $e->getMessage(),
             ], 400);
         }
+    }
+
+    /**
+     * Update a player's role within their turf.
+     * Only admins can promote or demote players.
+     */
+    public function updateRole(UpdatePlayerRoleRequest $request, Player $player): PlayerResource
+    {
+        $this->authorize('updateRole', $player);
+
+        $player = $this->playerService->updatePlayerRole($player, $request->validated('role'));
+
+        return new PlayerResource($player);
     }
 }

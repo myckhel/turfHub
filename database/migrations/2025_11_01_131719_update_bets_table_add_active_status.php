@@ -11,12 +11,27 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('bets', function (Blueprint $table) {
-            // Update status enum to include 'active'
-            $table->enum('status', ['pending', 'active', 'won', 'lost', 'cancelled', 'refunded'])
-                ->default('pending')
-                ->change();
-        });
+        // Update status enum to include 'active' (PostgreSQL & MySQL compatible)
+        $driver = Schema::getConnection()->getDriverName();
+
+        if ($driver === 'pgsql') {
+            // PostgreSQL: Drop and recreate the column
+            Schema::table('bets', function (Blueprint $table) {
+                $table->dropColumn('status');
+            });
+            Schema::table('bets', function (Blueprint $table) {
+                $table->enum('status', ['pending', 'active', 'won', 'lost', 'cancelled', 'refunded'])
+                    ->default('pending')
+                    ->after('id');
+            });
+        } else {
+            // MySQL: Use change() method
+            Schema::table('bets', function (Blueprint $table) {
+                $table->enum('status', ['pending', 'active', 'won', 'lost', 'cancelled', 'refunded'])
+                    ->default('pending')
+                    ->change();
+            });
+        }
     }
 
     /**
@@ -24,11 +39,26 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('bets', function (Blueprint $table) {
-            // Revert status enum to original values
-            $table->enum('status', ['pending', 'won', 'lost', 'cancelled', 'refunded'])
-                ->default('pending')
-                ->change();
-        });
+        // Revert status enum to original values (PostgreSQL & MySQL compatible)
+        $driver = Schema::getConnection()->getDriverName();
+
+        if ($driver === 'pgsql') {
+            // PostgreSQL: Drop and recreate the column
+            Schema::table('bets', function (Blueprint $table) {
+                $table->dropColumn('status');
+            });
+            Schema::table('bets', function (Blueprint $table) {
+                $table->enum('status', ['pending', 'won', 'lost', 'cancelled', 'refunded'])
+                    ->default('pending')
+                    ->after('id');
+            });
+        } else {
+            // MySQL: Use change() method
+            Schema::table('bets', function (Blueprint $table) {
+                $table->enum('status', ['pending', 'won', 'lost', 'cancelled', 'refunded'])
+                    ->default('pending')
+                    ->change();
+            });
+        }
     }
 };

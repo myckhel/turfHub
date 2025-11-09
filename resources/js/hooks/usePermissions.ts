@@ -145,6 +145,8 @@ export const usePermissions = () => {
     isGuest: () => !user,
   };
 
+  console.log({ roles, currentTurfRole });
+
   // Enhanced helper functions
   const helpers = {
     // Check if user has specific permission in current turf context

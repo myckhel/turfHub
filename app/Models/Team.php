@@ -54,8 +54,7 @@ class Team extends Model
    */
   public function captain(): BelongsTo
   {
-    // Assuming captain_id refers to a User model. If it refers to a Player model, change accordingly.
-    return $this->belongsTo(User::class, 'captain_id');
+    return $this->belongsTo(Player::class, 'captain_id');
   }
 
   /**

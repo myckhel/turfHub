@@ -135,11 +135,9 @@ describe('Authentication API', function () {
 
       $response->assertStatus(200)
         ->assertJson([
-          'data' => [
-            'id' => $user->id,
-            'email' => $user->email,
-            'name' => $user->name,
-          ],
+          'id' => $user->id,
+          'email' => $user->email,
+          'name' => $user->name,
         ]);
     });
 
@@ -195,10 +193,8 @@ describe('Authentication API', function () {
 
       $response->assertStatus(200)
         ->assertJson([
-          'data' => [
-            'id' => $user->id,
-            'email' => $user->email,
-          ],
+          'id' => $user->id,
+          'email' => $user->email,
         ]);
     });
 

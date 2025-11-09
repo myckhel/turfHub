@@ -28,8 +28,19 @@ class GameMatchObserverTest extends TestCase
     $user = User::factory()->create();
     $turf = Turf::factory()->create(['owner_id' => $user->id]);
     $matchSession = MatchSession::factory()->create(['turf_id' => $turf->id]);
-    $team1 = Team::factory()->create(['match_session_id' => $matchSession->id]);
-    $team2 = Team::factory()->create(['match_session_id' => $matchSession->id]);
+
+    // Create players for the turf
+    $player1 = \App\Models\Player::factory()->create(['turf_id' => $turf->id]);
+    $player2 = \App\Models\Player::factory()->create(['turf_id' => $turf->id]);
+
+    $team1 = Team::factory()->create([
+      'match_session_id' => $matchSession->id,
+      'captain_id' => $player1->id,
+    ]);
+    $team2 = Team::factory()->create([
+      'match_session_id' => $matchSession->id,
+      'captain_id' => $player2->id,
+    ]);
 
     // Create a game match
     $gameMatch = GameMatch::factory()->create([
@@ -58,8 +69,19 @@ class GameMatchObserverTest extends TestCase
     $user = User::factory()->create();
     $turf = Turf::factory()->create(['owner_id' => $user->id]);
     $matchSession = MatchSession::factory()->create(['turf_id' => $turf->id]);
-    $team1 = Team::factory()->create(['match_session_id' => $matchSession->id]);
-    $team2 = Team::factory()->create(['match_session_id' => $matchSession->id]);
+
+    // Create players for the turf
+    $player1 = \App\Models\Player::factory()->create(['turf_id' => $turf->id]);
+    $player2 = \App\Models\Player::factory()->create(['turf_id' => $turf->id]);
+
+    $team1 = Team::factory()->create([
+      'match_session_id' => $matchSession->id,
+      'captain_id' => $player1->id,
+    ]);
+    $team2 = Team::factory()->create([
+      'match_session_id' => $matchSession->id,
+      'captain_id' => $player2->id,
+    ]);
 
     // Create a game match
     $gameMatch = GameMatch::factory()->create([
@@ -84,8 +106,19 @@ class GameMatchObserverTest extends TestCase
     $user = User::factory()->create();
     $turf = Turf::factory()->create(['owner_id' => $user->id]);
     $matchSession = MatchSession::factory()->create(['turf_id' => $turf->id]);
-    $team1 = Team::factory()->create(['match_session_id' => $matchSession->id]);
-    $team2 = Team::factory()->create(['match_session_id' => $matchSession->id]);
+
+    // Create players for the turf
+    $player1 = \App\Models\Player::factory()->create(['turf_id' => $turf->id]);
+    $player2 = \App\Models\Player::factory()->create(['turf_id' => $turf->id]);
+
+    $team1 = Team::factory()->create([
+      'match_session_id' => $matchSession->id,
+      'captain_id' => $player1->id,
+    ]);
+    $team2 = Team::factory()->create([
+      'match_session_id' => $matchSession->id,
+      'captain_id' => $player2->id,
+    ]);
 
     // Create a game match that's already completed
     $gameMatch = GameMatch::factory()->create([

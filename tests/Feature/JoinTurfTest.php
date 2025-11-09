@@ -31,15 +31,13 @@ test('user can join active turf', function () {
 
   $response->assertStatus(201);
   $response->assertJsonStructure([
-    'data' => [
-      'id',
-      'user_id',
-      'turf_id',
-      'is_member',
-      'status',
-      'created_at',
-      'updated_at'
-    ]
+    'id',
+    'user_id',
+    'turf_id',
+    'is_member',
+    'status',
+    'created_at',
+    'updated_at'
   ]);
 
   // Verify player record was created

@@ -116,14 +116,12 @@ class AuthApiTest extends TestCase
 
     $response->assertStatus(200)
       ->assertJsonStructure([
-        'data' => [
-          'id',
-          'name',
-          'email',
-          'email_verified_at',
-          'created_at',
-          'updated_at',
-        ],
+        'id',
+        'name',
+        'email',
+        'email_verified_at',
+        'created_at',
+        'updated_at',
       ]);
   }
 

@@ -69,7 +69,12 @@ test('user belonging turfs returns correct permissions per turf', function () {
     ->getJson("/api/users/{$user->id}/belonging-turfs");
 
   $response->assertStatus(200);
-  $turfs = $response->json('data');
+  $turfs = $response->json();
+  
+  // Debug: Check if data is wrapped or not
+  if (isset($turfs['data'])) {
+    $turfs = $turfs['data'];
+  }
 
   // Find each turf in the response
   $turfData1 = collect($turfs)->firstWhere('id', $turf1->id);

@@ -70,14 +70,16 @@ class PaymentServiceTest extends TestCase
         // Create some test payments
         Payment::factory()->count(3)->create([
             'user_id' => $this->user->id,
-            'match_session_id' => $this->matchSession->id,
+            'payable_type' => \App\Models\MatchSession::class,
+            'payable_id' => $this->matchSession->id,
             'status' => Payment::STATUS_SUCCESS,
             'amount' => 1000.00
         ]);
 
         Payment::factory()->create([
             'user_id' => $this->user->id,
-            'match_session_id' => $this->matchSession->id,
+            'payable_type' => \App\Models\MatchSession::class,
+            'payable_id' => $this->matchSession->id,
             'status' => Payment::STATUS_PENDING,
             'amount' => 500.00
         ]);
@@ -95,21 +97,24 @@ class PaymentServiceTest extends TestCase
         // Create payments for the match session
         Payment::factory()->count(2)->create([
             'user_id' => $this->user->id,
-            'match_session_id' => $this->matchSession->id,
+            'payable_type' => \App\Models\MatchSession::class,
+            'payable_id' => $this->matchSession->id,
             'status' => Payment::STATUS_SUCCESS,
             'amount' => 1000.00
         ]);
 
         Payment::factory()->create([
             'user_id' => $this->user->id,
-            'match_session_id' => $this->matchSession->id,
+            'payable_type' => \App\Models\MatchSession::class,
+            'payable_id' => $this->matchSession->id,
             'status' => Payment::STATUS_PENDING,
             'amount' => 500.00
         ]);
 
         Payment::factory()->create([
             'user_id' => $this->user->id,
-            'match_session_id' => $this->matchSession->id,
+            'payable_type' => \App\Models\MatchSession::class,
+            'payable_id' => $this->matchSession->id,
             'status' => Payment::STATUS_FAILED,
             'amount' => 750.00
         ]);
@@ -129,7 +134,8 @@ class PaymentServiceTest extends TestCase
     {
         $payment = Payment::factory()->create([
             'user_id' => $this->user->id,
-            'match_session_id' => $this->matchSession->id,
+            'payable_type' => \App\Models\MatchSession::class,
+            'payable_id' => $this->matchSession->id,
             'status' => Payment::STATUS_PENDING,
             'amount' => 1000.00
         ]);
@@ -145,7 +151,8 @@ class PaymentServiceTest extends TestCase
     {
         $payment = Payment::factory()->create([
             'user_id' => $this->user->id,
-            'match_session_id' => $this->matchSession->id,
+            'payable_type' => \App\Models\MatchSession::class,
+            'payable_id' => $this->matchSession->id,
             'status' => Payment::STATUS_SUCCESS,
             'amount' => 1000.00
         ]);

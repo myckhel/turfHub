@@ -234,4 +234,30 @@ class Turf extends Model implements Wallet
       default => false,
     };
   }
+
+  /**
+   * Get the user's role in this turf.
+   */
+  public function getUserRoleInTurf(User $user): ?string
+  {
+    // Check if user is owner
+    if ($this->owner_id === $user->id) {
+      return User::TURF_ROLE_ADMIN;
+    }
+
+    // Check user's roles in this turf context
+    if ($user->isAdminInTurf($this->id)) {
+      return User::TURF_ROLE_ADMIN;
+    }
+
+    if ($user->isManagerInTurf($this->id)) {
+      return User::TURF_ROLE_MANAGER;
+    }
+
+    if ($user->isPlayerInTurf($this->id)) {
+      return User::TURF_ROLE_PLAYER;
+    }
+
+    return null;
+  }
 }

@@ -3,7 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\MatchSession;
-use App\Models\User;
+use App\Models\Player;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -44,7 +44,7 @@ class TeamFactory extends Factory
         return [
             'match_session_id' => MatchSession::factory(),
             'name' => fake()->randomElement($teamNames),
-            'captain_id' => User::factory(),
+            'captain_id' => Player::factory(),
             'status' => fake()->randomElement(['active_in_match', 'waiting', 'eliminated']),
             'wins' => fake()->numberBetween(0, 15),
             'losses' => fake()->numberBetween(0, 10),

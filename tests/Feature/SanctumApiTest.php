@@ -68,11 +68,9 @@ test('can access protected route with token', function () {
 
   $response->assertStatus(200)
     ->assertJson([
-      'data' => [
-        'id' => $user->id,
-        'email' => $user->email,
-        'name' => $user->name,
-      ],
+      'id' => $user->id,
+      'email' => $user->email,
+      'name' => $user->name,
     ]);
 });
 

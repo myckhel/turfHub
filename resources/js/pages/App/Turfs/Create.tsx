@@ -46,7 +46,7 @@ const TurfCreate: React.FC = () => {
       const response = await turfApi.create(turfData);
 
       message.success('Turf created successfully!');
-      router.visit(route('web.turfs.show', { turf: response.data.id }));
+      router.visit(route('web.turfs.show', { turf: response.id }));
     } catch (error) {
       console.error('Failed to create turf:', error);
       message.error(error instanceof Error ? error.message : 'Failed to create turf');

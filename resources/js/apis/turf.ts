@@ -122,7 +122,7 @@ export const turfApi = {
   },
 
   // Create a new turf
-  create: async (data: Partial<Turf>): Promise<ApiResponse<Turf>> => {
+  create: async (data: Partial<Turf>): Promise<Turf> => {
     return api.post('/turfs', data);
   },
 

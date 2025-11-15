@@ -21,7 +21,12 @@ class GameMatchObserver
    */
   public function updated(GameMatch $gameMatch): void
   {
-    // Check if status was changed to 'completed'
+    // Handle tournament fixtures separately via FixtureObserver
+    if ($gameMatch->stage_id) {
+      return;
+    }
+
+    // Check if status was changed to 'completed' (for match sessions)
     if ($gameMatch->wasChanged('status') && $gameMatch->status === 'completed') {
       // Dispatch job to process match completion and determine next game
       GameMatchCompletedJob::dispatch($gameMatch);

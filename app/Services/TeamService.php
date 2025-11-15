@@ -73,6 +73,11 @@ class TeamService
       $query->where('match_session_id', $request->match_session_id);
     }
 
+    // Filter by tournament
+    if ($request->filled('tournament_id')) {
+      $query->where('tournament_id', $request->tournament_id);
+    }
+
     // Filter by captain
     if ($request->filled('captain_id')) {
       $query->where('captain_id', $request->captain_id);
@@ -91,7 +96,7 @@ class TeamService
     // Load relationships if requested
     if ($request->filled('include')) {
       $includes = explode(',', $request->include);
-      $allowedIncludes = ['matchSession', 'captain', 'teamPlayers', 'gameMatchesAsFirstTeam', 'gameMatchesAsSecondTeam'];
+      $allowedIncludes = ['matchSession', 'tournament', 'captain', 'teamPlayers', 'gameMatchesAsFirstTeam', 'gameMatchesAsSecondTeam', 'stageTeams'];
       $validIncludes = array_intersect($includes, $allowedIncludes);
 
       if (!empty($validIncludes)) {
@@ -107,24 +112,41 @@ class TeamService
    */
   public function joinTeamSlot(Team $team, int $playerId, ?int $position = null): void
   {
+    // Get turf_id from either match session or tournament
+    $turfId = $team->match_session_id
+      ? $team->matchSession->turf_id
+      : $team->tournament->turf_id;
+
     // First, get the player record
     $player = \App\Models\Player::where('id', $playerId)
-      ->where('turf_id', $team->matchSession->turf_id)
+      ->where('turf_id', $turfId)
       ->firstOrFail();
 
-    // Check if team is full using match session's max players per team setting
-    if ($team->teamPlayers()->count() >= $team->matchSession->max_players_per_team) {
+    // Get max players per team from match session or use default (6 for tournaments)
+    $maxPlayers = $team->match_session_id
+      ? $team->matchSession->max_players_per_team
+      : 6;
+
+    // Check if team is full
+    if ($team->teamPlayers()->count() >= $maxPlayers) {
       throw new \InvalidArgumentException('Team is full');
     }
 
-    // Check if player is already in a team for this session
-    $existingTeamPlayer = $team->matchSession->teams()
-      ->join('team_players', 'teams.id', '=', 'team_players.team_id')
-      ->where('team_players.player_id', $player->id)
-      ->first();
+    // Check if player is already in a team for this session/tournament
+    if ($team->match_session_id) {
+      $existingTeamPlayer = $team->matchSession->teams()
+        ->join('team_players', 'teams.id', '=', 'team_players.team_id')
+        ->where('team_players.player_id', $player->id)
+        ->first();
+    } else {
+      $existingTeamPlayer = $team->tournament->teams()
+        ->join('team_players', 'teams.id', '=', 'team_players.team_id')
+        ->where('team_players.player_id', $player->id)
+        ->first();
+    }
 
     if ($existingTeamPlayer) {
-      throw new \InvalidArgumentException('Player is already in a team for this session');
+      throw new \InvalidArgumentException('Player is already in a team for this ' . ($team->match_session_id ? 'session' : 'tournament'));
     }
 
     // Add player to team
@@ -143,8 +165,13 @@ class TeamService
    */
   public function leaveTeamSlot(Team $team, int $playerId): void
   {
+    // Get turf_id from either match session or tournament
+    $turfId = $team->match_session_id
+      ? $team->matchSession->turf_id
+      : $team->tournament->turf_id;
+
     $player = \App\Models\Player::where('id', $playerId)
-      ->where('turf_id', $team->matchSession->turf_id)
+      ->where('turf_id', $turfId)
       ->firstOrFail();
 
     $teamPlayer = $team->teamPlayers()->where('player_id', $player->id)->first();
@@ -173,24 +200,41 @@ class TeamService
   {
     $player = \App\Models\Player::findOrFail($playerId);
 
+    // Get turf_id from either match session or tournament
+    $turfId = $team->match_session_id
+      ? $team->matchSession->turf_id
+      : $team->tournament->turf_id;
+
     // Verify player belongs to the same turf
-    if ($player->turf_id !== $team->matchSession->turf_id) {
+    if ($player->turf_id !== $turfId) {
       throw new \InvalidArgumentException('Player does not belong to this turf');
     }
 
-    // Check if team is full using match session's max players per team setting
-    if ($team->teamPlayers()->count() >= $team->matchSession->max_players_per_team) {
+    // Get max players per team from match session or use default (6 for tournaments)
+    $maxPlayers = $team->match_session_id
+      ? $team->matchSession->max_players_per_team
+      : 6;
+
+    // Check if team is full
+    if ($team->teamPlayers()->count() >= $maxPlayers) {
       throw new \InvalidArgumentException('Team is full');
     }
 
-    // Check if player is already in a team for this session
-    $existingTeamPlayer = $team->matchSession->teams()
-      ->join('team_players', 'teams.id', '=', 'team_players.team_id')
-      ->where('team_players.player_id', $playerId)
-      ->first();
+    // Check if player is already in a team for this session/tournament
+    if ($team->match_session_id) {
+      $existingTeamPlayer = $team->matchSession->teams()
+        ->join('team_players', 'teams.id', '=', 'team_players.team_id')
+        ->where('team_players.player_id', $playerId)
+        ->first();
+    } else {
+      $existingTeamPlayer = $team->tournament->teams()
+        ->join('team_players', 'teams.id', '=', 'team_players.team_id')
+        ->where('team_players.player_id', $playerId)
+        ->first();
+    }
 
     if ($existingTeamPlayer) {
-      throw new \InvalidArgumentException('Player is already in a team for this session');
+      throw new \InvalidArgumentException('Player is already in a team for this ' . ($team->match_session_id ? 'session' : 'tournament'));
     }
 
     // Add player to team

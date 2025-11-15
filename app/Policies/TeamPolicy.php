@@ -16,6 +16,14 @@ class TeamPolicy
   }
 
   /**
+   * Get the turf ID from a team.
+   */
+  protected function getTurfId(Team $team): ?int
+  {
+    return $team->matchSession?->turf_id ?? $team->tournament?->turf_id;
+  }
+
+  /**
    * Determine whether the user can view any teams.
    */
   public function viewAny(User $user): bool
@@ -29,7 +37,7 @@ class TeamPolicy
   public function view(User $user, Team $team): bool
   {
     // User can view if they belong to the turf
-    return $user->belongsToTurf($team->matchSession->turf_id);
+    return $user->belongsToTurf($this->getTurfId($team));
   }
 
   /**
@@ -52,7 +60,7 @@ class TeamPolicy
     }
 
     // Turf admins and managers can update teams
-    return $this->turfPermissionService->userCanInTurf($user, 'manage teams', $team->matchSession->turf_id);
+    return $this->turfPermissionService->userCanInTurf($user, 'manage teams', $this->getTurfId($team));
   }
 
   /**
@@ -61,7 +69,7 @@ class TeamPolicy
   public function delete(User $user, Team $team): bool
   {
     // Only turf admins and managers can delete teams
-    return $this->turfPermissionService->userCanInTurf($user, 'manage teams', $team->matchSession->turf_id);
+    return $this->turfPermissionService->userCanInTurf($user, 'manage teams', $this->getTurfId($team));
   }
 
   /**
@@ -69,15 +77,25 @@ class TeamPolicy
    */
   public function join(User $user, Team $team): bool
   {
-    // User must be a player in the turf and the match session must be accepting players
-    $player = $user->players()->where('turf_id', $team->matchSession->turf_id)->first();
+    // User must be a player in the turf
+    $turfId = $this->getTurfId($team);
+    $player = $user->players()->where('turf_id', $turfId)->first();
 
     if (!$player || $player->status !== 'active') {
       return false;
     }
 
-    // Check if match session is in the right state
-    return in_array($team->matchSession->status, ['scheduled', 'active']);
+    // For match session teams, check if match session is in the right state
+    if ($team->matchSession) {
+      return in_array($team->matchSession->status, ['scheduled', 'active']);
+    }
+
+    // // For tournament teams, check if tournament is accepting players
+    // if ($team->tournament) {
+    //   return in_array($team->tournament->status, ['pending', 'active']);
+    // }
+
+    return false;
   }
 
   /**
@@ -85,12 +103,26 @@ class TeamPolicy
    */
   public function leave(User $user, Team $team): bool
   {
-    // User can leave if they are part of the team and match hasn't started
+    // User can leave if they are part of the team
     $isTeamMember = $team->teamPlayers()->whereHas('player', function ($query) use ($user) {
       $query->where('user_id', $user->id);
     })->exists();
 
-    return $isTeamMember && $team->matchSession->status === 'scheduled';
+    if (!$isTeamMember) {
+      return false;
+    }
+
+    // For match session teams, check if match hasn't started
+    if ($team->matchSession) {
+      return $team->matchSession->status === 'scheduled';
+    }
+
+    // For tournament teams, check if tournament hasn't started
+    // if ($team->tournament) {
+    //   return $team->tournament->status === 'upcoming';
+    // }
+
+    return false;
   }
 
   /**
@@ -104,7 +136,7 @@ class TeamPolicy
     }
 
     // Turf admins and managers can invite players to teams
-    return $this->turfPermissionService->userCanInTurf($user, 'manage teams', $team->matchSession->turf_id);
+    return $this->turfPermissionService->userCanInTurf($user, 'manage teams', $this->getTurfId($team));
   }
 
   /**
@@ -134,7 +166,7 @@ class TeamPolicy
     }
 
     // Turf admins and managers can add players to teams
-    return $this->turfPermissionService->userCanInTurf($user, 'manage teams', $team->matchSession->turf_id);
+    return $this->turfPermissionService->userCanInTurf($user, 'manage teams', $this->getTurfId($team));
   }
 
   /**
@@ -148,7 +180,7 @@ class TeamPolicy
     }
 
     // Turf admins and managers can remove players from teams
-    return $this->turfPermissionService->userCanInTurf($user, 'manage teams', $team->matchSession->turf_id);
+    return $this->turfPermissionService->userCanInTurf($user, 'manage teams', $this->getTurfId($team));
   }
 
   /**
@@ -157,7 +189,7 @@ class TeamPolicy
   public function setCaptain(User $user, Team $team): bool
   {
     // Only turf admins and managers can set captains
-    return $this->turfPermissionService->userCanInTurf($user, 'manage teams', $team->matchSession->turf_id);
+    return $this->turfPermissionService->userCanInTurf($user, 'manage teams', $this->getTurfId($team));
   }
 
   /**
@@ -166,7 +198,8 @@ class TeamPolicy
   public function processSlotPayment(User $user, Team $team): bool
   {
     // User must be a player in the turf
-    $player = $user->players()->where('turf_id', $team->matchSession->turf_id)->first();
+    $turfId = $this->getTurfId($team);
+    $player = $user->players()->where('turf_id', $turfId)->first();
 
     if (!$player || $player->status !== 'active') {
       return false;

@@ -25,6 +25,8 @@ class GameMatch extends Model
    */
   protected $fillable = [
     'match_session_id',
+    'stage_id',
+    'group_id',
     'first_team_id',
     'second_team_id',
     'first_team_score',
@@ -32,6 +34,9 @@ class GameMatch extends Model
     'winning_team_id', // Can be null in case of a draw
     'outcome',         // e.g., 'win' (for first_team), 'loss', 'draw' - relative to first_team or specific team
     'match_time',      // Actual time the match started
+    'starts_at',       // Scheduled start time
+    'duration',        // Match duration in minutes
+    'score',           // Detailed score data
     'status',          // e.g., upcoming, in_progress, completed, postponed
     'betting_enabled', // Whether betting is enabled for this match
   ];
@@ -47,6 +52,9 @@ class GameMatch extends Model
       'first_team_score' => 'integer',
       'second_team_score' => 'integer',
       'match_time' => 'datetime',
+      'starts_at' => 'datetime',
+      'duration' => 'integer',
+      'score' => 'array',
       'betting_enabled' => 'boolean',
     ];
   }
@@ -57,6 +65,22 @@ class GameMatch extends Model
   public function matchSession(): BelongsTo
   {
     return $this->belongsTo(MatchSession::class);
+  }
+
+  /**
+   * Get the stage this fixture belongs to.
+   */
+  public function stage(): BelongsTo
+  {
+    return $this->belongsTo(Stage::class);
+  }
+
+  /**
+   * Get the group this fixture belongs to.
+   */
+  public function group(): BelongsTo
+  {
+    return $this->belongsTo(Group::class);
   }
 
   /**

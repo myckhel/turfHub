@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\PlayerController;
 use App\Http\Controllers\Api\QueueLogicController;
 use App\Http\Controllers\Api\RankingController;
 use App\Http\Controllers\Api\StageController;
+use App\Http\Controllers\Api\StagePromotionController;
 use App\Http\Controllers\Api\TeamController;
 use App\Http\Controllers\Api\TeamPlayerController;
 use App\Http\Controllers\Api\TournamentController;
@@ -88,6 +89,10 @@ Route::middleware('auth:sanctum')->name('api.')->group(function () {
 
   // Tournament routes
   Route::apiResource('tournaments', TournamentController::class);
+
+  // Stage promotion routes (global listing)
+  Route::get('stage-promotions', [StagePromotionController::class, 'index'])->name('stage-promotions.index');
+
   Route::prefix('tournaments/{tournament}')->name('tournaments.')->group(function () {
     Route::get('stages', [StageController::class, 'index'])->name('stages.index');
     Route::post('stages', [StageController::class, 'store'])->name('stages.store');
@@ -105,6 +110,10 @@ Route::middleware('auth:sanctum')->name('api.')->group(function () {
     Route::post('execute-promotion', [StageController::class, 'executePromotion'])->name('execute-promotion');
     Route::get('rankings', [RankingController::class, 'index'])->name('rankings.index');
     Route::post('rankings/refresh', [RankingController::class, 'refresh'])->name('rankings.refresh');
+
+    // Stage promotion routes
+    Route::resource('promotion', StagePromotionController::class);
+    Route::patch('promotion', [StagePromotionController::class, 'update'])->name('promotion.update');
   });
 
   Route::prefix('groups/{group}')->name('groups.')->group(function () {

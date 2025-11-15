@@ -1,5 +1,5 @@
 import { ArrowLeftOutlined, DollarOutlined, EnvironmentOutlined, TeamOutlined } from '@ant-design/icons';
-import { router } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { Button, Card, Form, Input, InputNumber, message, Select, Switch, Typography } from 'antd';
 import React, { useState } from 'react';
 import { turfApi } from '../../../apis/turf';
@@ -60,8 +60,9 @@ const TurfCreate: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen">
-      <div className="container mx-auto px-4 py-6">
+    <>
+      <Head title="Create New Turf" />
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-6">
           <Button type="text" icon={<ArrowLeftOutlined />} onClick={handleBack} className="mb-4 text-white hover:text-gray-300">
@@ -72,9 +73,8 @@ const TurfCreate: React.FC = () => {
           </Title>
           <Text className="text-base text-gray-300">Set up your football turf for players to join</Text>
         </div>
-
         {/* Form */}
-        <Card className="mx-auto max-w-2xl">
+        <Card className="mx-auto max-w-4xl">
           <Form
             form={form}
             layout="vertical"
@@ -243,7 +243,7 @@ const TurfCreate: React.FC = () => {
           </Form>
         </Card>
       </div>
-    </div>
+    </>
   );
 };
 

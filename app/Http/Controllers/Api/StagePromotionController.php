@@ -9,6 +9,7 @@ use App\Http\Resources\StagePromotionResource;
 use App\Models\Stage;
 use App\Models\StagePromotion;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Gate;
 
 class StagePromotionController extends Controller
@@ -16,27 +17,23 @@ class StagePromotionController extends Controller
   /**
    * Display a list of all stage promotions for a tournament.
    */
-  public function index(): JsonResponse
+  public function index()
   {
     $promotions = StagePromotion::with(['stage', 'nextStage'])
       ->get();
 
-    return response()->json([
-      'data' => StagePromotionResource::collection($promotions),
-    ]);
+    return StagePromotionResource::collection($promotions);
   }
 
   /**
    * Display the promotion rule for a stage.
    */
-  public function show(Stage $stage): StagePromotionResource|JsonResponse
+  public function show(Stage $stage): StagePromotionResource
   {
     $promotion = $stage->promotion;
 
     if (!$promotion) {
-      return response()->json([
-        'message' => 'No promotion rule configured for this stage',
-      ], 404);
+      abort(404, 'No promotion rule configured for this stage');
     }
 
     $promotion->load('nextStage');
@@ -47,15 +44,13 @@ class StagePromotionController extends Controller
   /**
    * Create a promotion rule for a stage.
    */
-  public function store(CreateStagePromotionRequest $request, Stage $stage): StagePromotionResource|JsonResponse
+  public function store(CreateStagePromotionRequest $request, Stage $stage): StagePromotionResource
   {
     Gate::authorize('update', $stage->tournament);
 
     // Check if promotion already exists
     if ($stage->promotion) {
-      return response()->json([
-        'message' => 'Promotion rule already exists. Use update endpoint to modify it.',
-      ], 409);
+      abort(409, 'Promotion rule already exists. Use update endpoint to modify it.');
     }
 
     $validated = $request->validated();
@@ -75,16 +70,14 @@ class StagePromotionController extends Controller
   /**
    * Update the promotion rule for a stage.
    */
-  public function update(UpdateStagePromotionRequest $request, Stage $stage): StagePromotionResource|JsonResponse
+  public function update(UpdateStagePromotionRequest $request, Stage $stage): StagePromotionResource
   {
     Gate::authorize('update', $stage->tournament);
 
     $promotion = $stage->promotion;
 
     if (!$promotion) {
-      return response()->json([
-        'message' => 'No promotion rule found. Use create endpoint first.',
-      ], 404);
+      abort(404, 'No promotion rule found. Use create endpoint first.');
     }
 
     $validated = $request->validated();
@@ -103,22 +96,18 @@ class StagePromotionController extends Controller
   /**
    * Delete the promotion rule for a stage.
    */
-  public function destroy(Stage $stage): JsonResponse
+  public function destroy(Stage $stage): Response
   {
     Gate::authorize('update', $stage->tournament);
 
     $promotion = $stage->promotion;
 
     if (!$promotion) {
-      return response()->json([
-        'message' => 'No promotion rule found',
-      ], 404);
+      abort(404, 'No promotion rule found');
     }
 
     $promotion->delete();
 
-    return response()->json([
-      'message' => 'Promotion rule deleted successfully',
-    ]);
+    return response()->noContent();
   }
 }

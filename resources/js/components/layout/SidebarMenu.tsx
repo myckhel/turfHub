@@ -66,11 +66,21 @@ export const SidebarMenu = memo<SidebarMenuProps>(({ onClick, mode = 'inline', t
 
     // Add match sessions if there's a selected turf
     if (selectedTurf) {
-      items.push({
-        key: 'match-sessions',
-        icon: <TeamOutlined />,
-        label: <Link href={route('web.turfs.match-sessions.index', { turf: selectedTurf.id })}>Match Sessions</Link>,
-      });
+      items.push(
+        ...[
+          {
+            key: 'match-sessions',
+            icon: <TeamOutlined />,
+            label: <Link href={route('web.turfs.match-sessions.index', { turf: selectedTurf.id })}>Match Sessions</Link>,
+          },
+
+          {
+            key: 'tournaments',
+            icon: <TrophyOutlined />,
+            label: <Link href={route('web.turfs.tournaments.index', { turf: selectedTurf.id })}>Tournaments</Link>,
+          },
+        ],
+      );
     }
 
     if (isTurfPlayer()) {

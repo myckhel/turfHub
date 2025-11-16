@@ -77,6 +77,7 @@ const ThemeInitializer: React.FC<{ children: React.ReactNode }> = ({ children })
 const getLayout = (routeName: string, page: React.ReactElement) => {
   const config = routeConfigs[routeName];
   const layout = config?.layout || 'guest';
+  console.log({ config, routeName, routeConfigs });
 
   const wrappedPage = <AppLayout>{page}</AppLayout>;
 
@@ -112,6 +113,8 @@ createInertiaApp({
 
   resolve: async (name) => {
     const page = await resolveComponent(name);
+    console.log({ name });
+
     const routeName = name.toLowerCase().replace(/\//g, '.');
 
     // Add layout to page component

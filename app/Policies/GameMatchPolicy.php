@@ -8,15 +8,48 @@ use App\Models\User;
 class GameMatchPolicy
 {
   /**
+   * Get turf ID from game match via matchSession or stage.
+   */
+  private function getTurfId(GameMatch $gameMatch): ?int
+  {
+    if ($gameMatch->matchSession) {
+      return $gameMatch->matchSession->turf_id;
+    }
+
+    return $gameMatch->stage?->tournament?->turf_id;
+  }
+
+  /**
+   * Get turf object from game match via matchSession or stage.
+   */
+  private function getTurf(GameMatch $gameMatch)
+  {
+    if ($gameMatch->matchSession) {
+      return $gameMatch->matchSession->turf;
+    }
+
+    return $gameMatch->stage?->tournament?->turf;
+  }
+
+  /**
+   * Check if user has turf admin or manager role.
+   */
+  private function hasAdminOrManagerRole(User $user, GameMatch $gameMatch): bool
+  {
+    $turfId = $this->getTurfId($gameMatch);
+    return $turfId && $user->hasAnyTurfRole([User::TURF_ROLE_ADMIN, User::TURF_ROLE_MANAGER], $turfId);
+  }
+
+  /**
    * Determine whether the user can view the game match.
    */
   public function view(User $user, GameMatch $gameMatch): bool
   {
     // Users can view game matches if they have access to the turf
-    return $gameMatch->matchSession->turf
-      ->players()
+    $turf = $this->getTurf($gameMatch);
+    return $turf?->players()
       ->where('user_id', $user->id)
-      ->exists();
+      ->exists() ?? false;
   }
 
   /**
@@ -25,7 +58,7 @@ class GameMatchPolicy
   public function update(User $user, GameMatch $gameMatch): bool
   {
     // Only turf admins and managers can update game matches
-    return $user->hasAnyTurfRole([User::TURF_ROLE_ADMIN, User::TURF_ROLE_MANAGER], $gameMatch->matchSession->turf_id);
+    return $this->hasAdminOrManagerRole($user, $gameMatch);
   }
 
   /**
@@ -34,7 +67,7 @@ class GameMatchPolicy
   public function delete(User $user, GameMatch $gameMatch): bool
   {
     // Only turf admins and managers can delete game matches
-    return $user->hasAnyTurfRole([User::TURF_ROLE_ADMIN, User::TURF_ROLE_MANAGER], $gameMatch->matchSession->turf_id);
+    return $this->hasAdminOrManagerRole($user, $gameMatch);
   }
 
   /**
@@ -43,7 +76,7 @@ class GameMatchPolicy
   public function manageEvents(User $user, GameMatch $gameMatch): bool
   {
     // Only turf admins and managers can manage match events
-    return $user->hasAnyTurfRole([User::TURF_ROLE_ADMIN, User::TURF_ROLE_MANAGER], $gameMatch->matchSession->turf_id);
+    return $this->hasAdminOrManagerRole($user, $gameMatch);
   }
 
   /**
@@ -52,9 +85,12 @@ class GameMatchPolicy
   public function manageBetting(User $user, GameMatch $gameMatch): bool
   {
     // Only turf owners, admins and managers can manage betting
-    return $gameMatch->matchSession->turf->owner_id === $user->id ||
-           $user->hasAnyTurfRole([User::TURF_ROLE_ADMIN, User::TURF_ROLE_MANAGER], $gameMatch->matchSession->turf_id) ||
-           $user->hasRole('super-admin') ||
-           $user->hasPermissionTo('manage-betting');
+    $turf = $this->getTurf($gameMatch);
+    return $turf && (
+      $turf->owner_id === $user->id ||
+      $this->hasAdminOrManagerRole($user, $gameMatch) ||
+      $user->hasRole('super-admin') ||
+      $user->hasPermissionTo('manage-betting')
+    );
   }
 }

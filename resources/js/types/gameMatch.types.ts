@@ -1,4 +1,5 @@
 import { TeamPlayer } from './matchSession.types';
+import { Group, Stage } from './tournament.types';
 
 export interface GameMatch {
   id: number;
@@ -10,10 +11,14 @@ export interface GameMatch {
   winning_team_id?: number;
   outcome?: 'win' | 'loss' | 'draw';
   match_time: string;
-  status: 'upcoming' | 'in_progress' | 'completed' | 'postponed';
+  status: 'upcoming' | 'in_progress' | 'completed' | 'postponed' | 'cancelled';
   betting_enabled?: boolean;
   created_at: string;
   updated_at: string;
+  group_id?: number;
+  group?: Group;
+  stage_id?: number;
+  stage?: Stage;
 
   // Relationships
   match_session?: {

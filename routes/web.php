@@ -7,6 +7,8 @@ use App\Http\Controllers\Web\MatchSessionController;
 use App\Http\Controllers\Web\TeamController;
 use App\Http\Controllers\Web\GameMatchController;
 use App\Http\Controllers\Web\WalletController;
+use App\Http\Controllers\Web\TournamentController;
+use App\Http\Controllers\Web\StageController;
 
 Route::get('/', function () {
   return Inertia::render('Public/Welcome');
@@ -24,8 +26,26 @@ Route::middleware(['auth', 'verified'])->group(function () {
   Route::get('turfs/{turf}/edit', [TurfController::class, 'edit'])->name('web.turfs.edit');
   Route::get('turfs/{turf}/settings', [TurfController::class, 'settings'])->name('web.turfs.settings');
 
+  // Tournament routes (nested under turfs)
+  Route::prefix('turfs/{turf}')->name('web.turfs.')->group(function () {
+    Route::get('tournaments', [TournamentController::class, 'index'])->name('tournaments.index');
+    Route::get('tournaments/create', [TournamentController::class, 'create'])->name('tournaments.create');
+    Route::get('tournaments/{tournament}', [TournamentController::class, 'show'])->name('tournaments.show');
+    Route::get('tournaments/{tournament}/edit', [TournamentController::class, 'edit'])->name('tournaments.edit');
+  });
+
   // Wallet routes
   Route::get('wallet', [WalletController::class, 'index'])->name('web.wallet.index');
+
+  // Tournament routes (standalone - lists all tournaments)
+  Route::get('tournaments', [TournamentController::class, 'index'])->name('web.tournaments.index');
+  Route::get('tournaments/{tournament}', [TournamentController::class, 'show'])->name('web.tournaments.show');
+  Route::get('tournaments/{tournament}/edit', [TournamentController::class, 'edit'])->name('web.tournaments.edit');
+
+  // Stage routes (nested under tournaments)
+  Route::get('tournaments/{tournament}/stages/create', [StageController::class, 'create'])->name('web.tournaments.stages.create');
+  Route::get('tournaments/{tournament}/stages/{stage}', [StageController::class, 'show'])->name('web.tournaments.stages.show');
+  Route::get('tournaments/{tournament}/stages/{stage}/edit', [StageController::class, 'edit'])->name('web.tournaments.stages.edit');
 
   // Betting routes
   Route::prefix('betting')->name('web.betting.')->group(function () {

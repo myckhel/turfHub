@@ -3,12 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\RankingCollection;
+use App\Http\Resources\RankingResource;
 use App\Jobs\ComputeRankingsJob;
 use App\Models\Group;
 use App\Models\Stage;
 use App\Services\RankingService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Gate;
 
@@ -21,7 +22,7 @@ class RankingController extends Controller
   /**
    * Get rankings for a stage.
    */
-  public function index(Stage $stage): RankingCollection
+  public function index(Stage $stage): AnonymousResourceCollection
   {
     Gate::authorize('view', $stage->tournament);
 
@@ -29,16 +30,16 @@ class RankingController extends Controller
       return $stage->rankings()
         ->with('team')
         ->orderBy('rank')
-        ->get();
+        ->paginate(15);
     });
 
-    return new RankingCollection($rankings);
+    return RankingResource::collection($rankings);
   }
 
   /**
    * Get rankings for a specific group.
    */
-  public function byGroup(Group $group): RankingCollection
+  public function byGroup(Group $group): AnonymousResourceCollection
   {
     Gate::authorize('view', $group->stage->tournament);
 
@@ -46,10 +47,10 @@ class RankingController extends Controller
       return $group->rankings()
         ->with('team')
         ->orderBy('rank')
-        ->get();
+        ->paginate(15);
     });
 
-    return new RankingCollection($rankings);
+    return RankingResource::collection($rankings);
   }
 
   /**

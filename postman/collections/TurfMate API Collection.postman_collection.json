@@ -3275,7 +3275,8 @@
                   "query": [
                     {
                       "key": "include",
-                      "value": "stages,turf,creator"
+                      "value": "stages,turf,creator",
+                      "uuid": "d71dbc7c-9db1-48a4-9331-0eb3d4da46e6"
                     },
                     {
                       "key": "status",
@@ -3286,12 +3287,20 @@
                     {
                       "key": "turf_id",
                       "value": "{{test_turf_id}}",
-                      "description": "Filter by turf"
+                      "description": "Filter by turf",
+                      "uuid": "5b9f55fa-5d7a-49f0-9b7b-6ebeef011ef0"
                     },
                     {
                       "key": "type",
                       "value": "multi_stage_tournament",
                       "description": "Filter by type: single_session or multi_stage_tournament",
+                      "disabled": true
+                    },
+                    {
+                      "key": "per_page",
+                      "value": "10",
+                      "type": "text",
+                      "uuid": "f0012ebd-e37f-4e92-82e6-ef7eb387ce08",
                       "disabled": true
                     }
                   ]
@@ -3299,7 +3308,7 @@
               },
               "status": "OK",
               "code": 200,
-              "_postman_previewlanguage": "Text",
+              "_postman_previewlanguage": "json",
               "_postman_previewtype": "html",
               "header": [
                 {
@@ -3316,7 +3325,7 @@
                 },
                 {
                   "key": "Date",
-                  "value": "Thu, 13 Nov 2025 22:12:26 GMT"
+                  "value": "Sat, 15 Nov 2025 19:17:25 GMT"
                 },
                 {
                   "key": "Server",
@@ -3336,10 +3345,11 @@
                 },
                 {
                   "key": "Content-Length",
-                  "value": "299"
+                  "value": "449"
                 }
               ],
-              "body": "{\n    \"data\": [\n        {\n            \"id\": 2,\n            \"name\": \"Champions League 2025\",\n            \"type\": \"multi_stage_tournament\",\n            \"status\": \"pending\",\n            \"settings\": {\n                \"location\": \"Main Arena\",\n                \"rules\": \"FIFA standard rules apply\",\n                \"prize_pool\": \"5000\"\n            },\n            \"starts_at\": \"2025-11-14T00:00:00+00:00\",\n            \"ends_at\": \"2025-11-30T00:00:00+00:00\",\n            \"created_at\": \"2025-11-13T22:10:36+00:00\",\n            \"updated_at\": \"2025-11-13T22:10:36+00:00\",\n            \"turf\": {\n                \"id\": 1,\n                \"name\": \"Franecki Group Stadium\",\n                \"location\": \"4664 Eulalia Roads, Gastonia\"\n            },\n            \"creator\": {\n                \"id\": 1,\n                \"name\": \"Lorena Grimes\"\n            }\n        },\n        {\n            \"id\": 1,\n            \"name\": \"Champions League 2025\",\n            \"type\": \"multi_stage_tournament\",\n            \"status\": \"pending\",\n            \"settings\": [],\n            \"starts_at\": \"2025-11-14T00:00:00+00:00\",\n            \"ends_at\": null,\n            \"created_at\": \"2025-11-13T21:51:22+00:00\",\n            \"updated_at\": \"2025-11-13T21:51:22+00:00\",\n            \"turf\": {\n                \"id\": 1,\n                \"name\": \"Franecki Group Stadium\",\n                \"location\": \"4664 Eulalia Roads, Gastonia\"\n            },\n            \"creator\": {\n                \"id\": 1,\n                \"name\": \"Lorena Grimes\"\n            }\n        }\n    ]\n}"
+              "responseTime": "2025-11-15T19:19:55.223Z",
+              "body": "{\n    \"data\": [\n        {\n            \"id\": 2,\n            \"name\": \"Champions League 2025 - Updated\",\n            \"type\": \"multi_stage_tournament\",\n            \"status\": \"pending\",\n            \"settings\": {\n                \"location\": \"Main Arena\",\n                \"rules\": \"FIFA standard rules apply\",\n                \"prize_pool\": \"5000\"\n            },\n            \"starts_at\": \"2025-11-14T00:00:00+00:00\",\n            \"ends_at\": \"2025-11-30T00:00:00+00:00\",\n            \"created_at\": \"2025-11-13T22:10:36+00:00\",\n            \"updated_at\": \"2025-11-13T22:14:15+00:00\",\n            \"turf\": {\n                \"id\": 1,\n                \"name\": \"Franecki Group Stadium\",\n                \"location\": \"4664 Eulalia Roads, Gastonia\"\n            },\n            \"creator\": {\n                \"id\": 1,\n                \"name\": \"Lorena Grimes\"\n            }\n        }\n    ],\n    \"links\": {\n        \"first\": \"http://localhost:8000/api/tournaments?page=1\",\n        \"last\": \"http://localhost:8000/api/tournaments?page=1\",\n        \"prev\": null,\n        \"next\": null\n    },\n    \"meta\": {\n        \"current_page\": 1,\n        \"from\": 1,\n        \"last_page\": 1,\n        \"links\": [\n            {\n                \"url\": null,\n                \"label\": \"&laquo; Previous\",\n                \"active\": false\n            },\n            {\n                \"url\": \"http://localhost:8000/api/tournaments?page=1\",\n                \"label\": \"1\",\n                \"active\": true\n            },\n            {\n                \"url\": null,\n                \"label\": \"Next &raquo;\",\n                \"active\": false\n            }\n        ],\n        \"path\": \"http://localhost:8000/api/tournaments\",\n        \"per_page\": 15,\n        \"to\": 1,\n        \"total\": 1\n    }\n}"
             }
           ]
         },
@@ -4761,7 +4771,7 @@
                       "key": "include",
                       "value": "teams,fixtures,rankings",
                       "description": "Include relationships",
-                      "uuid": "650ecd88-9e17-4ee5-b2bd-e6a6d5763979"
+                      "uuid": "a1af9b77-a404-406d-9844-a84f5fc3c655"
                     },
                     {
                       "key": "status",
@@ -4791,7 +4801,7 @@
                 },
                 {
                   "key": "Date",
-                  "value": "Sat, 15 Nov 2025 08:50:11 GMT"
+                  "value": "Sat, 15 Nov 2025 19:21:11 GMT"
                 },
                 {
                   "key": "Server",
@@ -4811,11 +4821,11 @@
                 },
                 {
                   "key": "Content-Length",
-                  "value": "308"
+                  "value": "556"
                 }
               ],
-              "responseTime": "2025-11-15T08:50:43.441Z",
-              "body": "{\n    \"data\": [\n        {\n            \"id\": 1,\n            \"tournament_id\": 2,\n            \"name\": \"Premier Division\",\n            \"order\": 1,\n            \"stage_type\": \"league\",\n            \"status\": \"pending\",\n            \"settings\": {\n                \"match_duration\": \"90\",\n                \"match_interval\": \"15\",\n                \"rounds\": \"2\"\n            },\n            \"created_at\": \"2025-11-13T22:15:59+00:00\",\n            \"updated_at\": \"2025-11-13T22:15:59+00:00\",\n            \"next_stage\": null,\n            \"promotion\": null,\n            \"groups\": []\n        },\n        {\n            \"id\": 2,\n            \"tournament_id\": 2,\n            \"name\": \"Group Stage\",\n            \"order\": 1,\n            \"stage_type\": \"group\",\n            \"status\": \"pending\",\n            \"settings\": {\n                \"rounds\": \"1\",\n                \"groups_count\": \"4\",\n                \"teams_per_group\": \"4\"\n            },\n            \"created_at\": \"2025-11-13T22:17:11+00:00\",\n            \"updated_at\": \"2025-11-13T22:17:11+00:00\",\n            \"next_stage\": null,\n            \"promotion\": null,\n            \"groups\": []\n        },\n        {\n            \"id\": 4,\n            \"tournament_id\": 2,\n            \"name\": \"Swiss Rounds\",\n            \"order\": 1,\n            \"stage_type\": \"swiss\",\n            \"status\": \"pending\",\n            \"settings\": {\n                \"rounds\": \"5\"\n            },\n            \"created_at\": \"2025-11-14T09:28:19+00:00\",\n            \"updated_at\": \"2025-11-14T09:28:19+00:00\",\n            \"next_stage\": null,\n            \"promotion\": null,\n            \"groups\": []\n        },\n        {\n            \"id\": 3,\n            \"tournament_id\": 2,\n            \"name\": \"Premier Division - Updated\",\n            \"order\": 2,\n            \"stage_type\": \"knockout\",\n            \"status\": \"pending\",\n            \"settings\": {\n                \"match_duration\": \"90\"\n            },\n            \"created_at\": \"2025-11-14T09:27:36+00:00\",\n            \"updated_at\": \"2025-11-14T09:29:36+00:00\",\n            \"next_stage\": null,\n            \"promotion\": null,\n            \"groups\": []\n        }\n    ]\n}"
+              "responseTime": "2025-11-15T19:21:15.217Z",
+              "body": "{\n    \"data\": [\n        {\n            \"id\": 1,\n            \"tournament_id\": 2,\n            \"name\": \"Premier Division\",\n            \"order\": 1,\n            \"stage_type\": \"league\",\n            \"status\": \"completed\",\n            \"settings\": {\n                \"match_duration\": \"90\",\n                \"match_interval\": \"15\",\n                \"rounds\": \"2\"\n            },\n            \"created_at\": \"2025-11-13T22:15:59+00:00\",\n            \"updated_at\": \"2025-11-15T17:02:16+00:00\",\n            \"next_stage\": {\n                \"id\": 2,\n                \"name\": \"Group Stage\",\n                \"order\": 1\n            },\n            \"promotion\": {\n                \"id\": 1,\n                \"rule_type\": \"top_n\",\n                \"rule_config\": {\n                    \"n\": \"1\"\n                }\n            },\n            \"groups\": []\n        },\n        {\n            \"id\": 2,\n            \"tournament_id\": 2,\n            \"name\": \"Group Stage\",\n            \"order\": 1,\n            \"stage_type\": \"group\",\n            \"status\": \"pending\",\n            \"settings\": {\n                \"rounds\": \"1\",\n                \"groups_count\": \"1\",\n                \"teams_per_group\": \"4\"\n            },\n            \"created_at\": \"2025-11-13T22:17:11+00:00\",\n            \"updated_at\": \"2025-11-13T22:17:11+00:00\",\n            \"next_stage\": null,\n            \"promotion\": null,\n            \"groups\": [\n                {\n                    \"id\": 1,\n                    \"stage_id\": 2,\n                    \"name\": \"Group A\",\n                    \"settings\": null,\n                    \"created_at\": \"2025-11-15T17:02:17+00:00\",\n                    \"updated_at\": \"2025-11-15T17:02:17+00:00\"\n                }\n            ]\n        },\n        {\n            \"id\": 4,\n            \"tournament_id\": 2,\n            \"name\": \"Swiss Rounds\",\n            \"order\": 1,\n            \"stage_type\": \"swiss\",\n            \"status\": \"pending\",\n            \"settings\": {\n                \"rounds\": \"5\"\n            },\n            \"created_at\": \"2025-11-14T09:28:19+00:00\",\n            \"updated_at\": \"2025-11-14T09:28:19+00:00\",\n            \"next_stage\": null,\n            \"promotion\": null,\n            \"groups\": []\n        },\n        {\n            \"id\": 3,\n            \"tournament_id\": 2,\n            \"name\": \"Premier Division - Updated\",\n            \"order\": 2,\n            \"stage_type\": \"knockout\",\n            \"status\": \"pending\",\n            \"settings\": {\n                \"match_duration\": \"90\"\n            },\n            \"created_at\": \"2025-11-14T09:27:36+00:00\",\n            \"updated_at\": \"2025-11-14T09:29:36+00:00\",\n            \"next_stage\": null,\n            \"promotion\": null,\n            \"groups\": []\n        }\n    ],\n    \"links\": {\n        \"first\": \"http://localhost:8000/api/tournaments/2/stages?page=1\",\n        \"last\": \"http://localhost:8000/api/tournaments/2/stages?page=1\",\n        \"prev\": null,\n        \"next\": null\n    },\n    \"meta\": {\n        \"current_page\": 1,\n        \"from\": 1,\n        \"last_page\": 1,\n        \"links\": [\n            {\n                \"url\": null,\n                \"label\": \"&laquo; Previous\",\n                \"active\": false\n            },\n            {\n                \"url\": \"http://localhost:8000/api/tournaments/2/stages?page=1\",\n                \"label\": \"1\",\n                \"active\": true\n            },\n            {\n                \"url\": null,\n                \"label\": \"Next &raquo;\",\n                \"active\": false\n            }\n        ],\n        \"path\": \"http://localhost:8000/api/tournaments/2/stages\",\n        \"per_page\": 15,\n        \"to\": 4,\n        \"total\": 4\n    }\n}"
             }
           ]
         },

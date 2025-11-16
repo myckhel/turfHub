@@ -95,6 +95,16 @@ class GameMatchService
       $query->where('match_session_id', $request->match_session_id);
     }
 
+    // Filter by stage
+    if ($request->filled('stage_id')) {
+      $query->where('stage_id', $request->stage_id);
+    }
+
+    // Filter by group
+    if ($request->filled('group_id')) {
+      $query->where('group_id', $request->group_id);
+    }
+
     // Filter by team (first or second team)
     if ($request->filled('team_id')) {
       $query->where(function ($q) use ($request) {

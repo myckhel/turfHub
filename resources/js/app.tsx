@@ -77,7 +77,6 @@ const ThemeInitializer: React.FC<{ children: React.ReactNode }> = ({ children })
 const getLayout = (routeName: string, page: React.ReactElement) => {
   const config = routeConfigs[routeName];
   const layout = config?.layout || 'guest';
-  console.log({ config, routeName, routeConfigs });
 
   const wrappedPage = <AppLayout>{page}</AppLayout>;
 

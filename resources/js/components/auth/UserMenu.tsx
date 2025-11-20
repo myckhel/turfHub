@@ -1,14 +1,18 @@
+import { AppleOutlined, DownloadOutlined, LogoutOutlined, MailOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
 import { router } from '@inertiajs/react';
-import { Dropdown, Space, Typography, Menu } from 'antd';
-import {
-  LogoutOutlined,
-  SettingOutlined,
-  UserOutlined,
-  MailOutlined,
-} from '@ant-design/icons';
+import { Dropdown, Menu, Space, Typography } from 'antd';
 import React from 'react';
 import { useAuth } from '../../hooks/useAuth';
+import { usePWA } from '../../hooks/usePWA';
 import { UserAvatar } from './UserAvatar';
+
+// Helper to detect iOS
+const isIOS = () => {
+  return (
+    ['iPad Simulator', 'iPhone Simulator', 'iPod Simulator', 'iPad', 'iPhone', 'iPod'].includes(navigator.platform) ||
+    (navigator.userAgent.includes('Mac') && 'ontouchend' in document)
+  );
+};
 
 const { Text } = Typography;
 
@@ -18,6 +22,7 @@ interface UserMenuProps {
 
 export const UserMenu: React.FC<UserMenuProps> = ({ placement = 'bottomRight' }) => {
   const { user, logout } = useAuth();
+  const { canInstall, installApp } = usePWA();
 
   if (!user) {
     return null;
@@ -38,6 +43,9 @@ export const UserMenu: React.FC<UserMenuProps> = ({ placement = 'bottomRight' })
         break;
       case 'verify-email':
         router.visit(route('verification.notice'));
+        break;
+      case 'install-app':
+        installApp();
         break;
       case 'logout':
         handleLogout();
@@ -77,6 +85,15 @@ export const UserMenu: React.FC<UserMenuProps> = ({ placement = 'bottomRight' })
     },
   ];
 
+  // Add PWA install option if installable
+  if (canInstall) {
+    menuItems.splice(4, 0, {
+      key: 'install-app',
+      label: 'Install App',
+      icon: isIOS() ? <AppleOutlined /> : <DownloadOutlined />,
+    });
+  }
+
   // Add email verification option if email is not verified
   if (!user.email_verified_at) {
     menuItems.push({
@@ -94,22 +111,13 @@ export const UserMenu: React.FC<UserMenuProps> = ({ placement = 'bottomRight' })
       key: 'logout',
       label: 'Log out',
       icon: <LogoutOutlined />,
-    }
+    },
   );
 
-  const menu = (
-    <Menu
-      items={menuItems}
-      onClick={handleMenuClick}
-    />
-  );
+  const menu = <Menu items={menuItems} onClick={handleMenuClick} />;
 
   return (
-    <Dropdown
-      dropdownRender={() => menu}
-      placement={placement}
-      trigger={['click']}
-    >
+    <Dropdown dropdownRender={() => menu} placement={placement} trigger={['click']}>
       <Space className="cursor-pointer">
         <UserAvatar showBadge />
         <Text className="hidden md:inline">{user.name}</Text>

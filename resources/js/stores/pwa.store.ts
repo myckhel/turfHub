@@ -32,7 +32,7 @@ declare global {
     prompt(): Promise<void>;
     userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
   }
-  
+
   interface WindowEventMap {
     beforeinstallprompt: BeforeInstallPromptEvent;
   }
@@ -53,40 +53,37 @@ export const usePWAStore = create<PWAState & PWAActions>()(
         serviceWorkerRegistration: null,
 
         // Actions
-        setInstallable: (installable) =>
-          set({ isInstallable: installable }, false, 'pwa/setInstallable'),
+        setInstallable: (installable) => set({ isInstallable: installable }, false, 'pwa/setInstallable'),
 
-        setInstalled: (installed) =>
-          set({ isInstalled: installed }, false, 'pwa/setInstalled'),
+        setInstalled: (installed) => set({ isInstalled: installed }, false, 'pwa/setInstalled'),
 
-        setOnlineStatus: (online) =>
-          set({ isOnline: online }, false, 'pwa/setOnlineStatus'),
+        setOnlineStatus: (online) => set({ isOnline: online }, false, 'pwa/setOnlineStatus'),
 
-        setUpdateAvailable: (available) =>
-          set({ updateAvailable: available }, false, 'pwa/setUpdateAvailable'),
+        setUpdateAvailable: (available) => set({ updateAvailable: available }, false, 'pwa/setUpdateAvailable'),
 
-        setInstallPromptEvent: (event) =>
-          set({ installPromptEvent: event }, false, 'pwa/setInstallPromptEvent'),
+        setInstallPromptEvent: (event) => set({ installPromptEvent: event }, false, 'pwa/setInstallPromptEvent'),
 
-        setLastUpdateCheck: (date) =>
-          set({ lastUpdateCheck: date }, false, 'pwa/setLastUpdateCheck'),
+        setLastUpdateCheck: (date) => set({ lastUpdateCheck: date }, false, 'pwa/setLastUpdateCheck'),
 
-        setCacheStatus: (status) =>
-          set({ cacheStatus: status }, false, 'pwa/setCacheStatus'),
+        setCacheStatus: (status) => set({ cacheStatus: status }, false, 'pwa/setCacheStatus'),
 
-        setServiceWorkerRegistration: (registration) =>
-          set({ serviceWorkerRegistration: registration }, false, 'pwa/setServiceWorkerRegistration'),
+        setServiceWorkerRegistration: (registration) => set({ serviceWorkerRegistration: registration }, false, 'pwa/setServiceWorkerRegistration'),
 
         installApp: async () => {
           const { installPromptEvent } = get();
-          if (!installPromptEvent) return;
+          if (!installPromptEvent) {
+            console.log('No install prompt event available');
+            return;
+          }
 
           try {
+            console.log('📲 Showing install prompt');
             await installPromptEvent.prompt();
             const choiceResult = await installPromptEvent.userChoice;
-            
+
+            console.log('User choice:', choiceResult.outcome);
             if (choiceResult.outcome === 'accepted') {
-              set({ isInstalled: true, installPromptEvent: null });
+              set({ isInstalled: true, installPromptEvent: null, isInstallable: false });
             }
           } catch (error) {
             console.error('Error installing app:', error);
@@ -126,8 +123,8 @@ export const usePWAStore = create<PWAState & PWAActions>()(
           isInstalled: state.isInstalled,
           lastUpdateCheck: state.lastUpdateCheck,
         }),
-      }
+      },
     ),
-    { name: 'PWAStore' }
-  )
+    { name: 'PWAStore' },
+  ),
 );

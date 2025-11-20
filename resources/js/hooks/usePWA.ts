@@ -1,6 +1,21 @@
 import { useEffect } from 'react';
 import { usePWAStore } from '../stores/pwa.store';
 
+// Helper to detect iOS
+const isIOS = () => {
+  return (
+    ['iPad Simulator', 'iPhone Simulator', 'iPod Simulator', 'iPad', 'iPhone', 'iPod'].includes(navigator.platform) ||
+    (navigator.userAgent.includes('Mac') && 'ontouchend' in document)
+  );
+};
+
+// Helper to check if running as installed PWA
+const isInStandaloneMode = () => {
+  return (
+    window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone || document.referrer.includes('android-app://')
+  );
+};
+
 export const usePWA = () => {
   const {
     isInstallable,
@@ -28,6 +43,7 @@ export const usePWA = () => {
 
     // Handle install prompt
     const handleBeforeInstallPrompt = (e: BeforeInstallPromptEvent) => {
+      console.log('🎯 beforeinstallprompt event fired');
       e.preventDefault();
       setInstallPromptEvent(e);
       setInstallable(true);
@@ -37,6 +53,7 @@ export const usePWA = () => {
 
     // Handle app installed
     const handleAppInstalled = () => {
+      console.log('✅ App installed successfully');
       setInstalled(true);
       setInstallable(false);
       setInstallPromptEvent(null);
@@ -44,9 +61,17 @@ export const usePWA = () => {
 
     window.addEventListener('appinstalled', handleAppInstalled);
 
-    // Check if app is already installed (in standalone mode)
-    if (window.matchMedia('(display-mode: standalone)').matches) {
+    // Check if app is already installed
+    const installed = isInStandaloneMode();
+    if (installed) {
+      console.log('📱 App is running in standalone mode');
       setInstalled(true);
+    } else {
+      // For iOS, show install instructions if not installed and not in standalone
+      if (isIOS() && !installed) {
+        console.log('🍎 iOS device detected - install prompt available');
+        setInstallable(true);
+      }
     }
 
     // Service Worker registration and updates

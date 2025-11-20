@@ -15,6 +15,33 @@ import api, { type ApiResponse } from './index';
  * Handles all team-related API calls including slot management and payments
  */
 export const teamApi = {
+  // Create a new team
+  create: async (data: {
+    name: string;
+    tournament_id?: number;
+    match_session_id?: number;
+    captain_id?: number;
+    status?: string;
+    metadata?: Record<string, unknown>;
+  }): Promise<ApiResponse<TeamDetails>> => {
+    return api.post('/teams', data);
+  },
+
+  // Update team
+  update: async (
+    id: number,
+    data: {
+      name?: string;
+      tournament_id?: number;
+      match_session_id?: number;
+      captain_id?: number;
+      status?: string;
+      metadata?: Record<string, unknown>;
+    },
+  ): Promise<ApiResponse<TeamDetails>> => {
+    return api.put(`/teams/${id}`, data);
+  },
+
   // Get team details with slots and players
   getById: async (
     id: number,

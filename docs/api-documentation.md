@@ -345,6 +345,33 @@ For better organization, the following nested routes are available:
 ### Team-related routes:
 - `GET /api/teams/{team}/players` - Get players for a specific team
 - `GET /api/teams/{team}/game-matches` - Get game matches for a specific team
+- `GET /api/match-sessions/{matchSession}/available-players` - Get available players for a match session
+  ```json
+  // Query Parameters:
+  {
+    "filter_unassigned": true, // Only players not in any team for this session
+    "search": "player name"    // Search by player name (backend search)
+  }
+  
+  // Response:
+  {
+    "data": [
+      {
+        "id": 1,
+        "user_id": 1,
+        "turf_id": 1,
+        "is_member": true,
+        "status": "active",
+        "user": {
+          "id": 1,
+          "name": "John Doe",
+          "avatar": "avatar_url"
+        }
+      }
+    ],
+    "message": "Available players retrieved successfully"
+  }
+  ```
 
 ### Game Match-related routes:
 - `GET /api/game-matches/{gameMatch}/events` - Get events for a specific game match

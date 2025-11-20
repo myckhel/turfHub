@@ -22,13 +22,15 @@ class UpdateTeamRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'match_session_id' => ['sometimes', 'required', 'exists:match_sessions,id'],
+            'match_session_id' => ['sometimes', 'nullable', 'exists:match_sessions,id'],
+            'tournament_id' => ['sometimes', 'nullable', 'exists:tournaments,id'],
             'name' => ['sometimes', 'required', 'string', 'max:255'],
-            'captain_id' => ['sometimes', 'required', 'exists:users,id'],
+            'captain_id' => ['sometimes', 'nullable', 'exists:players,id'],
             'status' => ['sometimes', 'required', 'string', 'max:50'],
             'wins' => ['sometimes', 'integer', 'min:0'],
             'losses' => ['sometimes', 'integer', 'min:0'],
             'draws' => ['sometimes', 'integer', 'min:0'],
+            'metadata' => ['sometimes', 'nullable', 'array'],
         ];
     }
 }

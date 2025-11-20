@@ -112,6 +112,8 @@ createInertiaApp({
 
   resolve: async (name) => {
     const page = await resolveComponent(name);
+    console.log({ name });
+
     const routeName = name.toLowerCase().replace(/\//g, '.');
 
     // Add layout to page component

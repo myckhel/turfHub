@@ -1,0 +1,17 @@
+{
+  "workspace": {
+    "id": "44c5eae1-c971-435e-8890-9c47954ab410"
+  },
+  "entities": {
+    "collections": [
+      "../postman/collections/TurfMate API Collection.postman_collection.json"
+    ],
+    "environments": [
+      "../postman/environments/TurfMate Development.postman_environment.json",
+      "../postman/environments/TurfMate Production.postman_environment.json"
+    ],
+    "specs": [],
+    "flows": [],
+    "globals": []
+  }
+}

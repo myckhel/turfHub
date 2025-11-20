@@ -168,6 +168,72 @@ export const routeConfigs: Record<string, RouteConfig> = {
     roles: ['manager', 'admin'],
     layout: 'dashboard',
   },
+
+  // Tournament routes (standalone)
+  'app.tournaments.index': {
+    name: 'tournaments.index',
+    component: 'App/Turfs/Tournaments/Index',
+    roles: ['player', 'manager', 'admin'],
+    layout: 'dashboard',
+  },
+  'app.tournaments.show': {
+    name: 'tournaments.show',
+    component: 'App/Turfs/Tournaments/Show',
+    roles: ['player', 'manager', 'admin'],
+    layout: 'dashboard',
+  },
+  'app.tournaments.edit': {
+    name: 'tournaments.edit',
+    component: 'App/Turfs/Tournaments/Edit',
+    roles: ['manager', 'admin'],
+    layout: 'dashboard',
+  },
+
+  // Tournament routes (nested under turfs)
+  'app.turfs.tournaments.index': {
+    name: 'turfs.tournaments.index',
+    component: 'App/Turfs/Tournaments/Index',
+    roles: ['player', 'manager', 'admin'],
+    layout: 'dashboard',
+  },
+  'app.turfs.tournaments.create': {
+    name: 'turfs.tournaments.create',
+    component: 'App/Turfs/Tournaments/Create',
+    roles: ['manager', 'admin'],
+    layout: 'dashboard',
+  },
+  'app.turfs.tournaments.show': {
+    name: 'turfs.tournaments.show',
+    component: 'App/Turfs/Tournaments/Show',
+    roles: ['player', 'manager', 'admin'],
+    layout: 'dashboard',
+  },
+  'app.turfs.tournaments.edit': {
+    name: 'turfs.tournaments.edit',
+    component: 'App/Turfs/Tournaments/Edit',
+    roles: ['manager', 'admin'],
+    layout: 'dashboard',
+  },
+
+  // Stage routes (nested under tournaments)
+  'app.turfs.tournaments.stages.create': {
+    name: 'tournaments.stages.create',
+    component: 'App/Turfs/Tournaments/Stages/Create',
+    roles: ['manager', 'admin'],
+    layout: 'dashboard',
+  },
+  'app.turfs.tournaments.stages.show': {
+    name: 'tournaments.stages.show',
+    component: 'App/Turfs/Tournaments/Stages/Show',
+    roles: ['player', 'manager', 'admin'],
+    layout: 'dashboard',
+  },
+  'app.turfs.tournaments.stages.edit': {
+    name: 'tournaments.stages.edit',
+    component: 'App/Turfs/Tournaments/Stages/Edit',
+    roles: ['manager', 'admin'],
+    layout: 'dashboard',
+  },
 };
 
 export const resolveComponent = (name: string) => {

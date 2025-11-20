@@ -100,9 +100,16 @@ class TeamController extends Controller
 
     try {
       $userId = Auth::user()->id;
-      $playerId = $team->matchSession->turf->players()
+
+      // Get turf from either match session or tournament
+      $turf = $team->match_session_id
+        ? $team->matchSession->turf
+        : $team->tournament->turf;
+
+      $playerId = $turf->players()
         ->where('user_id', $userId)
         ->value('id');
+
       $this->teamService->joinTeamSlot($team, $playerId, $request->get('position'));
 
       return response()->json([
@@ -122,9 +129,16 @@ class TeamController extends Controller
 
     try {
       $userId = Auth::user()->id;
-      $playerId = $team->matchSession->turf->players()
+
+      // Get turf from either match session or tournament
+      $turf = $team->match_session_id
+        ? $team->matchSession->turf
+        : $team->tournament->turf;
+
+      $playerId = $turf->players()
         ->where('user_id', $userId)
         ->value('id');
+
       $this->teamService->leaveTeamSlot($team, $playerId);
 
       return response()->json([

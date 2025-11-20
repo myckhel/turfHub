@@ -22,13 +22,15 @@ class StoreTeamRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'match_session_id' => ['required', 'exists:match_sessions,id'],
+            'match_session_id' => ['nullable', 'required_without:tournament_id', 'exists:match_sessions,id'],
+            'tournament_id' => ['nullable', 'required_without:match_session_id', 'exists:tournaments,id'],
             'name' => ['required', 'string', 'max:255'],
-            'captain_id' => ['required', 'exists:users,id'],
-            'status' => ['required', 'string', 'max:50'],
+            'captain_id' => ['nullable', 'exists:players,id'],
+            'status' => ['nullable', 'string', 'max:50'],
             'wins' => ['integer', 'min:0'],
             'losses' => ['integer', 'min:0'],
             'draws' => ['integer', 'min:0'],
+            'metadata' => ['nullable', 'array'],
         ];
     }
 }

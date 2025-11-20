@@ -6,6 +6,7 @@ export { useLayoutStore } from './layout.store';
 export { useOfflineBettingStore } from './offlineBetting.store';
 export { usePWAStore } from './pwa.store';
 export { useTeamStore } from './team.store';
+export { useTournamentStore } from './tournament.store';
 export { useBelongingTurfs, useSelectedTurf, useTurfStore, useTurfSwitcher } from './turf.store';
 
 // Import hooks for the combined hook
@@ -16,6 +17,7 @@ import { useLayoutStore } from './layout.store';
 import { useOfflineBettingStore } from './offlineBetting.store';
 import { usePWAStore } from './pwa.store';
 import { useTeamStore } from './team.store';
+import { useTournamentStore } from './tournament.store';
 import { useTurfStore } from './turf.store';
 
 // Combined hook for multiple stores (if needed)
@@ -26,6 +28,7 @@ export const useAppStores = () => ({
   offlineBetting: useOfflineBettingStore(),
   pwa: usePWAStore(),
   team: useTeamStore(),
+  tournament: useTournamentStore(),
   turf: useTurfStore(),
   betting: useBettingStore(),
 });

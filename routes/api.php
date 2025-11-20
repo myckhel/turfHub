@@ -8,8 +8,12 @@ use App\Http\Controllers\Api\MatchEventController;
 use App\Http\Controllers\Api\MatchSessionController;
 use App\Http\Controllers\Api\PlayerController;
 use App\Http\Controllers\Api\QueueLogicController;
+use App\Http\Controllers\Api\RankingController;
+use App\Http\Controllers\Api\StageController;
+use App\Http\Controllers\Api\StagePromotionController;
 use App\Http\Controllers\Api\TeamController;
 use App\Http\Controllers\Api\TeamPlayerController;
+use App\Http\Controllers\Api\TournamentController;
 use App\Http\Controllers\Api\TurfController;
 use App\Http\Controllers\Api\UserController;
 use App\Models\MatchSession;
@@ -83,6 +87,39 @@ Route::middleware('auth:sanctum')->name('api.')->group(function () {
   Route::apiResource('queue-logic', QueueLogicController::class);
   Route::apiResource('team-players', TeamPlayerController::class);
 
+  // Tournament routes
+  Route::apiResource('tournaments', TournamentController::class);
+
+  // Stage promotion routes (global listing)
+  Route::get('stage-promotions', [StagePromotionController::class, 'index'])->name('stage-promotions.index');
+
+  Route::prefix('tournaments/{tournament}')->name('tournaments.')->group(function () {
+    Route::get('stages', [StageController::class, 'index'])->name('stages.index');
+    Route::post('stages', [StageController::class, 'store'])->name('stages.store');
+    Route::get('export', [TournamentController::class, 'export'])->name('export');
+  });
+
+  Route::prefix('stages/{stage}')->name('stages.')->group(function () {
+    Route::get('/', [StageController::class, 'show'])->name('show');
+    Route::patch('/', [StageController::class, 'update'])->name('update');
+    Route::delete('/', [StageController::class, 'destroy'])->name('destroy');
+    Route::post('assign-teams', [StageController::class, 'assignTeams'])->name('assign-teams');
+    Route::get('simulate-fixtures', [StageController::class, 'simulateFixtures'])->name('simulate-fixtures');
+    Route::post('generate-fixtures', [StageController::class, 'generateFixtures'])->name('generate-fixtures');
+    Route::get('simulate-promotion', [StageController::class, 'simulatePromotion'])->name('simulate-promotion');
+    Route::post('execute-promotion', [StageController::class, 'executePromotion'])->name('execute-promotion');
+    Route::get('rankings', [RankingController::class, 'index'])->name('rankings.index');
+    Route::post('rankings/refresh', [RankingController::class, 'refresh'])->name('rankings.refresh');
+
+    // Stage promotion routes
+    Route::resource('promotion', StagePromotionController::class);
+    Route::patch('promotion', [StagePromotionController::class, 'update'])->name('promotion.update');
+  });
+
+  Route::prefix('groups/{group}')->name('groups.')->group(function () {
+    Route::get('rankings', [RankingController::class, 'byGroup'])->name('rankings');
+  });
+
   // Additional nested resource routes for better organization
   Route::prefix('turfs/{turf}')->group(function () {
     Route::get('players', [PlayerController::class, 'index'])->name('turfs.players.index');
@@ -145,6 +182,11 @@ Route::middleware('auth:sanctum')->name('api.')->group(function () {
 
   Route::prefix('game-matches/{gameMatch}')->group(function () {
     Route::get('events', [MatchEventController::class, 'index'])->name('game-matches.events.index');
+
+    // Tournament fixture management
+    Route::post('submit-result', [GameMatchController::class, 'submitResult'])->name('game-matches.submit-result');
+    Route::patch('update-result', [GameMatchController::class, 'updateResult'])->name('game-matches.update-result');
+    Route::patch('reschedule', [GameMatchController::class, 'reschedule'])->name('game-matches.reschedule');
   });
 
   Route::prefix('users/{user}')->group(function () {

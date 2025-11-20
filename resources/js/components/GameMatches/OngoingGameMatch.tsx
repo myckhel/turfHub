@@ -21,7 +21,7 @@ const OngoingGameMatch: React.FC<OngoingGameMatchProps> = ({ gameMatch, matchSes
   const canManageSessions = permissions.canManageSessions();
 
   const [currentMatch, setCurrentMatch] = useState<GameMatch | null>(gameMatch || null);
-  const [initialLoading, setInitialLoading] = useState(!gameMatch || !matchSession);
+  const [, setInitialLoading] = useState(!gameMatch || !matchSession);
 
   // Determine which IDs to use
   const resolvedGameMatchId = gameMatch?.id || gameMatchId;

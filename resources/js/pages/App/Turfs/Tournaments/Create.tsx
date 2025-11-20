@@ -1,6 +1,6 @@
-import { ArrowLeftOutlined, SaveOutlined, TrophyOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, ExperimentOutlined, SaveOutlined, TrophyOutlined } from '@ant-design/icons';
 import { Head, router } from '@inertiajs/react';
-import { Button, Card, Col, DatePicker, Form, Input, InputNumber, message, Row, Select, Steps, Typography } from 'antd';
+import { Alert, Button, Card, Col, DatePicker, Form, Input, InputNumber, message, Row, Select, Steps, Typography } from 'antd';
 import dayjs from 'dayjs';
 import { memo, useState } from 'react';
 import { tournamentApi } from '../../../../apis/tournament';
@@ -107,6 +107,17 @@ const Create = ({ turf }: CreateProps) => {
               </div>
             </div>
           </Card>
+
+          {/* Preview Notice */}
+          <Alert
+            message="Preview Feature"
+            description="Tournament management is currently in preview. Some features may be under active development."
+            type="info"
+            icon={<ExperimentOutlined />}
+            showIcon
+            closable
+            className="mb-6"
+          />
 
           {/* Steps */}
           <Card className="mb-6 shadow-sm">

@@ -1,6 +1,6 @@
-import { PlusOutlined, TrophyOutlined } from '@ant-design/icons';
+import { ExperimentOutlined, PlusOutlined, TrophyOutlined } from '@ant-design/icons';
 import { Head, router } from '@inertiajs/react';
-import { Button, Card, Col, Input, Row, Select, Space, Spin, Typography } from 'antd';
+import { Alert, Button, Card, Col, Input, Row, Select, Space, Spin, Typography } from 'antd';
 import { memo, useCallback, useEffect, useState } from 'react';
 import { useTournamentStore } from '../../../../stores';
 import type { Tournament, TournamentFilters } from '../../../../types/tournament.types';
@@ -83,6 +83,17 @@ const Index = ({ turf }: IndexProps) => {
               )}
             </div>
           </Card>
+
+          {/* Preview Notice */}
+          <Alert
+            message="Preview Feature"
+            description="Tournament management is currently in preview. Some features may be under active development. We appreciate your feedback!"
+            type="info"
+            icon={<ExperimentOutlined />}
+            showIcon
+            closable
+            className="mb-6"
+          />
 
           {/* Filters Section */}
           <Card className="mb-6 shadow-sm">

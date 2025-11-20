@@ -1,6 +1,6 @@
-import { CalendarOutlined, EditOutlined, PlusOutlined, TeamOutlined, TrophyOutlined } from '@ant-design/icons';
+import { CalendarOutlined, EditOutlined, ExperimentOutlined, PlusOutlined, TeamOutlined, TrophyOutlined } from '@ant-design/icons';
 import { Head, router } from '@inertiajs/react';
-import { Button, Card, Col, Row, Space, Statistic, Tabs, Tag, Typography } from 'antd';
+import { Alert, Button, Card, Col, Row, Space, Statistic, Tabs, Tag, Typography } from 'antd';
 import { format } from 'date-fns';
 import { memo, useCallback, useEffect, useState } from 'react';
 import TeamFormModal from '../../../../components/Teams/TeamFormModal';
@@ -93,6 +93,17 @@ const Show = ({ turf, tournamentId, tournament: initialTournament }: ShowProps) 
               </Button>
             </div>
           </Card>
+
+          {/* Preview Notice */}
+          <Alert
+            message="Preview Feature"
+            description="Tournament management is currently in preview. Some features may be under active development. We appreciate your feedback!"
+            type="info"
+            icon={<ExperimentOutlined />}
+            showIcon
+            closable
+            className="mb-6"
+          />
 
           {/* Stats */}
           <Row gutter={[16, 16]} className="mb-6">

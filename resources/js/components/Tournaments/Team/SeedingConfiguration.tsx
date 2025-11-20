@@ -2,7 +2,7 @@ import { DragOutlined, SaveOutlined, TeamOutlined } from '@ant-design/icons';
 import { DndContext, DragEndEvent, PointerSensor, closestCenter, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Button, Card, Empty, Space, Typography, message } from 'antd';
+import { Button, Card, Empty, Space, Tag, Typography, message } from 'antd';
 import { memo, useState } from 'react';
 import type { StageTeam } from '../../../types/tournament.types';
 
@@ -127,9 +127,12 @@ const SeedingConfiguration = memo(({ teams: initialTeams, onSave, onCancel, load
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <Title level={5} className="mb-1">
-            Team Seeding Order
-          </Title>
+          <div className="mb-1 flex items-center gap-2">
+            <Title level={5} className="mb-0">
+              Team Seeding Order
+            </Title>
+            <Tag color="blue">Preview</Tag>
+          </div>
           <Text className="text-gray-600">Drag teams to reorder their seeding position</Text>
         </div>
         <Space>

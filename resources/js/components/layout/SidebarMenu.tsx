@@ -11,7 +11,7 @@ import {
   WalletOutlined,
 } from '@ant-design/icons';
 import { Link } from '@inertiajs/react';
-import { Menu, MenuProps } from 'antd';
+import { Badge, Menu, MenuProps } from 'antd';
 import { memo } from 'react';
 import { usePermissions } from '../../hooks/usePermissions';
 import { useTurfStore } from '../../stores/turf.store';
@@ -77,7 +77,11 @@ export const SidebarMenu = memo<SidebarMenuProps>(({ onClick, mode = 'inline', t
           {
             key: 'tournaments',
             icon: <TrophyOutlined />,
-            label: <Link href={route('web.turfs.tournaments.index', { turf: selectedTurf.id })}>Tournaments</Link>,
+            label: (
+              <Badge count="Preview" size="small" color="blue" offset={[10, 0]}>
+                <Link href={route('web.turfs.tournaments.index', { turf: selectedTurf.id })}>Tournaments</Link>
+              </Badge>
+            ),
           },
         ],
       );

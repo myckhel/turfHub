@@ -83,7 +83,7 @@ class TournamentLifecycleTest extends TestCase
       'status' => StageStatus::PENDING->value,
       'settings' => [
         'rounds' => 2,
-        'home_away' => true,
+        'home_and_away' => true,
       ],
     ]);
 

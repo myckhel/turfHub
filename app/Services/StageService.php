@@ -28,6 +28,9 @@ class StageService
    *   - stage_type (string, optional): 'league', 'group', 'knockout', or 'swiss'
    *   - settings (array, optional): Stage-specific configuration
    *   - order (int, optional): Display/execution order
+   *   - next_stage_id (int, optional): ID of the next stage for promotion
+   *   - rule_type (string, optional): Promotion rule type
+   *   - rule_config (array, optional): Promotion rule configuration
    *
    * @return Stage The created stage
    */
@@ -37,7 +40,7 @@ class StageService
       // Determine order
       $maxOrder = $tournament->stages()->max('order') ?? 0;
 
-      return Stage::create([
+      $stage = Stage::create([
         'tournament_id' => $tournament->id,
         'name' => $data['name'],
         'order' => $data['order'] ?? $maxOrder + 1,
@@ -45,6 +48,17 @@ class StageService
         'settings' => $data['settings'] ?? [],
         'status' => 'pending',
       ]);
+
+      // Create promotion rule if provided
+      if (isset($data['next_stage_id']) && isset($data['rule_type']) && isset($data['rule_config'])) {
+        $stage->promotion()->create([
+          'next_stage_id' => $data['next_stage_id'],
+          'rule_type' => $data['rule_type'],
+          'rule_config' => $data['rule_config'],
+        ]);
+      }
+
+      return $stage->fresh('promotion');
     });
   }
 
@@ -59,19 +73,36 @@ class StageService
    *   - order (int): Stage order
    *   - settings (array): Stage configuration
    *   - status (string): Stage status
+   *   - next_stage_id (int): ID of the next stage for promotion
+   *   - rule_type (string): Promotion rule type
+   *   - rule_config (array): Promotion rule configuration
    *
    * @return Stage The updated stage
    */
   public function updateStage(Stage $stage, array $data): Stage
   {
-    $stage->update(array_filter([
-      'name' => $data['name'] ?? null,
-      'order' => $data['order'] ?? null,
-      'settings' => $data['settings'] ?? null,
-      'status' => $data['status'] ?? null,
-    ], fn($value) => $value !== null));
+    return DB::transaction(function () use ($stage, $data) {
+      $stage->update(array_filter([
+        'name' => $data['name'] ?? null,
+        'order' => $data['order'] ?? null,
+        'settings' => $data['settings'] ?? null,
+        'status' => $data['status'] ?? null,
+      ], fn($value) => $value !== null));
 
-    return $stage->fresh();
+      // Update or create promotion rule if provided
+      if (isset($data['next_stage_id']) && isset($data['rule_type']) && isset($data['rule_config'])) {
+        $stage->promotion()->updateOrCreate(
+          ['stage_id' => $stage->id],
+          [
+            'next_stage_id' => $data['next_stage_id'],
+            'rule_type' => $data['rule_type'],
+            'rule_config' => $data['rule_config'],
+          ]
+        );
+      }
+
+      return $stage->fresh('promotion');
+    });
   }
 
   /**

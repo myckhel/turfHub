@@ -10,8 +10,7 @@ import {
 import { Head, router } from '@inertiajs/react';
 import { App, Badge, Button, Card, Col, Descriptions, message, Modal, Row, Space, Statistic, Tabs, Typography } from 'antd';
 import { format } from 'date-fns';
-import { memo, useEffect, useState } from 'react';
-import { gameMatchApi } from '../../../../../apis/gameMatch';
+import { memo, useCallback, useEffect, useState } from 'react';
 import FixtureGenerator from '../../../../../components/Tournaments/Fixture/FixtureGenerator';
 import FixtureSchedule from '../../../../../components/Tournaments/Fixture/FixtureSchedule';
 import FixtureSimulator from '../../../../../components/Tournaments/Fixture/FixtureSimulator';
@@ -19,6 +18,7 @@ import SubmitResultModal from '../../../../../components/Tournaments/Fixture/Sub
 import ExecutePromotionModal from '../../../../../components/Tournaments/Promotion/ExecutePromotionModal';
 import PromotedTeamsList from '../../../../../components/Tournaments/Promotion/PromotedTeamsList';
 import PromotionPreview from '../../../../../components/Tournaments/Promotion/PromotionPreview';
+import PromotionRuleEditModal from '../../../../../components/Tournaments/Promotion/PromotionRuleEditModal';
 import PromotionRulesDisplay from '../../../../../components/Tournaments/Promotion/PromotionRulesDisplay';
 import GroupStandings from '../../../../../components/Tournaments/Ranking/GroupStandings';
 import OverallStandings from '../../../../../components/Tournaments/Ranking/OverallStandings';
@@ -393,7 +393,6 @@ const FixturesTab = memo(({ stage }: { stage: Stage }) => {
   const [activeView, setActiveView] = useState<'schedule' | 'generate' | 'simulate'>('schedule');
   const [selectedFixture, setSelectedFixture] = useState<Fixture | null>(null);
   const [scoreModalVisible, setScoreModalVisible] = useState(false);
-  const [loadingSubmit, setLoadingSubmit] = useState(false);
   const { message } = App.useApp();
 
   useEffect(() => {
@@ -407,27 +406,10 @@ const FixturesTab = memo(({ stage }: { stage: Stage }) => {
     setScoreModalVisible(true);
   };
 
-  const handleSubmitScore = async (fixtureId: number, homeScore: number, awayScore: number) => {
-    setLoadingSubmit(true);
-    try {
-      await gameMatchApi.update(fixtureId, {
-        first_team_score: homeScore,
-        second_team_score: awayScore,
-      });
-      message.success('Score submitted successfully');
-      fetchFixtures({ stage_id: stage.id });
-    } catch (error) {
-      console.error('Failed to submit score:', error);
-      message.error('Failed to submit score');
-    } finally {
-      setLoadingSubmit(false);
-    }
-  };
-
   const handleGenerateFixtures = async (stageId: number, data: GenerateFixturesRequest) => {
     await generateFixtures(stageId, data);
     message.success('Fixtures generated successfully');
-    fetchFixtures({ stage_id: stage.id });
+    fetchFixtures({ stage_id: stage.id, include: 'first_team,second_team,match_events,betting_markets' });
     setActiveView('schedule');
   };
 
@@ -440,9 +422,15 @@ const FixturesTab = memo(({ stage }: { stage: Stage }) => {
     message.info('Simulation reset');
   };
 
+  const onCloseResultModal = useCallback(() => {
+    setScoreModalVisible(false);
+    setSelectedFixture(null);
+  }, []);
+
   const stageFixtures = fixtures;
-  const pendingFixtures = stageFixtures.filter((f) => f.status === 'scheduled');
+  const pendingFixtures = stageFixtures.filter((f) => f.status === 'upcoming' || f.status === 'postponed');
   const hasFixtures = stageFixtures.length > 0;
+  console.log({ fixtures });
 
   return (
     <div className="space-y-4">
@@ -505,18 +493,7 @@ const FixturesTab = memo(({ stage }: { stage: Stage }) => {
       )}
 
       {/* Submit Score Modal */}
-      {selectedFixture && (
-        <SubmitResultModal
-          visible={scoreModalVisible}
-          fixture={selectedFixture}
-          onClose={() => {
-            setScoreModalVisible(false);
-            setSelectedFixture(null);
-          }}
-          onSubmit={handleSubmitScore}
-          loading={loadingSubmit}
-        />
-      )}
+      {selectedFixture && <SubmitResultModal visible={scoreModalVisible} fixture={selectedFixture} onClose={onCloseResultModal} stageId={stage.id} />}
     </div>
   );
 });
@@ -578,33 +555,60 @@ RankingsTab.displayName = 'RankingsTab';
 
 // Promotion Tab
 const PromotionTab = memo(({ stage }: { stage: Stage }) => {
-  const { promotionSimulation } = useTournamentStore();
+  const { promotionSimulation, fetchStage } = useTournamentStore();
   const [executeModalVisible, setExecuteModalVisible] = useState(false);
+  const [editModalVisible, setEditModalVisible] = useState(false);
 
   const hasPromotion = !!stage.promotion;
   const promotedTeams = stage.promotion?.next_stage?.id ? [] : []; // This would come from API in real scenario
+  const canEditPromotion = stage.status === 'pending' || (stage.total_fixtures || 0) === 0;
+
+  console.log({ editModalVisible, canEditPromotion, hasPromotion });
 
   const handleExecuteSuccess = () => {
     message.success('Promotion executed successfully!');
     setExecuteModalVisible(false);
   };
 
-  if (!hasPromotion) {
-    return (
-      <Card>
-        <div className="py-8 text-center text-gray-500">
-          <RocketOutlined className="mb-2 text-4xl" />
-          <p>No promotion rules configured for this stage</p>
-          <p className="text-sm">Teams from this stage will not automatically advance</p>
-        </div>
-      </Card>
-    );
-  }
+  const handleEditSuccess = () => {
+    fetchStage(stage.id);
+    message.success('Promotion rules updated successfully');
+  };
 
   return (
     <div className="space-y-4">
       {/* Promotion Rules */}
-      <PromotionRulesDisplay promotion={stage.promotion} stageType={stage.stage_type} />
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex-1">
+          <PromotionRulesDisplay promotion={stage.promotion} stageType={stage.stage_type} />
+        </div>
+        {canEditPromotion && hasPromotion && (
+          <Button type="primary" icon={<EditOutlined />} onClick={() => setEditModalVisible(true)}>
+            Edit Rules
+          </Button>
+        )}
+      </div>
+
+      {!canEditPromotion && (stage.status !== 'pending' || (stage.total_fixtures || 0) > 0) && (
+        <Card size="small" className="border-orange-200 bg-orange-50">
+          <Text className="text-sm text-orange-700">⚠️ Promotion rules cannot be edited once fixtures are generated or the stage is active.</Text>
+        </Card>
+      )}
+
+      {!hasPromotion && (
+        <Card>
+          <div className="py-8 text-center text-gray-500">
+            <RocketOutlined className="mb-2 text-4xl" />
+            <p>No promotion rules configured for this stage</p>
+            <p className="text-sm">Teams from this stage will not automatically advance</p>
+            {canEditPromotion && (
+              <Button type="primary" className="mt-4" onClick={() => setEditModalVisible(true)}>
+                Configure Promotion Rules
+              </Button>
+            )}
+          </div>
+        </Card>
+      )}
 
       {/* Promotion Preview */}
       {stage.status === 'active' || stage.status === 'completed' ? (
@@ -631,6 +635,9 @@ const PromotionTab = memo(({ stage }: { stage: Stage }) => {
           onSuccess={handleExecuteSuccess}
         />
       )}
+
+      {/* Edit Promotion Rules Modal */}
+      <PromotionRuleEditModal visible={editModalVisible} stage={stage} onClose={() => setEditModalVisible(false)} onSuccess={handleEditSuccess} />
     </div>
   );
 });

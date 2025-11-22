@@ -1,6 +1,8 @@
 import { SaveOutlined } from '@ant-design/icons';
-import { Button, Form, InputNumber, message, Modal, Typography } from 'antd';
+import { App, Button, Form, InputNumber, Modal, Typography } from 'antd';
 import { memo, useState } from 'react';
+import { gameMatchApi } from '../../../apis/gameMatch';
+import { useTournamentStore } from '../../../stores';
 import type { Fixture } from '../../../types/tournament.types';
 
 const { Text, Title } = Typography;
@@ -9,13 +11,31 @@ interface SubmitResultModalProps {
   visible: boolean;
   fixture: Fixture;
   onClose: () => void;
-  onSubmit: (fixtureId: number, homeScore: number, awayScore: number) => Promise<void>;
-  loading?: boolean;
+  stageId: number;
 }
 
-const SubmitResultModal = memo(({ visible, fixture, onClose, onSubmit, loading }: SubmitResultModalProps) => {
+const SubmitResultModal = memo(({ visible, fixture, onClose, stageId }: SubmitResultModalProps) => {
+  const { message } = App.useApp();
   const [form] = Form.useForm();
   const [submitting, setSubmitting] = useState(false);
+  const { fetchFixtures } = useTournamentStore();
+
+  const onSubmit = async (fixtureId: number, homeScore: number, awayScore: number) => {
+    setSubmitting(true);
+    try {
+      await gameMatchApi.update(fixtureId, {
+        first_team_score: homeScore,
+        second_team_score: awayScore,
+      });
+      message.success('Score submitted successfully');
+      fetchFixtures({ stage_id: stageId, include: 'first_team,second_team,match_events,betting_markets' });
+    } catch (error) {
+      console.error('Failed to submit score:', error);
+      message.error('Failed to submit score');
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   const handleSubmit = async () => {
     try {
@@ -45,10 +65,10 @@ const SubmitResultModal = memo(({ visible, fixture, onClose, onSubmit, loading }
       open={visible}
       onCancel={handleCancel}
       footer={[
-        <Button key="cancel" onClick={handleCancel} disabled={submitting || loading}>
+        <Button key="cancel" onClick={handleCancel} disabled={submitting}>
           Cancel
         </Button>,
-        <Button key="submit" type="primary" icon={<SaveOutlined />} onClick={handleSubmit} loading={submitting || loading}>
+        <Button key="submit" type="primary" icon={<SaveOutlined />} onClick={handleSubmit} loading={submitting}>
           Submit Result
         </Button>,
       ]}

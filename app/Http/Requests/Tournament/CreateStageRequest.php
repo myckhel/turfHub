@@ -47,6 +47,10 @@ class CreateStageRequest extends FormRequest
       // Tie breakers
       'settings.tie_breakers' => 'nullable|array',
       'settings.tie_breakers.*' => 'string|in:goal_difference,goals_for,head_to_head,fair_play,random',
+      // Promotion rules
+      'next_stage_id' => 'nullable|integer|exists:stages,id',
+      'rule_type' => 'nullable|string|in:top_n,top_per_group,points_threshold,custom',
+      'rule_config' => 'nullable|array',
     ];
   }
 

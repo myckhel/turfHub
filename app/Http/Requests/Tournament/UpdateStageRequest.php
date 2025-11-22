@@ -47,6 +47,10 @@ class UpdateStageRequest extends FormRequest
       'settings.tie_breakers' => 'nullable|array',
       'settings.tie_breakers.*' => 'string|in:goal_difference,goals_for,head_to_head,fair_play,random',
       'status' => ['sometimes', Rule::enum(StageStatus::class)],
+      // Promotion rules
+      'next_stage_id' => 'sometimes|integer|exists:stages,id',
+      'rule_type' => 'sometimes|string|in:top_n,top_per_group,points_threshold,custom',
+      'rule_config' => 'sometimes|array',
     ];
   }
 }

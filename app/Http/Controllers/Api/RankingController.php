@@ -28,7 +28,7 @@ class RankingController extends Controller
 
     $rankings = Cache::remember("rankings-stage-{$stage->id}", 300, function () use ($stage) {
       return $stage->rankings()
-        ->with('team')
+        ->with(['team', 'group'])
         ->orderBy('rank')
         ->paginate(15);
     });

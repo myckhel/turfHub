@@ -20,10 +20,10 @@ const GroupStandings = memo(({ rankings, groups, loading }: GroupStandingsProps)
     });
 
     rankings.forEach((ranking) => {
-      if (ranking.group?.id) {
-        const groupRankings = grouped.get(ranking.group.id) || [];
+      if (ranking.group_id) {
+        const groupRankings = grouped.get(ranking.group_id) || [];
         groupRankings.push(ranking);
-        grouped.set(ranking.group.id, groupRankings);
+        grouped.set(ranking.group_id, groupRankings);
       }
     });
 

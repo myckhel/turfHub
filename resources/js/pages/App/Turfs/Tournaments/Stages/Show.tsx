@@ -503,9 +503,25 @@ FixturesTab.displayName = 'FixturesTab';
 // Rankings Tab
 const RankingsTab = memo(({ stage }: { stage: Stage }) => {
   const [viewMode, setViewMode] = useState<'overall' | 'groups'>('overall');
-  const { isLoadingStage } = useTournamentStore();
+  const { rankings, groups, fetchRankings, fetchGroups, isLoadingRankings, isLoadingGroups } = useTournamentStore();
 
-  const showGroupView = stage.stage_type === 'group' && stage.groups && stage.groups.length > 0;
+  useEffect(() => {
+    // Fetch rankings if not present in stage or to ensure fresh data
+    if (stage.id && (!stage.rankings || stage.rankings.length === 0)) {
+      fetchRankings(stage.id);
+    }
+
+    // Fetch groups if stage is a group stage and groups not present
+    if (stage.id && stage.stage_type === 'group' && (!stage.groups || stage.groups.length === 0)) {
+      fetchGroups(stage.id);
+    }
+  }, [stage.id, stage.rankings, stage.groups, stage.stage_type, fetchRankings, fetchGroups]);
+
+  // Use fetched rankings from store if available, otherwise fall back to stage.rankings
+  const currentRankings = rankings.length > 0 ? rankings : stage.rankings || [];
+  // Use fetched groups from store if available, otherwise fall back to stage.groups
+  const currentGroups = groups.length > 0 ? groups : stage.groups || [];
+  const showGroupView = stage.stage_type === 'group' && currentGroups.length > 0;
   const tieBreakers = stage.settings.tie_breakers || [];
   const tieBreakerObjects = tieBreakers.map((type, index) => ({
     id: index + 1,
@@ -543,9 +559,9 @@ const RankingsTab = memo(({ stage }: { stage: Stage }) => {
 
       {/* Rankings Display */}
       {viewMode === 'overall' ? (
-        <OverallStandings rankings={stage.rankings || []} showGroup={showGroupView} loading={isLoadingStage} />
+        <OverallStandings rankings={currentRankings} showGroup={showGroupView} loading={isLoadingRankings} />
       ) : (
-        <GroupStandings rankings={stage.rankings || []} groups={stage.groups || []} loading={isLoadingStage} />
+        <GroupStandings rankings={currentRankings} groups={currentGroups} loading={isLoadingRankings || isLoadingGroups} />
       )}
     </div>
   );

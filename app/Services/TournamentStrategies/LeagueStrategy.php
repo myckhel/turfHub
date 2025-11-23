@@ -58,12 +58,10 @@ class LeagueStrategy implements StageStrategyInterface
     // Map fixtures to format expected by RankingCalculator
     $mappedFixtures = $fixtures->map(function ($fixture) {
       return (object) [
-        'home_team_id' => $fixture->first_team_id,
-        'away_team_id' => $fixture->second_team_id,
-        'score' => [
-          'home' => $fixture->first_team_score ?? 0,
-          'away' => $fixture->second_team_score ?? 0,
-        ],
+        'first_team_id' => $fixture->first_team_id,
+        'second_team_id' => $fixture->second_team_id,
+        'first_team_score' => $fixture->first_team_score ?? 0,
+        'second_team_score' => $fixture->second_team_score ?? 0,
       ];
     });
 

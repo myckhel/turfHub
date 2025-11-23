@@ -36,7 +36,6 @@ class GameMatch extends Model
     'match_time',      // Actual time the match started
     'starts_at',       // Scheduled start time
     'duration',        // Match duration in minutes
-    'score',           // Detailed score data
     'status',          // e.g., upcoming, in_progress, completed, postponed
     'betting_enabled', // Whether betting is enabled for this match
   ];
@@ -54,7 +53,6 @@ class GameMatch extends Model
       'match_time' => 'datetime',
       'starts_at' => 'datetime',
       'duration' => 'integer',
-      'score' => 'array',
       'betting_enabled' => 'boolean',
     ];
   }

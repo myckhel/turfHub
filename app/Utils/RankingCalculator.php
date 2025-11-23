@@ -6,150 +6,150 @@ use Illuminate\Support\Collection;
 
 class RankingCalculator
 {
-    /**
-     * Calculate ranking stats from match results.
-     *
-     * @param Collection<int, object{home_team_id: int, away_team_id: int, score: array{home: int, away: int}}> $fixtures Collection of completed fixtures
-     * @param array<int> $teamIds Array of team IDs to rank
-     * @param array{win: int, draw: int, loss: int}|null $scoringSystem Scoring system (default: win=3, draw=1, loss=0)
-     * @return Collection<int, array{team_id: int, played: int, wins: int, draws: int, losses: int, goals_for: int, goals_against: int, goal_difference: int, points: int}> Collection of ranking data
-     */
-    public static function calculate(Collection $fixtures, array $teamIds, array $scoringSystem = null): Collection
-    {
-        $scoringSystem = $scoringSystem ?? config('tournament.scoring.default', [
-            'win' => 3,
-            'draw' => 1,
-            'loss' => 0,
-        ]);
+  /**
+   * Calculate ranking stats from match results.
+   *
+   * @param Collection<int, object{first_team_id: int, second_team_id: int, first_team_score: int, second_team_score: int}> $fixtures Collection of completed fixtures
+   * @param array<int> $teamIds Array of team IDs to rank
+   * @param array{win: int, draw: int, loss: int}|null $scoringSystem Scoring system (default: win=3, draw=1, loss=0)
+   * @return Collection<int, array{team_id: int, played: int, wins: int, draws: int, losses: int, goals_for: int, goals_against: int, goal_difference: int, points: int}> Collection of ranking data
+   */
+  public static function calculate(Collection $fixtures, array $teamIds, array $scoringSystem = null): Collection
+  {
+    $scoringSystem = $scoringSystem ?? config('tournament.scoring.default', [
+      'win' => 3,
+      'draw' => 1,
+      'loss' => 0,
+    ]);
 
-        $rankings = collect();
+    $rankings = collect();
 
-        foreach ($teamIds as $teamId) {
-            $stats = self::calculateTeamStats($fixtures, $teamId, $scoringSystem);
-            $rankings->push($stats);
-        }
-
-        // Sort by points, then goal difference, then goals for
-        return $rankings->sortByDesc(function ($team) {
-            return [
-                $team['points'],
-                $team['goal_difference'],
-                $team['goals_for'],
-            ];
-        })->values();
+    foreach ($teamIds as $teamId) {
+      $stats = self::calculateTeamStats($fixtures, $teamId, $scoringSystem);
+      $rankings->push($stats);
     }
 
-    /**
-     * Calculate stats for a single team.
-     *
-     * @param Collection<int, object{home_team_id: int, away_team_id: int, score: array{home: int, away: int}}> $fixtures
-     * @param int $teamId
-     * @param array{win: int, draw: int, loss: int} $scoringSystem
-     * @return array{team_id: int, played: int, wins: int, draws: int, losses: int, goals_for: int, goals_against: int, goal_difference: int, points: int}
-     */
-    private static function calculateTeamStats(Collection $fixtures, int $teamId, array $scoringSystem): array
-    {
-        $played = 0;
-        $wins = 0;
-        $draws = 0;
-        $losses = 0;
-        $goalsFor = 0;
-        $goalsAgainst = 0;
+    // Sort by points, then goal difference, then goals for
+    return $rankings->sortByDesc(function ($team) {
+      return [
+        $team['points'],
+        $team['goal_difference'],
+        $team['goals_for'],
+      ];
+    })->values();
+  }
 
-        foreach ($fixtures as $fixture) {
-            if (!isset($fixture->score['home'], $fixture->score['away'])) {
-                continue; // Skip if no score
-            }
+  /**
+   * Calculate stats for a single team.
+   *
+   * @param Collection<int, object{first_team_id: int, second_team_id: int, first_team_score: int, second_team_score: int}> $fixtures
+   * @param int $teamId
+   * @param array{win: int, draw: int, loss: int} $scoringSystem
+   * @return array{team_id: int, played: int, wins: int, draws: int, losses: int, goals_for: int, goals_against: int, goal_difference: int, points: int}
+   */
+  private static function calculateTeamStats(Collection $fixtures, int $teamId, array $scoringSystem): array
+  {
+    $played = 0;
+    $wins = 0;
+    $draws = 0;
+    $losses = 0;
+    $goalsFor = 0;
+    $goalsAgainst = 0;
 
-            $isHome = $fixture->home_team_id === $teamId;
-            $isAway = $fixture->away_team_id === $teamId;
+    foreach ($fixtures as $fixture) {
+      if (!isset($fixture->first_team_score, $fixture->second_team_score)) {
+        continue; // Skip if no score
+      }
 
-            if (!$isHome && !$isAway) {
-                continue; // Team not in this match
-            }
+      $isFirstTeam = $fixture->first_team_id === $teamId;
+      $isSecondTeam = $fixture->second_team_id === $teamId;
 
-            $played++;
+      if (!$isFirstTeam && !$isSecondTeam) {
+        continue; // Team not in this match
+      }
 
-            if ($isHome) {
-                $teamScore = $fixture->score['home'];
-                $opponentScore = $fixture->score['away'];
-            } else {
-                $teamScore = $fixture->score['away'];
-                $opponentScore = $fixture->score['home'];
-            }
+      $played++;
 
-            $goalsFor += $teamScore;
-            $goalsAgainst += $opponentScore;
+      if ($isFirstTeam) {
+        $teamScore = $fixture->first_team_score;
+        $opponentScore = $fixture->second_team_score;
+      } else {
+        $teamScore = $fixture->second_team_score;
+        $opponentScore = $fixture->first_team_score;
+      }
 
-            if ($teamScore > $opponentScore) {
-                $wins++;
-            } elseif ($teamScore < $opponentScore) {
-                $losses++;
-            } else {
-                $draws++;
-            }
-        }
+      $goalsFor += $teamScore;
+      $goalsAgainst += $opponentScore;
 
-        $points = ($wins * $scoringSystem['win']) +
-            ($draws * $scoringSystem['draw']) +
-            ($losses * $scoringSystem['loss']);
-
-        return [
-            'team_id' => $teamId,
-            'played' => $played,
-            'wins' => $wins,
-            'draws' => $draws,
-            'losses' => $losses,
-            'goals_for' => $goalsFor,
-            'goals_against' => $goalsAgainst,
-            'goal_difference' => $goalsFor - $goalsAgainst,
-            'points' => $points,
-        ];
+      if ($teamScore > $opponentScore) {
+        $wins++;
+      } elseif ($teamScore < $opponentScore) {
+        $losses++;
+      } else {
+        $draws++;
+      }
     }
 
-    /**
-     * Apply tie-breaker rules to teams with same points.
-     *
-     * @param Collection $rankings Rankings to apply tie-breakers to
-     * @param array $tieBreakers Array of tie-breaker rule class names
-     * @param Collection $fixtures Fixtures for head-to-head calculations
-     * @return Collection Sorted rankings
-     */
-    public static function applyTieBreakers(Collection $rankings, array $tieBreakers, Collection $fixtures): Collection
-    {
-        // Group teams by points
-        $groupedByPoints = $rankings->groupBy('points');
+    $points = ($wins * $scoringSystem['win']) +
+      ($draws * $scoringSystem['draw']) +
+      ($losses * $scoringSystem['loss']);
 
-        $sorted = collect();
+    return [
+      'team_id' => $teamId,
+      'played' => $played,
+      'wins' => $wins,
+      'draws' => $draws,
+      'losses' => $losses,
+      'goals_for' => $goalsFor,
+      'goals_against' => $goalsAgainst,
+      'goal_difference' => $goalsFor - $goalsAgainst,
+      'points' => $points,
+    ];
+  }
 
-        foreach ($groupedByPoints as $points => $teams) {
-            if ($teams->count() === 1) {
-                $sorted->push($teams->first());
-                continue;
-            }
+  /**
+   * Apply tie-breaker rules to teams with same points.
+   *
+   * @param Collection $rankings Rankings to apply tie-breakers to
+   * @param array $tieBreakers Array of tie-breaker rule class names
+   * @param Collection $fixtures Fixtures for head-to-head calculations
+   * @return Collection Sorted rankings
+   */
+  public static function applyTieBreakers(Collection $rankings, array $tieBreakers, Collection $fixtures): Collection
+  {
+    // Group teams by points
+    $groupedByPoints = $rankings->groupBy('points');
 
-            // Apply tie-breakers in order
-            $tiedTeams = $teams;
-            foreach ($tieBreakers as $tieBreakerClass) {
-                if ($tiedTeams->count() === 1) {
-                    break;
-                }
+    $sorted = collect();
 
-                if (class_exists($tieBreakerClass)) {
-                    $tieBreaker = new $tieBreakerClass();
-                    $tiedTeams = $tieBreaker->apply($tiedTeams, $fixtures);
-                }
-            }
+    foreach ($groupedByPoints as $points => $teams) {
+      if ($teams->count() === 1) {
+        $sorted->push($teams->first());
+        continue;
+      }
 
-            foreach ($tiedTeams as $team) {
-                $sorted->push($team);
-            }
+      // Apply tie-breakers in order
+      $tiedTeams = $teams;
+      foreach ($tieBreakers as $tieBreakerClass) {
+        if ($tiedTeams->count() === 1) {
+          break;
         }
 
-        // Add rank numbers
-        return $sorted->values()->map(function ($team, $index) {
-            $team['rank'] = $index + 1;
-            return $team;
-        });
+        if (class_exists($tieBreakerClass)) {
+          $tieBreaker = new $tieBreakerClass();
+          $tiedTeams = $tieBreaker->apply($tiedTeams, $fixtures);
+        }
+      }
+
+      foreach ($tiedTeams as $team) {
+        $sorted->push($team);
+      }
     }
+
+    // Add rank numbers
+    return $sorted->values()->map(function ($team, $index) {
+      $team['rank'] = $index + 1;
+      return $team;
+    });
+  }
 }

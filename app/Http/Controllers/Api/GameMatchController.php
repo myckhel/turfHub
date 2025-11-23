@@ -104,10 +104,8 @@ class GameMatchController extends Controller
 
     // Update fixture with result
     $gameMatch->update([
-      'score' => [
-        'home' => $validated['home_score'],
-        'away' => $validated['away_score'],
-      ],
+      'first_team_score' => $validated['home_score'],
+      'second_team_score' => $validated['away_score'],
       'status' => 'completed',
       'metadata' => array_merge($gameMatch->metadata ?? [], $validated['metadata'] ?? []),
     ]);
@@ -139,10 +137,8 @@ class GameMatchController extends Controller
 
     // Update fixture with new result
     $gameMatch->update([
-      'score' => [
-        'home' => $validated['home_score'],
-        'away' => $validated['away_score'],
-      ],
+      'first_team_score' => $validated['home_score'],
+      'second_team_score' => $validated['away_score'],
       'metadata' => array_merge($gameMatch->metadata ?? [], $validated['metadata'] ?? []),
     ]);
 
@@ -150,7 +146,8 @@ class GameMatchController extends Controller
     event(new MatchCompleted(
       $gameMatch,
       $gameMatch->winner_team_id,
-      $gameMatch->score
+      $gameMatch->first_team_score,
+      $gameMatch->second_team_score
     ));
 
     return new GameMatchResource($gameMatch->fresh(['homeTeam', 'awayTeam', 'stage', 'group']));

@@ -1,9 +1,10 @@
 import { SaveOutlined } from '@ant-design/icons';
 import { router } from '@inertiajs/react';
-import { App, Button, Col, Form, Input, InputNumber, Row, Steps } from 'antd';
-import { memo, useState } from 'react';
+import { App, Button, Col, Form, Input, InputNumber, Row, Select, Steps } from 'antd';
+import { memo, useEffect, useState } from 'react';
 import { useTournamentStore } from '../../../stores';
-import type { CreateStageRequest, Stage, StageSettings, StageType } from '../../../types/tournament.types';
+import type { CreateStageRequest, PromotionRuleConfig, PromotionRuleType, Stage, StageSettings, StageType } from '../../../types/tournament.types';
+import PromotionRuleForm from './PromotionRuleForm';
 import StageSettingsForm from './StageSettingsForm';
 import StageTypeSelector from './StageTypeSelector';
 
@@ -20,7 +21,7 @@ interface StageFormProps {
 const StageForm = memo(({ existingStage, nextOrder = 1, onCancel, tournamentId }: StageFormProps) => {
   const [form] = Form.useForm();
   const { message } = App.useApp();
-  const { createStage, updateStage, isLoadingStage } = useTournamentStore();
+  const { createStage, updateStage, isLoadingStage, fetchTournament, currentTournament } = useTournamentStore();
   const [currentStep, setCurrentStep] = useState(0);
   const [stageType, setStageType] = useState<StageType>(existingStage?.stage_type || 'league');
   const [settings, setSettings] = useState<StageSettings>(
@@ -37,6 +38,17 @@ const StageForm = memo(({ existingStage, nextOrder = 1, onCancel, tournamentId }
       tie_breakers: ['goal_difference', 'goals_for'],
     },
   );
+  const [nextStageId, setNextStageId] = useState<number | undefined>(existingStage?.promotion?.next_stage_id);
+  const [promotionRule, setPromotionRule] = useState<{ rule_type: PromotionRuleType; rule_config: PromotionRuleConfig }>({
+    rule_type: existingStage?.promotion?.rule_type || 'top_n',
+    rule_config: existingStage?.promotion?.rule_config || { n: 1 },
+  });
+
+  useEffect(() => {
+    if (tournamentId) {
+      fetchTournament(tournamentId);
+    }
+  }, [tournamentId, fetchTournament]);
 
   const handleSubmit = async () => {
     try {
@@ -47,6 +59,11 @@ const StageForm = memo(({ existingStage, nextOrder = 1, onCancel, tournamentId }
         order: values.order,
         stage_type: stageType,
         settings: settings,
+        ...(nextStageId && {
+          next_stage_id: nextStageId,
+          rule_type: promotionRule.rule_type,
+          rule_config: promotionRule.rule_config,
+        }),
       };
 
       let stage: Stage;
@@ -78,6 +95,10 @@ const StageForm = memo(({ existingStage, nextOrder = 1, onCancel, tournamentId }
     {
       title: 'Settings',
       description: 'Configure rules',
+    },
+    {
+      title: 'Promotion',
+      description: 'Advancement rules',
     },
   ];
 
@@ -154,6 +175,41 @@ const StageForm = memo(({ existingStage, nextOrder = 1, onCancel, tournamentId }
 
         {/* Step 2: Settings */}
         {currentStep === 2 && <StageSettingsForm stageType={stageType} value={settings} onChange={setSettings} />}
+
+        {/* Step 3: Promotion */}
+        {currentStep === 3 && (
+          <div className="space-y-4">
+            <div>
+              <label className="mb-2 block text-sm font-medium">Next Stage (Optional)</label>
+              <Select
+                className="w-full"
+                placeholder="Select next stage for promotion"
+                value={nextStageId}
+                onChange={setNextStageId}
+                allowClear
+                size="large"
+              >
+                {currentTournament?.stages
+                  ?.filter((s) => s.id !== existingStage?.id && s.order > (existingStage?.order || nextOrder))
+                  .map((stage) => (
+                    <Select.Option key={stage.id} value={stage.id}>
+                      Stage {stage.order}: {stage.name}
+                    </Select.Option>
+                  ))}
+              </Select>
+              <p className="mt-1 text-xs text-gray-500">Teams will advance to this stage based on promotion rules</p>
+            </div>
+
+            {nextStageId && <PromotionRuleForm value={promotionRule} onChange={setPromotionRule} nextStageId={nextStageId} />}
+
+            {!nextStageId && (
+              <div className="rounded border border-gray-200 bg-gray-50 p-4 text-center">
+                <p className="text-sm text-gray-600">No promotion configured. Teams will not automatically advance from this stage.</p>
+                <p className="mt-1 text-xs text-gray-500">You can skip this step or configure promotion rules later.</p>
+              </div>
+            )}
+          </div>
+        )}
       </Form>
 
       {/* Navigation */}

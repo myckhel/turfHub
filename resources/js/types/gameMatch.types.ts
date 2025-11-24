@@ -11,6 +11,7 @@ export interface GameMatch {
   winning_team_id?: number;
   outcome?: 'win' | 'loss' | 'draw';
   match_time: string;
+  starts_at: string;
   status: 'upcoming' | 'in_progress' | 'completed' | 'postponed' | 'cancelled';
   betting_enabled?: boolean;
   created_at: string;

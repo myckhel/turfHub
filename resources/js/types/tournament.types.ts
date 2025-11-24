@@ -70,22 +70,37 @@ export interface Stage {
   completed_fixtures?: number;
 }
 
+/**
+ * Stage settings configuration for different tournament stage types
+ * All settings are optional and their usage depends on the stage type
+ */
 export interface StageSettings {
-  match_duration?: number;
-  match_interval?: number;
-  rounds?: number;
-  groups_count?: number;
-  teams_per_group?: number;
-  home_and_away?: boolean;
-  seeding?: boolean;
-  legs?: number;
-  third_place_match?: boolean;
+  // Common settings for all stage types
+  match_duration?: number; // Duration of each match in minutes (1-120)
+  match_interval?: number; // Break time between matches in minutes (0-60)
+
+  // League and Group stage settings
+  rounds?: number; // Number of rounds/times teams play each other (min: 1)
+  home_and_away?: boolean; // Enable home and away fixtures
+
+  // Group stage specific settings
+  groups_count?: number; // Number of groups to create (2-8)
+  teams_per_group?: number; // Number of teams in each group (min: 2)
+
+  // Knockout stage specific settings
+  legs?: number; // Number of legs per tie (1 or 2)
+  third_place_match?: boolean; // Include third place playoff match
+  seeding?: boolean; // Enable seeding for bracket generation
+
+  // Scoring system (for league, group, and swiss stages)
   scoring?: {
-    win: number;
-    draw: number;
-    loss: number;
+    win: number; // Points awarded for a win
+    draw: number; // Points awarded for a draw
+    loss: number; // Points awarded for a loss
   };
-  tie_breakers?: ('goal_difference' | 'goals_for' | 'head_to_head' | 'fair_play' | 'random')[];
+
+  // Tie breaker rules priority order (for league and group stages)
+  tie_breakers?: Array<'goal_difference' | 'goals_for' | 'head_to_head' | 'fair_play' | 'random'>;
 }
 
 export interface StagePromotion {
@@ -196,6 +211,9 @@ export interface CreateStageRequest {
   order: number;
   stage_type: StageType;
   settings?: StageSettings;
+  next_stage_id?: number;
+  rule_type?: PromotionRuleType;
+  rule_config?: PromotionRuleConfig;
 }
 
 export interface UpdateStageRequest {
@@ -204,6 +222,9 @@ export interface UpdateStageRequest {
   stage_type?: StageType;
   settings?: StageSettings;
   status?: StageStatus;
+  next_stage_id?: number;
+  rule_type?: PromotionRuleType;
+  rule_config?: PromotionRuleConfig;
 }
 
 export interface CreateStagePromotionRequest {
@@ -293,6 +314,25 @@ export interface PromotionSimulation {
   next_stage: { id: number; name: string };
   explanation: string;
 }
+
+// ============================================================================
+// Type Helpers
+// ============================================================================
+
+/**
+ * Keys of StageSettings for type-safe indexed access
+ */
+export type StageSettingsKey = keyof StageSettings;
+
+/**
+ * Helper type for accessing nested scoring settings
+ */
+export type ScoringSettingsKey = keyof NonNullable<StageSettings['scoring']>;
+
+/**
+ * Helper type for tie breaker values
+ */
+export type TieBreakerType = NonNullable<StageSettings['tie_breakers']>[number];
 
 // ============================================================================
 // Response Types

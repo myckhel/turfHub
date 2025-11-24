@@ -401,7 +401,8 @@ export const useTournamentStore = create<TournamentStore>()(
             f.id === fixtureId
               ? {
                   ...f,
-                  score: { home: homeScore, away: awayScore },
+                  first_team_score: homeScore,
+                  second_team_score: awayScore,
                   status: 'completed' as const,
                 }
               : f,

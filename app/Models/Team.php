@@ -19,10 +19,12 @@ class Team extends Model
    */
   protected $fillable = [
     'match_session_id',
+    'turf_id',        // For standalone teams not tied to sessions
     'tournament_id',
     'name',
-    'captain_id', // User ID of the team captain
-    'status',     // e.g., active_in_match, waiting, eliminated
+    'color',          // Team color for UI display
+    'captain_id',     // User ID of the team captain
+    'status',         // e.g., active_in_match, waiting, eliminated
     'wins',
     'losses',
     'draws',
@@ -50,6 +52,14 @@ class Team extends Model
   public function matchSession(): BelongsTo
   {
     return $this->belongsTo(MatchSession::class);
+  }
+
+  /**
+   * Get the turf this team belongs to (for standalone teams).
+   */
+  public function turf(): BelongsTo
+  {
+    return $this->belongsTo(Turf::class);
   }
 
   /**

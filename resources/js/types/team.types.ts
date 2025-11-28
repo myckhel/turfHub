@@ -34,7 +34,8 @@ export interface TeamSlot {
 
 export interface TeamDetails {
   id: number;
-  match_session_id: number;
+  match_session_id?: number; // Optional - null for standalone teams
+  turf_id?: number; // For standalone teams not tied to sessions
   name: string;
   captain_id?: number;
   color?: string;
@@ -63,6 +64,16 @@ export interface TeamDetails {
 }
 
 // API Request types
+export interface CreateTeamRequest {
+  match_session_id?: number;
+  turf_id?: number;
+  tournament_id?: number;
+  name: string;
+  color?: string;
+  captain_id?: number;
+  status?: string;
+}
+
 export interface JoinTeamSlotRequest {
   team_id: number;
   position?: number; // Optional, will auto-assign if not provided

@@ -1,4 +1,5 @@
 import type {
+  CreateGameMatchRequest,
   CreateMatchEventRequest,
   GameMatch,
   GameMatchFilters,
@@ -31,6 +32,11 @@ export const gameMatchApi = {
     return api.get(`/game-matches/${id}`, { params });
   },
 
+  // Create a new game match
+  create: async (data: CreateGameMatchRequest): Promise<ApiResponse<GameMatch>> => {
+    return api.post('/game-matches', data);
+  },
+
   // Update a game match
   update: async (id: number, data: UpdateGameMatchRequest): Promise<ApiResponse<GameMatch>> => {
     return api.put(`/game-matches/${id}`, data);
@@ -44,6 +50,11 @@ export const gameMatchApi = {
   // Get game matches for a specific match session
   getByMatchSession: async (matchSessionId: number, params?: Omit<GameMatchFilters, 'match_session_id'>): Promise<GameMatchListResponse> => {
     return gameMatchApi.getAll({ ...params, match_session_id: matchSessionId });
+  },
+
+  // Get game matches for a specific turf (standalone matches)
+  getByTurf: async (turfId: number, params?: Omit<GameMatchFilters, 'turf_id'>): Promise<GameMatchListResponse> => {
+    return gameMatchApi.getAll({ ...params, turf_id: turfId });
   },
 };
 

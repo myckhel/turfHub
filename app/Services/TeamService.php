@@ -73,6 +73,11 @@ class TeamService
       $query->where('match_session_id', $request->match_session_id);
     }
 
+    // Filter by turf (for standalone teams)
+    if ($request->filled('turf_id')) {
+      $query->where('turf_id', $request->turf_id);
+    }
+
     // Filter by tournament
     if ($request->filled('tournament_id')) {
       $query->where('tournament_id', $request->tournament_id);

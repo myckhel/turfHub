@@ -85,6 +85,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
       ]);
     })->name('betting.management')->middleware('can:manage turf betting');
 
+    Route::get('betting/fixtures', function ($turf) {
+      return Inertia::render('App/Turfs/BettingFixtures', [
+        'turfId' => (int) $turf
+      ]);
+    })->name('betting.fixtures')->middleware('can:manage turf betting');
+
     Route::get('players', function ($turf) {
       return Inertia::render('App/Turfs/Players/Index', [
         'turfId' => (int) $turf

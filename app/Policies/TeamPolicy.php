@@ -16,10 +16,15 @@ class TeamPolicy
   }
 
   /**
-   * Get the turf ID from a team.
+   * Get the turf ID from a team via direct relation, matchSession or tournament.
    */
   protected function getTurfId(Team $team): ?int
   {
+    // Direct turf_id for standalone teams
+    if ($team->turf_id) {
+      return $team->turf_id;
+    }
+
     return $team->matchSession?->turf_id ?? $team->tournament?->turf_id;
   }
 

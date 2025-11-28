@@ -97,15 +97,15 @@ export const routeConfigs: Record<string, RouteConfig> = {
   },
 
   // Betting routes
-  'app.betting.index': {
+  'app.turfs.betting.index': {
     roles: ['player', 'manager', 'admin'],
     layout: 'dashboard',
   },
-  'app.betting.history': {
+  'app.turfs.betting.history': {
     roles: ['player', 'manager', 'admin'],
     layout: 'dashboard',
   },
-  'app.betting.gamematch': {
+  'app.turfs.betting.gamematch': {
     roles: ['player', 'manager', 'admin'],
     layout: 'dashboard',
   },

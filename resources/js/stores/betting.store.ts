@@ -45,7 +45,7 @@ interface BettingStore {
   statsFilters: BettingStatsFilters;
 
   // Market actions
-  fetchMarkets: (gameMatchId?: number) => Promise<void>;
+  fetchMarkets: (gameMatchId?: number, turfId?: number) => Promise<void>;
   fetchMarket: (marketId: number) => Promise<void>;
   clearMarkets: () => void;
 
@@ -110,16 +110,19 @@ export const useBettingStore = create<BettingStore>()(
         ...initialState,
 
         // Market actions
-        fetchMarkets: async (gameMatchId?: number) => {
+        fetchMarkets: async (gameMatchId?: number, turfId?: number) => {
           set((state) => {
             state.marketsLoading = true;
             state.marketsError = null;
           });
 
           try {
-            const params = gameMatchId ? { game_match_id: gameMatchId } : undefined;
-            const response = await bettingApi.getMarkets(params);
-            console.log(response);
+            const params: { game_match_id?: number; turf_id?: number } = {};
+            if (gameMatchId) params.game_match_id = gameMatchId;
+            if (turfId) params.turf_id = turfId;
+
+            const response = await bettingApi.getMarkets(Object.keys(params).length > 0 ? params : undefined);
+            console.log('Fetched markets for turf:', turfId, response);
 
             set((state) => {
               state.markets = response.data;

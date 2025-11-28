@@ -248,7 +248,7 @@ Route::middleware('auth:sanctum')->name('api.')->group(function () {
   // Betting routes
   Route::prefix('betting')->name('betting.')->group(function () {
     // General betting routes
-    Route::get('markets', [App\Http\Controllers\Api\BettingController::class, 'getMarkets'])->name('markets');
+    Route::get('markets', [App\Http\Controllers\Api\BettingController::class, 'index'])->name('markets');
     Route::post('bets', [App\Http\Controllers\Api\BettingController::class, 'placeBet'])->name('place-bet');
     Route::get('history', [App\Http\Controllers\Api\BettingController::class, 'getBettingHistory'])->name('history');
     Route::get('stats', [App\Http\Controllers\Api\BettingController::class, 'getBettingStats'])->name('stats');

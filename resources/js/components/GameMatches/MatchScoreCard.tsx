@@ -12,9 +12,10 @@ const { Text } = Typography;
 interface MatchScoreCardProps {
   gameMatch: GameMatch;
   canManageSessions: boolean;
+  onMatchUpdate?: () => void;
 }
 
-const MatchScoreCard = memo(({ gameMatch, canManageSessions }: MatchScoreCardProps) => {
+const MatchScoreCard = memo(({ gameMatch, canManageSessions, onMatchUpdate: onMatchUpdate_ }: MatchScoreCardProps) => {
   const [firstTeamScore, setFirstTeamScore] = useState(gameMatch.first_team_score);
   const [secondTeamScore, setSecondTeamScore] = useState(gameMatch.second_team_score);
   const [loading, setLoading] = useState(false);
@@ -33,7 +34,13 @@ const MatchScoreCard = memo(({ gameMatch, canManageSessions }: MatchScoreCardPro
     }
   };
 
-  const onMatchUpdate = () => router.reload({ only: ['gameMatch'] });
+  const onMatchUpdate = () => {
+    if (onMatchUpdate_) {
+      onMatchUpdate_();
+    } else {
+      router.reload({ only: ['gameMatch'] });
+    }
+  };
 
   const handleSaveScore = async () => {
     setLoading(true);

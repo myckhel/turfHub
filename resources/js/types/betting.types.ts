@@ -141,6 +141,7 @@ export interface BettingFilters {
   date_to?: string;
   market_type?: MarketType[];
   game_match_id?: number;
+  turf_id?: number;
 }
 
 export interface BettingStatsFilters {

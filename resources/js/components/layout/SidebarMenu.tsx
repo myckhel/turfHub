@@ -41,30 +41,13 @@ export const SidebarMenu = memo<SidebarMenuProps>(({ onClick, mode = 'inline', t
         label: <Link href={route('web.turfs.index')}>Browse Turfs</Link>,
       },
       {
-        key: 'betting',
-        icon: <DollarCircleOutlined />,
-        label: 'Betting',
-        children: [
-          {
-            key: 'betting-markets',
-            icon: <TrophyOutlined />,
-            label: <Link href={route('web.betting.index')}>Betting Markets</Link>,
-          },
-          {
-            key: 'betting-history',
-            icon: <HistoryOutlined />,
-            label: <Link href={route('web.betting.history')}>Betting History</Link>,
-          },
-        ],
-      },
-      {
         key: 'wallet',
         icon: <WalletOutlined />,
         label: <Link href={route('web.wallet.index')}>My Wallet</Link>,
       },
     ];
 
-    // Add match sessions if there's a selected turf
+    // Add turf-specific menu items if there's a selected turf
     if (selectedTurf) {
       items.push(
         ...[
@@ -73,7 +56,23 @@ export const SidebarMenu = memo<SidebarMenuProps>(({ onClick, mode = 'inline', t
             icon: <TeamOutlined />,
             label: <Link href={route('web.turfs.match-sessions.index', { turf: selectedTurf.id })}>Match Sessions</Link>,
           },
-
+          {
+            key: 'betting',
+            icon: <DollarCircleOutlined />,
+            label: 'Betting',
+            children: [
+              {
+                key: 'betting-markets',
+                icon: <TrophyOutlined />,
+                label: <Link href={route('web.turfs.betting.index', { turf: selectedTurf.id })}>Betting Markets</Link>,
+              },
+              {
+                key: 'betting-history',
+                icon: <HistoryOutlined />,
+                label: <Link href={route('web.turfs.betting.history', { turf: selectedTurf.id })}>Betting History</Link>,
+              },
+            ],
+          },
           {
             key: 'tournaments',
             icon: <TrophyOutlined />,
@@ -102,7 +101,7 @@ export const SidebarMenu = memo<SidebarMenuProps>(({ onClick, mode = 'inline', t
         label: <Link href={route('dashboard')}>Reports</Link>,
       });
 
-      // Add betting management for turf managers/admins if they have a selected turf
+      // Add management items for turf managers/admins if they have a selected turf
       if (selectedTurf) {
         items.push({
           key: 'players',
@@ -110,17 +109,17 @@ export const SidebarMenu = memo<SidebarMenuProps>(({ onClick, mode = 'inline', t
           label: <Link href={route('web.turfs.players.index', { turf: selectedTurf.id })}>Players</Link>,
         });
         items.push({
-          key: 'turf-betting',
+          key: 'turf-betting-admin',
           icon: <DollarCircleOutlined />,
           label: 'Admin Betting',
           children: [
             {
               key: 'turf-betting-management',
-              label: <Link href={route('web.turfs.betting.management', { turf: selectedTurf.id })}>Management</Link>,
+              label: <Link href={route('web.turfs.betting.admin.management', { turf: selectedTurf.id })}>Management</Link>,
             },
             {
               key: 'turf-betting-fixtures',
-              label: <Link href={route('web.turfs.betting.fixtures', { turf: selectedTurf.id })}>Fixtures</Link>,
+              label: <Link href={route('web.turfs.betting.admin.fixtures', { turf: selectedTurf.id })}>Fixtures</Link>,
             },
           ],
         });

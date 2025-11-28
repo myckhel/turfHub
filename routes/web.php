@@ -47,23 +47,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
   Route::get('tournaments/{tournament}/stages/{stage}', [StageController::class, 'show'])->name('web.tournaments.stages.show');
   Route::get('tournaments/{tournament}/stages/{stage}/edit', [StageController::class, 'edit'])->name('web.tournaments.stages.edit');
 
-  // Betting routes
-  Route::prefix('betting')->name('web.betting.')->group(function () {
-    Route::get('/', function () {
-      return Inertia::render('App/Betting/Index');
-    })->name('index');
-
-    Route::get('/history', function () {
-      return Inertia::render('App/Betting/History');
-    })->name('history');
-
-    Route::get('/game-matches/{gameMatch}', function ($gameMatch) {
-      return Inertia::render('App/Betting/GameMatch', [
-        'gameMatchId' => $gameMatch
-      ]);
-    })->name('game-matches.show');
-  });
-
   // Match Session routes (nested under turfs)
   Route::get('turfs/{turf}/match-sessions', [MatchSessionController::class, 'index'])->name('web.turfs.match-sessions.index');
   Route::get('turfs/{turf}/match-sessions/create', [MatchSessionController::class, 'create'])->name('web.turfs.match-sessions.create');
@@ -79,17 +62,42 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
   // Turf management routes (for turf managers/admins)
   Route::prefix('turfs/{turf}')->name('web.turfs.')->group(function () {
-    Route::get('betting/management', function ($turf) {
-      return Inertia::render('App/Turfs/BettingManagement', [
-        'turfId' => (int) $turf
-      ]);
-    })->name('betting.management')->middleware('can:manage turf betting');
+    // Player betting routes (for all turf players/members)
+    Route::prefix('betting')->name('betting.')->group(function () {
+      Route::get('/', function ($turf) {
+        return Inertia::render('App/Turfs/Betting/Index', [
+          'turfId' => (int) $turf
+        ]);
+      })->name('index');
 
-    Route::get('betting/fixtures', function ($turf) {
-      return Inertia::render('App/Turfs/BettingFixtures', [
-        'turfId' => (int) $turf
-      ]);
-    })->name('betting.fixtures')->middleware('can:manage turf betting');
+      Route::get('/history', function ($turf) {
+        return Inertia::render('App/Turfs/Betting/History', [
+          'turfId' => (int) $turf
+        ]);
+      })->name('history');
+
+      Route::get('/game-matches/{gameMatch}', function ($turf, $gameMatch) {
+        return Inertia::render('App/Turfs/Betting/GameMatch', [
+          'turfId' => (int) $turf,
+          'gameMatchId' => $gameMatch
+        ]);
+      })->name('game-matches.show');
+    });
+
+    // Admin betting routes (for turf managers/admins)
+    Route::prefix('betting/admin')->name('betting.admin.')->middleware('can:manage turf betting')->group(function () {
+      Route::get('/management', function ($turf) {
+        return Inertia::render('App/Turfs/BettingManagement', [
+          'turfId' => (int) $turf
+        ]);
+      })->name('management');
+
+      Route::get('/fixtures', function ($turf) {
+        return Inertia::render('App/Turfs/BettingFixtures', [
+          'turfId' => (int) $turf
+        ]);
+      })->name('fixtures');
+    });
 
     Route::get('players', function ($turf) {
       return Inertia::render('App/Turfs/Players/Index', [

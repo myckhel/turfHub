@@ -8,10 +8,15 @@ use App\Models\User;
 class GameMatchPolicy
 {
   /**
-   * Get turf ID from game match via matchSession or stage.
+   * Get turf ID from game match via direct relation, matchSession or stage.
    */
   private function getTurfId(GameMatch $gameMatch): ?int
   {
+    // Direct turf_id for standalone matches
+    if ($gameMatch->turf_id) {
+      return $gameMatch->turf_id;
+    }
+
     if ($gameMatch->matchSession) {
       return $gameMatch->matchSession->turf_id;
     }
@@ -20,10 +25,15 @@ class GameMatchPolicy
   }
 
   /**
-   * Get turf object from game match via matchSession or stage.
+   * Get turf object from game match via direct relation, matchSession or stage.
    */
   private function getTurf(GameMatch $gameMatch)
   {
+    // Direct turf relation for standalone matches
+    if ($gameMatch->turf_id) {
+      return $gameMatch->turf;
+    }
+
     if ($gameMatch->matchSession) {
       return $gameMatch->matchSession->turf;
     }

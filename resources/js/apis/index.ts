@@ -67,13 +67,6 @@ apiClient.interceptors.response.use(
   },
 );
 
-// Generic API response type
-export interface ApiResponse<T = unknown> {
-  data: T;
-  message?: string;
-  status: number;
-}
-
 // Generic API error type
 export interface ApiError {
   message: string;
@@ -162,5 +155,4 @@ export type {
   UpdateStageRequest,
   UpdateTournamentRequest,
 } from '../types/tournament.types';
-export type { Player } from './player';
 export type { JoinTurfRequest, Turf, TurfListResponse } from './turf';

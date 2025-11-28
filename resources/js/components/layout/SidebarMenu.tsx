@@ -110,9 +110,19 @@ export const SidebarMenu = memo<SidebarMenuProps>(({ onClick, mode = 'inline', t
           label: <Link href={route('web.turfs.players.index', { turf: selectedTurf.id })}>Players</Link>,
         });
         items.push({
-          key: 'turf-betting-management',
+          key: 'turf-betting',
           icon: <DollarCircleOutlined />,
-          label: <Link href={route('web.turfs.betting.management', { turf: selectedTurf.id })}>Betting Management</Link>,
+          label: 'Admin Betting',
+          children: [
+            {
+              key: 'turf-betting-management',
+              label: <Link href={route('web.turfs.betting.management', { turf: selectedTurf.id })}>Management</Link>,
+            },
+            {
+              key: 'turf-betting-fixtures',
+              label: <Link href={route('web.turfs.betting.fixtures', { turf: selectedTurf.id })}>Fixtures</Link>,
+            },
+          ],
         });
       }
     }

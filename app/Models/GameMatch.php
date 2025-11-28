@@ -25,6 +25,7 @@ class GameMatch extends Model
    */
   protected $fillable = [
     'match_session_id',
+    'turf_id',         // For standalone matches not tied to sessions
     'stage_id',
     'group_id',
     'first_team_id',
@@ -63,6 +64,14 @@ class GameMatch extends Model
   public function matchSession(): BelongsTo
   {
     return $this->belongsTo(MatchSession::class);
+  }
+
+  /**
+   * Get the turf this game belongs to (for standalone matches).
+   */
+  public function turf(): BelongsTo
+  {
+    return $this->belongsTo(Turf::class);
   }
 
   /**

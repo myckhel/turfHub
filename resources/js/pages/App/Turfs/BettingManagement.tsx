@@ -9,7 +9,7 @@ import {
   SettingOutlined,
   TrophyOutlined,
 } from '@ant-design/icons';
-import { usePage } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import { App, Button, Card, Checkbox, Col, Form, Input, message, Modal, Row, Space, Statistic, Table, Tag, Tooltip, Typography } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { turfBettingApi } from '../../../apis/turfBetting';
@@ -338,6 +338,7 @@ const BettingManagement: React.FC = () => {
 
   return (
     <div className="min-h-screen p-6">
+      <Head title="Betting Management" />
       <div className="mx-auto max-w-7xl">
         <div className="mb-6 flex items-center justify-between">
           <Title level={2} className="mb-0 text-white">

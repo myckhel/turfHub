@@ -2,7 +2,7 @@ import { DollarOutlined, EyeOutlined, SettingOutlined, TeamOutlined, TrophyOutli
 import { router } from '@inertiajs/react';
 import { Button, Card, Space, Table, Tag, Typography, message } from 'antd';
 import { format } from 'date-fns';
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { gameMatchApi, matchEventApi } from '../../apis/gameMatch';
 import { usePermissions } from '../../hooks/usePermissions';
 import type { GameMatch } from '../../types/gameMatch.types';
@@ -11,7 +11,7 @@ import GameMatchBettingMarketsModal from '../betting/GameMatchBettingMarketsModa
 const { Text } = Typography;
 
 interface GameMatchesTableProps {
-  matchSessionId: number;
+  matchSessionId?: number; // Optional - can filter by turf instead
   turfId: number;
   title?: string;
   className?: string;
@@ -39,14 +39,17 @@ const GameMatchesTable: React.FC<GameMatchesTableProps> = ({
   const canManageBetting = permissions.canManageSessions(); // Assuming betting management requires session management permissions
 
   const loadGameMatches = useCallback(async () => {
-    if (!matchSessionId) return;
+    if (!matchSessionId && !turfId) return;
 
     setLoading(true);
     try {
-      const response = await gameMatchApi.getByMatchSession(matchSessionId, {
-        include:
-          'firstTeam.teamPlayers.player.user,secondTeam.teamPlayers.player.user,winningTeam,matchEvents.player.user,matchEvents.team,matchEvents.relatedPlayer.user',
-      });
+      const includeParams =
+        'firstTeam.teamPlayers.player.user,secondTeam.teamPlayers.player.user,winningTeam,matchEvents.player.user,matchEvents.team,matchEvents.relatedPlayer.user';
+
+      const response = matchSessionId
+        ? await gameMatchApi.getByMatchSession(matchSessionId, { include: includeParams })
+        : await gameMatchApi.getByTurf(turfId, { include: includeParams });
+
       // Sort matches by match_time in descending order (most recent first)
       const sortedMatches = (response.data || []).sort((a, b) => new Date(b.match_time).getTime() - new Date(a.match_time).getTime());
       setGameMatches(sortedMatches);
@@ -56,7 +59,7 @@ const GameMatchesTable: React.FC<GameMatchesTableProps> = ({
     } finally {
       setLoading(false);
     }
-  }, [matchSessionId]);
+  }, [matchSessionId, turfId]);
 
   useEffect(() => {
     loadGameMatches();
@@ -116,13 +119,20 @@ const GameMatchesTable: React.FC<GameMatchesTableProps> = ({
   };
 
   const handleViewMatch = (gameMatch: GameMatch) => {
-    router.visit(
-      route('web.turfs.match-sessions.game-matches.show', {
-        turf: turfId,
-        matchSession: matchSessionId,
-        gameMatch: gameMatch.id,
-      }),
-    );
+    const sessionId = matchSessionId || gameMatch.match_session_id;
+
+    if (sessionId) {
+      router.visit(
+        route('web.turfs.match-sessions.game-matches.show', {
+          turf: turfId,
+          matchSession: sessionId,
+          gameMatch: gameMatch.id,
+        }),
+      );
+    } else {
+      // For standalone matches, show a message or handle differently
+      message.info('Match details view coming soon for standalone matches');
+    }
   };
 
   const columns = [
@@ -305,4 +315,4 @@ const GameMatchesTable: React.FC<GameMatchesTableProps> = ({
   );
 };
 
-export default memo(GameMatchesTable);
+export default GameMatchesTable;

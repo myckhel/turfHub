@@ -17,8 +17,10 @@ class TeamResource extends JsonResource
     return [
       'id' => $this->id,
       'match_session_id' => $this->match_session_id,
+      'turf_id' => $this->turf_id,
       'tournament_id' => $this->tournament_id,
       'name' => $this->name,
+      'color' => $this->color,
       'captain_id' => $this->captain_id,
       'status' => $this->status,
       'wins' => $this->wins,
@@ -30,6 +32,7 @@ class TeamResource extends JsonResource
 
       // Relationships (loaded when needed)
       'match_session' => new MatchSessionResource($this->whenLoaded('matchSession')),
+      'turf' => new TurfResource($this->whenLoaded('turf')),
       'tournament' => new TournamentResource($this->whenLoaded('tournament')),
       'captain' => new PlayerResource($this->whenLoaded('captain')),
       'teamPlayers' => TeamPlayerResource::collection($this->whenLoaded('teamPlayers')),

@@ -161,6 +161,14 @@ export const routeConfigs: Record<string, RouteConfig> = {
     layout: 'dashboard',
   },
 
+  'app.turfs.bettingfixtures': {
+    name: 'turfs.betting.fixtures',
+    component: 'App/Turfs/BettingFixtures',
+    roles: ['manager', 'admin'],
+    permissions: ['manage turf betting'],
+    layout: 'dashboard',
+  },
+
   // Turf Player routes
   'app.turfs.players.index': {
     name: 'turfs.players.index',

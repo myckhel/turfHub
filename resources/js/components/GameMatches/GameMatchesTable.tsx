@@ -2,7 +2,7 @@ import { DollarOutlined, EyeOutlined, SettingOutlined, TeamOutlined, TrophyOutli
 import { router } from '@inertiajs/react';
 import { Button, Card, Space, Table, Tag, Typography, message } from 'antd';
 import { format } from 'date-fns';
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { gameMatchApi, matchEventApi } from '../../apis/gameMatch';
 import { usePermissions } from '../../hooks/usePermissions';
 import type { GameMatch } from '../../types/gameMatch.types';

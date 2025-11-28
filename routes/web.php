@@ -58,7 +58,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
   Route::get('turfs/{turf}/match-sessions/{matchSession}/teams/{team}', [TeamController::class, 'show'])->name('web.turfs.match-sessions.teams.show');
 
   // Game Match routes (nested under match sessions)
-  Route::get('turfs/{turf}/match-sessions/{matchSession}/game-matches/{gameMatch}', [GameMatchController::class, 'show'])->name('web.turfs.match-sessions.game-matches.show');
+  Route::get('turfs/{turf}/game-matches/{gameMatch}', [GameMatchController::class, 'show'])->name('web.turfs.game-matches.show');
+  Route::get('turfs/game-matches/{gameMatch}', [GameMatchController::class, 'show'])->name('web.game-matches.show');
 
   // Turf management routes (for turf managers/admins)
   Route::prefix('turfs/{turf}')->name('web.turfs.')->group(function () {

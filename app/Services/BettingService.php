@@ -38,8 +38,8 @@ class BettingService
     ])
       // ->openForBetting()
       ->whereHas('gameMatch', function ($query) {
-        $query->where('betting_enabled', true);
-        // ->where('status', 'upcoming');
+        $query->where('betting_enabled', true)
+          ->where('status', '!=', 'in_progress');
       });
 
     // Filter by game_match_id if provided
@@ -378,12 +378,13 @@ class BettingService
   {
     // Get all betting markets related to this turf
     $markets = BettingMarket::whereHas('gameMatch', function ($query) use ($turf) {
-      $query->where(function ($subQuery) use ($turf) {
-        $subQuery->where('turf_id', $turf->id)
-          ->orWhereHas('matchSession', function ($sessionQuery) use ($turf) {
-            $sessionQuery->where('turf_id', $turf->id);
-          });
-      });
+      $query->where('status', '!=', 'in_progress')
+        ->where(function ($subQuery) use ($turf) {
+          $subQuery->where('turf_id', $turf->id)
+            ->orWhereHas('matchSession', function ($sessionQuery) use ($turf) {
+              $sessionQuery->where('turf_id', $turf->id);
+            });
+        });
     })->with(['bets', 'marketOptions'])->get();
 
     $totalRevenue = 0;
@@ -518,7 +519,9 @@ class BettingService
       'gameMatch.secondTeam',
       'gameMatch.matchSession.turf',
       'marketOptions'
-    ]);
+    ])->whereHas('gameMatch', function ($q) {
+      $q->where('status', '!=', 'in_progress');
+    });
 
     // Apply filters
     if (isset($filters['status'])) {
@@ -527,12 +530,13 @@ class BettingService
 
     if (isset($filters['turf_id'])) {
       $query->whereHas('gameMatch', function ($q) use ($filters) {
-        $q->where(function ($subQuery) use ($filters) {
-          $subQuery->where('turf_id', $filters['turf_id'])
-            ->orWhereHas('matchSession', function ($sessionQuery) use ($filters) {
-              $sessionQuery->where('turf_id', $filters['turf_id']);
-            });
-        });
+        $q->where('status', '!=', 'in_progress')
+          ->where(function ($subQuery) use ($filters) {
+            $subQuery->where('turf_id', $filters['turf_id'])
+              ->orWhereHas('matchSession', function ($sessionQuery) use ($filters) {
+                $sessionQuery->where('turf_id', $filters['turf_id']);
+              });
+          });
       });
     }
 
@@ -884,12 +888,13 @@ class BettingService
 
     // Active markets for this turf
     $activeMarkets = BettingMarket::whereHas('gameMatch', function ($q) use ($turf) {
-      $q->where(function ($subQuery) use ($turf) {
-        $subQuery->where('turf_id', $turf->id)
-          ->orWhereHas('matchSession', function ($sessionQuery) use ($turf) {
-            $sessionQuery->where('turf_id', $turf->id);
-          });
-      });
+      $q->where('status', '!=', 'in_progress')
+        ->where(function ($subQuery) use ($turf) {
+          $subQuery->where('turf_id', $turf->id)
+            ->orWhereHas('matchSession', function ($sessionQuery) use ($turf) {
+              $sessionQuery->where('turf_id', $turf->id);
+            });
+        });
     })->where('is_active', true)->count();
 
     // Today's statistics
@@ -924,12 +929,13 @@ class BettingService
       'gameMatch.matchSession.turf',
       'marketOptions'
     ])->whereHas('gameMatch', function ($q) use ($turf) {
-      $q->where(function ($subQuery) use ($turf) {
-        $subQuery->where('turf_id', $turf->id)
-          ->orWhereHas('matchSession', function ($sessionQuery) use ($turf) {
-            $sessionQuery->where('turf_id', $turf->id);
-          });
-      });
+      $q->where('status', '!=', 'in_progress')
+        ->where(function ($subQuery) use ($turf) {
+          $subQuery->where('turf_id', $turf->id)
+            ->orWhereHas('matchSession', function ($sessionQuery) use ($turf) {
+              $sessionQuery->where('turf_id', $turf->id);
+            });
+        });
     });
 
     // Apply filters

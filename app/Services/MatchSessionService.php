@@ -36,7 +36,6 @@ class MatchSessionService
    */
   public function getMatchSessionWithRelations(MatchSession $matchSession, array $includes = []): MatchSession
   {
-    dd($includes);
     if (!empty($includes)) {
       $matchSession->load($includes);
     }

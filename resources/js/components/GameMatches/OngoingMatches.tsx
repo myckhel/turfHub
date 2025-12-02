@@ -39,7 +39,7 @@ const OngoingMatches: React.FC<OngoingMatchesProps> = ({ matchSession, matchSess
         if (!sessionToUse && matchSessionId) {
           try {
             const sessionResponse = await matchSessionApi.getById(matchSessionId);
-            sessionToUse = sessionResponse.data;
+            sessionToUse = sessionResponse;
             setCurrentMatchSession(sessionToUse);
           } catch (error) {
             console.error(`Failed to fetch match session ${matchSessionId}:`, error);
@@ -52,7 +52,7 @@ const OngoingMatches: React.FC<OngoingMatchesProps> = ({ matchSession, matchSess
           // Get ongoing match for specific session
           try {
             const ongoingMatchResponse = await matchSessionApi.getCurrentOngoingMatch(sessionToUse.id);
-            setOngoingMatches(ongoingMatchResponse.data);
+            setOngoingMatches(ongoingMatchResponse);
           } catch (error) {
             console.error(`Failed to get ongoing match for session ${sessionToUse.id}:`, error);
             setOngoingMatches([]);

@@ -33,7 +33,6 @@ class AppServiceProvider extends ServiceProvider
     JsonResource::withoutWrapping();
 
     // Register Model Observers
-    GameMatch::observe(GameMatchObserver::class);
     GameMatch::observe(FixtureObserver::class); // Tournament fixtures
     Stage::observe(StageObserver::class);
     Bet::observe(BetObserver::class);

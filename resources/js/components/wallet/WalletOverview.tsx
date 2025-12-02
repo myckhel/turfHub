@@ -34,7 +34,7 @@ const WalletOverview: React.FC<WalletOverviewProps> = ({ userId, turfId, showAct
         response = await walletApi.getBalance();
       }
 
-      setBalance(response.data);
+      setBalance(response);
     } catch (err: unknown) {
       const error = err as { message?: string };
       setError(error.message || 'Failed to fetch wallet balance');
@@ -45,7 +45,7 @@ const WalletOverview: React.FC<WalletOverviewProps> = ({ userId, turfId, showAct
 
   useEffect(() => {
     fetchBalance();
-  }, [fetchBalance, userId]);
+  }, [fetchBalance]);
 
   const handleDepositClick = () => {
     setDepositModalOpen(true);

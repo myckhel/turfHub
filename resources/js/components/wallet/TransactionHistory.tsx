@@ -66,12 +66,12 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = memo(({ turfId, co
       let response;
       if (turfId) {
         response = await walletApi.getTurfTransactions(turfId, params);
-        setTransactions(response.data.transactions);
-        setTotal(response.data.transactions.length);
+        setTransactions(response.transactions);
+        setTotal(response.transactions.length);
       } else {
         response = await walletApi.getTransactions(params);
-        setTransactions(response.data);
-        setTotal(response.data.length);
+        setTransactions(response);
+        setTotal(response.length);
       }
     } catch (err: unknown) {
       const error = err as { message?: string };

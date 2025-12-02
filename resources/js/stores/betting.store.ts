@@ -175,8 +175,7 @@ export const useBettingStore = create<BettingStore>()(
         // Betting actions
         placeBet: async (request: PlaceBetRequest) => {
           try {
-            const response = await bettingApi.placeBet(request);
-            const newBet = response.data.bet;
+            const newBet = await bettingApi.placeBet(request);
 
             set((state) => {
               state.userBets.unshift(newBet);

@@ -30,7 +30,7 @@ const TurfWalletBalanceDisplay: React.FC<TurfWalletBalanceDisplayProps> = memo(
         setLoading(true);
         setError(false);
         const response = await walletApi.getTurfBalance(turfId);
-        setBalance(response.data);
+        setBalance(response);
       } catch (err) {
         console.error('Failed to fetch turf wallet balance:', err);
         setError(true);

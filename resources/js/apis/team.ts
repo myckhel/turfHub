@@ -1,3 +1,4 @@
+import { PaginatedResponse } from '../types';
 import type { Player } from '../types/player.types';
 import type {
   AddPlayerToTeamSlotRequest,
@@ -59,7 +60,7 @@ export const teamApi = {
   },
 
   // Get teams for a turf (standalone teams)
-  getByTurf: async (turfId: number): Promise<TeamDetails[]> => {
+  getByTurf: async (turfId: number): Promise<PaginatedResponse<TeamDetails>> => {
     return api.get('/teams', {
       params: { turf_id: turfId, include: 'teamPlayers.player.user' },
     });

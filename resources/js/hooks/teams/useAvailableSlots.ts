@@ -108,7 +108,7 @@ export const useAvailableSlots = (options: UseAvailableSlotsOptions = {}): UseAv
       setActiveSessionId(sessionId);
 
       const response = await teamApi.getAvailableSlots(sessionId);
-      setAvailableSlots(response.data);
+      setAvailableSlots(response);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to load available team slots';
       console.error('Failed to load available slots:', error);

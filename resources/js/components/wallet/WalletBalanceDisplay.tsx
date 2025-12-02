@@ -22,7 +22,7 @@ const WalletBalanceDisplay: React.FC<WalletBalanceDisplayProps> = memo(({ showTo
       setLoading(true);
       setError(false);
       const response = await walletApi.getBalance();
-      setBalance(response.data);
+      setBalance(response);
     } catch (err) {
       console.error('Failed to fetch wallet balance:', err);
       setError(true);

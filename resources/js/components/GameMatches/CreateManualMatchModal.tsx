@@ -66,7 +66,7 @@ const CreateManualMatchModal = memo(({ open, onClose, onMatchCreated, turfId }: 
 
       message.success('Match created successfully');
       form.resetFields();
-      onMatchCreated(response.data);
+      onMatchCreated(response);
       onClose();
     } catch (error: unknown) {
       console.error('Failed to create match:', error);

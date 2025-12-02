@@ -344,7 +344,7 @@ const BettingHistory: React.FC = () => {
                 <Card className="text-center">
                   <Statistic
                     title="Total Stake"
-                    value={summaryStats.totalStake}
+                    value={bettingStats?.total_staked}
                     prefix={<DollarOutlined />}
                     valueStyle={{ color: '#fa8c16' }}
                     formatter={(value) => `₦${Number(value).toLocaleString()}`}

@@ -117,7 +117,7 @@ const MatchSessionTeam: React.FC<MatchSessionTeamProps> = memo(({ matchSessionId
             </div>
 
             <Row gutter={[16, 16]}>
-              {teams.map((team: TeamDetails) => {
+              {teams?.map((team: TeamDetails) => {
                 const playerCount = team.teamPlayers?.length || 0;
                 const maxPlayers = availableSlots.max_players_per_team;
                 const isTeamFull = playerCount >= maxPlayers;

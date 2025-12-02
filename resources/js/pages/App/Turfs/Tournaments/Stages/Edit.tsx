@@ -1,9 +1,8 @@
 import { router } from '@inertiajs/react';
-import { Card, message } from 'antd';
+import { Card } from 'antd';
 import { memo } from 'react';
 import StageForm from '../../../../../components/Tournaments/Stage/StageForm';
-import { useTournamentStore } from '../../../../../stores';
-import type { CreateStageRequest, Stage, Tournament } from '../../../../../types/tournament.types';
+import type { Stage, Tournament } from '../../../../../types/tournament.types';
 
 interface EditStageProps {
   tournament: Tournament;
@@ -11,21 +10,6 @@ interface EditStageProps {
 }
 
 const EditStage = memo(({ tournament, stage }: EditStageProps) => {
-  const { updateStage, isLoadingStage } = useTournamentStore();
-
-  const handleSubmit = async (data: CreateStageRequest) => {
-    try {
-      await updateStage(stage.id, data);
-      message.success('Stage updated successfully');
-      router.visit(route('tournaments.stages.show', { tournament: tournament.id, stage: stage.id }));
-    } catch (error) {
-      if (error instanceof Error) {
-        message.error(error.message || 'Failed to update stage');
-      }
-      throw error;
-    }
-  };
-
   const handleCancel = () => {
     router.visit(route('tournaments.stages.show', { tournament: tournament.id, stage: stage.id }));
   };
@@ -42,7 +26,7 @@ const EditStage = memo(({ tournament, stage }: EditStageProps) => {
 
       {/* Form */}
       <Card>
-        <StageForm tournamentId={tournament.id} existingStage={stage} onSubmit={handleSubmit} onCancel={handleCancel} loading={isLoadingStage} />
+        <StageForm tournamentId={tournament.id} existingStage={stage} onCancel={handleCancel} />
       </Card>
     </div>
   );

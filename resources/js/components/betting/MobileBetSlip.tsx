@@ -54,7 +54,7 @@ const MobileBetSlip: React.FC<MobileBetSlipProps> = ({ selectedOption, visible, 
         // Try to place bet online
         await bettingApi.placeBet({
           market_option_id: selectedOption.id,
-          amount,
+          stake_amount: amount,
           payment_method: 'wallet',
         });
 
@@ -66,11 +66,11 @@ const MobileBetSlip: React.FC<MobileBetSlipProps> = ({ selectedOption, visible, 
         // Save as pending sync
         saveDraftBet({
           market_option_id: selectedOption.id,
-          amount,
+          stake_amount: amount,
           payment_method: 'wallet',
           marketName: selectedOption.betting_market?.name || 'Unknown Market',
           optionName: selectedOption.name,
-          odds: selectedOption.odds,
+          odds: typeof selectedOption.odds === 'string' ? parseFloat(selectedOption.odds) : selectedOption.odds,
         });
 
         message.info("Bet saved offline. It will be placed when you're back online.");
@@ -80,14 +80,14 @@ const MobileBetSlip: React.FC<MobileBetSlipProps> = ({ selectedOption, visible, 
       if (isOnline) {
         message.error('Failed to place bet. Please try again.');
       } else {
-        // Save as draft if online placement fails
+        // Save as draft for offline placement
         saveDraftBet({
           market_option_id: selectedOption.id,
-          amount,
+          stake_amount: amount,
           payment_method: 'wallet',
           marketName: selectedOption.betting_market?.name || 'Unknown Market',
           optionName: selectedOption.name,
-          odds: selectedOption.odds,
+          odds: typeof selectedOption.odds === 'string' ? parseFloat(selectedOption.odds) : selectedOption.odds,
         });
 
         message.info('Connection failed. Bet saved as draft.');
@@ -103,11 +103,11 @@ const MobileBetSlip: React.FC<MobileBetSlipProps> = ({ selectedOption, visible, 
 
     saveDraftBet({
       market_option_id: selectedOption.id,
-      amount,
+      stake_amount: amount,
       payment_method: 'wallet',
       marketName: selectedOption.betting_market?.name || 'Unknown Market',
       optionName: selectedOption.name,
-      odds: selectedOption.odds,
+      odds: typeof selectedOption.odds === 'string' ? parseFloat(selectedOption.odds) : selectedOption.odds,
     });
 
     addHapticFeedback('light'); // Light feedback for draft save

@@ -169,17 +169,12 @@ export interface BettingMarketResponse {
   };
 }
 
-export interface BetResponse {
-  status: boolean;
-  message: string;
-  data: {
-    bet: Bet;
-    payment_url?: string;
-    payment_reference?: string;
-    requires_payment?: boolean;
-    new_wallet_balance?: number;
-    transaction_id?: string;
-  };
+export interface BetResponse extends Bet {
+  payment_url?: string;
+  payment_reference?: string;
+  requires_payment?: boolean;
+  new_wallet_balance?: number;
+  transaction_id?: string;
 }
 
 export interface BettingHistoryResponse {
@@ -194,7 +189,7 @@ export interface BettingHistoryResponse {
 
 export interface BettingStatsResponse {
   total_bets: number;
-  total_stake: number;
+  total_staked: number;
   total_winnings: number;
   win_rate: number;
   roi: number;

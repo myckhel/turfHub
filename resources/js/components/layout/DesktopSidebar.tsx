@@ -35,13 +35,14 @@ export const DesktopSidebar = memo<DesktopSidebarProps>(({ collapsed }) => {
       </div>
 
       {/* Navigation Menu */}
-      <SidebarMenu
-        className="turf-sidebar-menu border-r-0 bg-transparent"
-        style={{
-          height: 'calc(100vh - 64px)',
-          background: 'transparent',
-        }}
-      />
+      <div className="overflow-y-auto" style={{ height: 'calc(100vh - 64px)' }}>
+        <SidebarMenu
+          className="turf-sidebar-menu border-r-0 bg-transparent"
+          style={{
+            background: 'transparent',
+          }}
+        />
+      </div>
     </Sider>
   );
 });

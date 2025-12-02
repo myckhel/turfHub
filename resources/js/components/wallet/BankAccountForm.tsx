@@ -34,7 +34,7 @@ const BankAccountForm: React.FC<BankAccountFormProps> = memo(({ bankAccount, onS
       try {
         setBanksLoading(true);
         const response = await bankAccountApi.getBanks();
-        setBanks(response.data);
+        setBanks(response);
       } catch (error) {
         console.error('Failed to load banks:', error);
         message.error('Failed to load banks list');
@@ -73,8 +73,8 @@ const BankAccountForm: React.FC<BankAccountFormProps> = memo(({ bankAccount, onS
         account_number: values.account_number,
       });
 
-      setVerificationData(response.data);
-      form.setFieldValue('account_name', response.data.account_name);
+      setVerificationData(response);
+      form.setFieldValue('account_name', response.account_name);
       setCurrentStep(1);
       message.success('Account verified successfully!');
     } catch (error) {
@@ -102,10 +102,10 @@ const BankAccountForm: React.FC<BankAccountFormProps> = memo(({ bankAccount, onS
         // Create new bank account
         if (turfId) {
           response = await bankAccountApi.addTurfBankAccount(turfId, values);
-          onSave?.(response.data.bank_account);
+          onSave?.(response.bank_account);
         } else {
           response = await bankAccountApi.addUserBankAccount(values);
-          onSave?.(response.data);
+          onSave?.(response);
         }
       }
 

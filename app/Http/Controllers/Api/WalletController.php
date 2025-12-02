@@ -35,18 +35,12 @@ class WalletController extends Controller
       $balance = $this->walletService->getBalance($user);
 
       return response()->json([
-        'status' => true,
-        'message' => 'Wallet balance retrieved successfully',
-        'data' => [
-          'balance' => $balance,
-          'formatted_balance' => '₦' . number_format($balance, 2)
-        ]
+        'balance' => $balance,
+        'formatted_balance' => '₦' . number_format($balance, 2)
       ]);
     } catch (\Exception $e) {
       return response()->json([
-        'status' => false,
-        'message' => 'Failed to retrieve wallet balance',
-        'error' => $e->getMessage()
+        'error' => 'Failed to retrieve wallet balance: ' . $e->getMessage()
       ], 500);
     }
   }
@@ -61,16 +55,10 @@ class WalletController extends Controller
       $limit = $request->get('limit', 50);
       $transactions = $this->walletService->getTransactions($user, $limit);
 
-      return response()->json([
-        'status' => true,
-        'message' => 'Wallet transactions retrieved successfully',
-        'data' => $transactions
-      ]);
+      return response()->json($transactions);
     } catch (\Exception $e) {
       return response()->json([
-        'status' => false,
-        'message' => 'Failed to retrieve wallet transactions',
-        'error' => $e->getMessage()
+        'error' => 'Failed to retrieve wallet transactions: ' . $e->getMessage()
       ], 500);
     }
   }
@@ -97,8 +85,7 @@ class WalletController extends Controller
 
       if (!$verificationResult['status']) {
         return response()->json([
-          'status' => false,
-          'message' => 'Payment verification failed: ' . $verificationResult['message']
+          'error' => 'Payment verification failed: ' . $verificationResult['message']
         ], 400);
       }
 
@@ -107,31 +94,27 @@ class WalletController extends Controller
       // Check if payment is successful and belongs to the current user
       if (!$payment->isSuccessful()) {
         return response()->json([
-          'status' => false,
-          'message' => 'Payment was not successful'
+          'error' => 'Payment was not successful'
         ], 400);
       }
 
       if ($payment->user_id !== $user->id) {
         return response()->json([
-          'status' => false,
-          'message' => 'Payment does not belong to the current user'
+          'error' => 'Payment does not belong to the current user'
         ], 403);
       }
 
       // Check if payment amount matches requested amount
       if (abs($payment->amount - $amount) > 0.01) {
         return response()->json([
-          'status' => false,
-          'message' => 'Payment amount does not match the requested amount'
+          'error' => 'Payment amount does not match the requested amount'
         ], 400);
       }
 
       // Check if payment has already been processed for deposit
       if (isset($payment->metadata['wallet_deposit_processed'])) {
         return response()->json([
-          'status' => false,
-          'message' => 'Payment has already been processed for wallet deposit'
+          'error' => 'Payment has already been processed for wallet deposit'
         ], 400);
       }
 
@@ -156,31 +139,23 @@ class WalletController extends Controller
 
       if ($result['success']) {
         return response()->json([
-          'status' => true,
-          'message' => $result['message'],
-          'data' => [
-            'new_balance' => $result['new_balance'],
-            'formatted_balance' => '₦' . number_format($result['new_balance'], 2),
-            'transaction_id' => $result['transaction']->id
-          ]
+          'new_balance' => $result['new_balance'],
+          'formatted_balance' => '₦' . number_format($result['new_balance'], 2),
+          'transaction_id' => $result['transaction']->id
         ]);
       }
 
       return response()->json([
-        'status' => false,
-        'message' => $result['message']
+        'error' => $result['message']
       ], 400);
     } catch (ValidationException $e) {
       return response()->json([
-        'status' => false,
-        'message' => 'Validation failed',
+        'error' => 'Validation failed',
         'errors' => $e->errors()
       ], 422);
     } catch (\Exception $e) {
       return response()->json([
-        'status' => false,
-        'message' => 'Deposit failed',
-        'error' => $e->getMessage()
+        'error' => 'Deposit failed: ' . $e->getMessage()
       ], 500);
     }
   }
@@ -213,8 +188,7 @@ class WalletController extends Controller
           !$user->hasRoleOnTurf(User::TURF_ROLE_MANAGER, $turf->id)
         ) {
           return response()->json([
-            'status' => false,
-            'message' => 'You do not have permission to withdraw from this turf\'s wallet'
+            'error' => 'You do not have permission to withdraw from this turf\'s wallet'
           ], 403);
         }
 
@@ -231,7 +205,6 @@ class WalletController extends Controller
       if (!$bankAccount) {
         $entityType = $request->has('turf_id') ? 'turf' : 'user';
         return response()->json([
-          'status' => false,
           'message' => "Bank account not found or does not belong to this {$entityType}"
         ], 404);
       }
@@ -266,28 +239,20 @@ class WalletController extends Controller
           $responseData['turf_name'] = $walletHolder->name;
         }
 
-        return response()->json([
-          'status' => true,
-          'message' => $result['message'],
-          'data' => $responseData
-        ]);
+        return response()->json($responseData);
       }
 
       return response()->json([
-        'status' => false,
-        'message' => $result['message']
+        'error' => $result['message']
       ], 400);
     } catch (ValidationException $e) {
       return response()->json([
-        'status' => false,
-        'message' => 'Validation failed',
+        'error' => 'Validation failed',
         'errors' => $e->errors()
       ], 422);
     } catch (\Exception $e) {
       return response()->json([
-        'status' => false,
-        'message' => 'Withdrawal failed',
-        'error' => $e->getMessage()
+        'error' => 'Withdrawal failed: ' . $e->getMessage()
       ], 500);
     }
   }
@@ -304,25 +269,24 @@ class WalletController extends Controller
 
       $result = $this->walletService->verifyTransfer($request->transfer_reference);
 
-      return response()->json([
-        'status' => $result['success'],
-        'message' => $result['message'],
-        'data' => $result['success'] ? [
+      if ($result['success']) {
+        return response()->json([
           'transfer_status' => $result['status'],
           'transfer_data' => $result['data']
-        ] : null
-      ], $result['success'] ? 200 : 400);
+        ]);
+      }
+
+      return response()->json([
+        'error' => $result['message']
+      ], 400);
     } catch (ValidationException $e) {
       return response()->json([
-        'status' => false,
-        'message' => 'Validation failed',
+        'error' => 'Validation failed',
         'errors' => $e->errors()
       ], 422);
     } catch (\Exception $e) {
       return response()->json([
-        'status' => false,
-        'message' => 'Transfer verification failed',
-        'error' => $e->getMessage()
+        'error' => 'Transfer verification failed: ' . $e->getMessage()
       ], 500);
     }
   }
@@ -342,28 +306,21 @@ class WalletController extends Controller
         !$user->hasRoleOnTurf(User::TURF_ROLE_MANAGER, $turfId)
       ) {
         return response()->json([
-          'status' => false,
-          'message' => 'You do not have permission to view this turf\'s wallet'
+          'error' => 'You do not have permission to view this turf\'s wallet'
         ], 403);
       }
 
       $balance = $this->walletService->getBalance($turf);
 
       return response()->json([
-        'status' => true,
-        'message' => 'Turf wallet balance retrieved successfully',
-        'data' => [
-          'turf_id' => $turf->id,
-          'turf_name' => $turf->name,
-          'balance' => $balance,
-          'formatted_balance' => '₦' . number_format($balance, 2)
-        ]
+        'turf_id' => $turf->id,
+        'turf_name' => $turf->name,
+        'balance' => $balance,
+        'formatted_balance' => '₦' . number_format($balance, 2)
       ]);
     } catch (\Exception $e) {
       return response()->json([
-        'status' => false,
-        'message' => 'Failed to retrieve turf wallet balance',
-        'error' => $e->getMessage()
+        'error' => 'Failed to retrieve turf wallet balance: ' . $e->getMessage()
       ], 500);
     }
   }
@@ -383,8 +340,7 @@ class WalletController extends Controller
         !$user->hasRoleOnTurf(User::TURF_ROLE_MANAGER, $turfId)
       ) {
         return response()->json([
-          'status' => false,
-          'message' => 'You do not have permission to view this turf\'s wallet transactions'
+          'error' => 'You do not have permission to view this turf\'s wallet transactions'
         ], 403);
       }
 
@@ -392,19 +348,13 @@ class WalletController extends Controller
       $transactions = $this->walletService->getTransactions($turf, $limit);
 
       return response()->json([
-        'status' => true,
-        'message' => 'Turf wallet transactions retrieved successfully',
-        'data' => [
-          'turf_id' => $turf->id,
-          'turf_name' => $turf->name,
-          'transactions' => $transactions
-        ]
+        'turf_id' => $turf->id,
+        'turf_name' => $turf->name,
+        'transactions' => $transactions
       ]);
     } catch (\Exception $e) {
       return response()->json([
-        'status' => false,
-        'message' => 'Failed to retrieve turf wallet transactions',
-        'error' => $e->getMessage()
+        'error' => 'Failed to retrieve turf wallet transactions: ' . $e->getMessage()
       ], 500);
     }
   }

@@ -19,12 +19,16 @@ class Team extends Model
    */
   protected $fillable = [
     'match_session_id',
+    'turf_id',        // For standalone teams not tied to sessions
+    'tournament_id',
     'name',
-    'captain_id', // User ID of the team captain
-    'status',     // e.g., active_in_match, waiting, eliminated
+    'color',          // Team color for UI display
+    'captain_id',     // User ID of the team captain
+    'status',         // e.g., active_in_match, waiting, eliminated
     'wins',
     'losses',
     'draws',
+    'metadata',
   ];
 
   /**
@@ -38,6 +42,7 @@ class Team extends Model
       'wins' => 'integer',
       'losses' => 'integer',
       'draws' => 'integer',
+      'metadata' => 'array',
     ];
   }
 
@@ -47,6 +52,30 @@ class Team extends Model
   public function matchSession(): BelongsTo
   {
     return $this->belongsTo(MatchSession::class);
+  }
+
+  /**
+   * Get the turf this team belongs to (for standalone teams).
+   */
+  public function turf(): BelongsTo
+  {
+    return $this->belongsTo(Turf::class);
+  }
+
+  /**
+   * Get the tournament this team belongs to.
+   */
+  public function tournament(): BelongsTo
+  {
+    return $this->belongsTo(Tournament::class);
+  }
+
+  /**
+   * Get the stage assignments for this team.
+   */
+  public function stageTeams(): HasMany
+  {
+    return $this->hasMany(StageTeam::class);
   }
 
   /**

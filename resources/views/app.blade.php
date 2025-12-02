@@ -75,6 +75,15 @@
         <link rel="icon" href="/favicon.svg" type="image/svg+xml">
         <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
+        {{-- iOS PWA support --}}
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="default">
+        <meta name="apple-mobile-web-app-title" content="TurfMate">
+
+        {{-- PWA theme colors --}}
+        <meta name="theme-color" content="#10b981" media="(prefers-color-scheme: light)">
+        <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)">
+
         {{-- Afro-Grunge Google Fonts - Load first for priority --}}
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -99,9 +108,14 @@
                         scope: '/',
                         updateViaCache: 'none'
                     }).then((registration) => {
-                        console.log('SW registered: ', registration);
+                        console.log('✅ Service Worker registered successfully:', registration.scope);
+
+                        // Check for updates periodically
+                        setInterval(() => {
+                            registration.update();
+                        }, 60 * 60 * 1000); // Check every hour
                     }).catch((registrationError) => {
-                        console.log('SW registration failed: ', registrationError);
+                        console.error('❌ Service Worker registration failed:', registrationError);
                     });
                 });
             }

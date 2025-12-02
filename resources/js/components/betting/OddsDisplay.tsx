@@ -35,7 +35,7 @@ const OddsDisplay = memo(({ odds, format = 'decimal', size = 'medium', highlight
           : 'bg-gray-100 font-semibold text-gray-900 dark:bg-gray-700 dark:text-gray-100'
       } rounded-lg border transition-all duration-200 ${highlight ? 'border-green-400 shadow-lg' : 'border-gray-200 dark:border-gray-600'} `}
     >
-      {formatOdds(parseFloat(odds), format)}
+      {formatOdds(parseFloat(String(odds)), format)}
     </span>
   );
 });

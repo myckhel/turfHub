@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 interface UseMatchTimerProps {
   matchStartTime: string;
-  status: 'upcoming' | 'in_progress' | 'completed' | 'postponed';
+  status: 'completed' | 'in_progress' | 'upcoming' | 'postponed' | 'cancelled';
 }
 
 interface MatchTimerState {

@@ -1,8 +1,10 @@
 import { TeamPlayer } from './matchSession.types';
+import { Group, Stage } from './tournament.types';
 
 export interface GameMatch {
   id: number;
-  match_session_id: number;
+  match_session_id?: number; // Optional - null for manual/standalone matches
+  turf_id?: number; // For standalone matches not tied to sessions
   first_team_id: number;
   second_team_id: number;
   first_team_score: number;
@@ -10,10 +12,15 @@ export interface GameMatch {
   winning_team_id?: number;
   outcome?: 'win' | 'loss' | 'draw';
   match_time: string;
-  status: 'upcoming' | 'in_progress' | 'completed' | 'postponed';
+  starts_at: string;
+  status: 'upcoming' | 'in_progress' | 'completed' | 'postponed' | 'cancelled';
   betting_enabled?: boolean;
   created_at: string;
   updated_at: string;
+  group_id?: number;
+  group?: Group;
+  stage_id?: number;
+  stage?: Stage;
 
   // Relationships
   match_session?: {
@@ -82,8 +89,22 @@ export interface MatchEvent {
 }
 
 // API Request types
+export interface CreateGameMatchRequest {
+  turf_id?: number; // For standalone matches
+  match_session_id?: number; // For session-based matches
+  first_team_id: number;
+  second_team_id: number;
+  first_team_score?: number;
+  second_team_score?: number;
+  match_time?: string;
+  starts_at?: string;
+  status?: 'upcoming' | 'in_progress' | 'completed' | 'postponed';
+  betting_enabled?: boolean;
+}
+
 export interface UpdateGameMatchRequest {
   match_session_id?: number;
+  turf_id?: number;
   first_team_id?: number;
   second_team_id?: number;
   first_team_score?: number;
@@ -92,6 +113,7 @@ export interface UpdateGameMatchRequest {
   outcome?: 'win' | 'loss' | 'draw';
   match_time?: string;
   status?: 'upcoming' | 'in_progress' | 'completed' | 'postponed';
+  betting_enabled?: boolean;
 }
 
 export interface CreateMatchEventRequest {
@@ -115,6 +137,7 @@ export interface UpdateMatchEventRequest {
 
 export interface GameMatchFilters {
   match_session_id?: number;
+  turf_id?: number;
   team_id?: number;
   status?: 'upcoming' | 'in_progress' | 'completed' | 'postponed';
   outcome?: 'win' | 'loss' | 'draw';

@@ -63,7 +63,7 @@
     ],
     "dev": [
       "Composer\\Config::disableProcessTimeout",
-      "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"php artisan octane:start --watch --workers=2\" \"php artisan queue:listen --tries=1\" \"php artisan pail --timeout=0\" \"yarn dev\" --names=octane,queue,logs,vite --kill-others"
+      "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"php artisan octane:start --watch --workers=2\" \"php artisan queue:listen --queue=default,tournament --tries=1\" \"php artisan pail --timeout=0\" \"yarn dev\" --names=octane,queue,logs,vite --kill-others"
     ],
     "dev:octane": [
       "php artisan octane:start --watch --workers=2 --max-requests=250 --port=8000"

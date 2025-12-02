@@ -100,8 +100,12 @@ return [
     /*
      * When urls to files get generated, this class will be called. Use the default
      * if your files are stored locally above the site root or on s3.
+     *
+     * We use a custom TemporaryUrlGenerator that intelligently handles:
+     * - Public URLs for local/public disks (development)
+     * - Temporary signed URLs for private S3/R2 buckets (production)
      */
-    'url_generator' => Spatie\MediaLibrary\Support\UrlGenerator\DefaultUrlGenerator::class,
+    'url_generator' => App\Services\MediaLibrary\TemporaryUrlGenerator::class,
 
     /*
      * Moves media on updating to keep path consistent. Enable it only with a custom

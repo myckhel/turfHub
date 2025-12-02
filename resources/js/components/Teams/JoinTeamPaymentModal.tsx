@@ -69,7 +69,7 @@ const JoinTeamPaymentModal: React.FC<JoinTeamPaymentModalProps> = memo(
     const loadWalletBalance = useCallback(async () => {
       try {
         const response = await walletApi.getBalance();
-        setWalletBalance(response.data);
+        setWalletBalance(response);
       } catch (error) {
         console.error('Failed to load wallet balance:', error);
         // Don't show error message for wallet balance as it's optional

@@ -64,6 +64,7 @@ postman/
 - 👥 **Users** (`/api/users`) - Complete CRUD with role filtering
 - 🏟️ **Turfs** (`/api/turfs`) - Management with owner filtering
 - 🏆 **Match Sessions** (`/api/match-sessions`) - Scheduling with date filtering
+  - 👥 **Available Players** (`/api/match-sessions/{session}/available-players`) - Get players for team assignment
 - 👥 **Teams** (`/api/teams`) - Team management
 - 🎮 **Players** (`/api/players`) - Player management
 - ⚡ **Game Matches** (`/api/game-matches`) - Match tracking
@@ -82,7 +83,7 @@ postman/
 
 ### Nested Resource Routes
 - 🏟️ **Turf Relations**: `/api/turfs/{turf}/players`, `/api/turfs/{turf}/match-sessions`
-- 🏆 **Session Relations**: `/api/match-sessions/{session}/teams`, `/api/match-sessions/{session}/game-matches`
+- 🏆 **Session Relations**: `/api/match-sessions/{session}/teams`, `/api/match-sessions/{session}/game-matches`, `/api/match-sessions/{session}/available-players`
 - 👥 **User Relations**: `/api/users/{user}/turfs`, `/api/users/{user}/players`
 - And many more...
 

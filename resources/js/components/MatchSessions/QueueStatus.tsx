@@ -68,7 +68,7 @@ const QueueStatus: React.FC<QueueStatusProps> = ({
     try {
       setError(null);
       const response = await matchSessionApi.getQueueStatus(matchSessionId);
-      setQueueStatus(response.data);
+      setQueueStatus(response);
     } catch (error) {
       console.error('Failed to load queue status:', error);
       setError('Failed to load queue status');

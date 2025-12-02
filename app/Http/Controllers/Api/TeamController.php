@@ -94,20 +94,25 @@ class TeamController extends Controller
   /**
    * Join a team slot (for players).
    */
-  public function joinSlot(Request $request, Team $team): JsonResponse
+  public function joinSlot(Request $request, Team $team): Response|JsonResponse
   {
     $this->authorize('joinSlot', $team);
 
     try {
       $userId = Auth::user()->id;
-      $playerId = $team->matchSession->turf->players()
+
+      // Get turf from either match session or tournament
+      $turf = $team->match_session_id
+        ? $team->matchSession->turf
+        : $team->tournament->turf;
+
+      $playerId = $turf->players()
         ->where('user_id', $userId)
         ->value('id');
+
       $this->teamService->joinTeamSlot($team, $playerId, $request->get('position'));
 
-      return response()->json([
-        'message' => 'Successfully joined team slot'
-      ]);
+      return response()->noContent();
     } catch (\InvalidArgumentException $e) {
       return response()->json(['error' => $e->getMessage()], 400);
     }
@@ -116,20 +121,25 @@ class TeamController extends Controller
   /**
    * Leave a team slot (for players).
    */
-  public function leaveSlot(Team $team): JsonResponse
+  public function leaveSlot(Team $team): Response|JsonResponse
   {
     $this->authorize('leaveSlot', $team);
 
     try {
       $userId = Auth::user()->id;
-      $playerId = $team->matchSession->turf->players()
+
+      // Get turf from either match session or tournament
+      $turf = $team->match_session_id
+        ? $team->matchSession->turf
+        : $team->tournament->turf;
+
+      $playerId = $turf->players()
         ->where('user_id', $userId)
         ->value('id');
+
       $this->teamService->leaveTeamSlot($team, $playerId);
 
-      return response()->json([
-        'message' => 'Successfully left team slot'
-      ]);
+      return response()->noContent();
     } catch (\InvalidArgumentException $e) {
       return response()->json(['error' => $e->getMessage()], 400);
     }
@@ -138,7 +148,7 @@ class TeamController extends Controller
   /**
    * Add player to team slot (for admins/managers).
    */
-  public function addPlayerToSlot(Request $request, Team $team): JsonResponse
+  public function addPlayerToSlot(Request $request, Team $team): Response|JsonResponse
   {
     $this->authorize('addPlayerToSlot', $team);
 
@@ -156,9 +166,7 @@ class TeamController extends Controller
         $request->get('is_captain', false)
       );
 
-      return response()->json([
-        'message' => 'Player added to team slot successfully'
-      ]);
+      return response()->noContent();
     } catch (\InvalidArgumentException $e) {
       return response()->json(['error' => $e->getMessage()], 400);
     }
@@ -167,16 +175,14 @@ class TeamController extends Controller
   /**
    * Remove player from team slot (for admins/managers).
    */
-  public function removePlayerFromSlot(Team $team, int $playerId): JsonResponse
+  public function removePlayerFromSlot(Team $team, int $playerId): Response|JsonResponse
   {
     $this->authorize('removePlayerFromSlot', $team);
 
     try {
       $this->teamService->removePlayerFromTeamSlot($team, $playerId);
 
-      return response()->json([
-        'message' => 'Player removed from team slot successfully'
-      ]);
+      return response()->noContent();
     } catch (\InvalidArgumentException $e) {
       return response()->json(['error' => $e->getMessage()], 400);
     }
@@ -185,7 +191,7 @@ class TeamController extends Controller
   /**
    * Set team captain.
    */
-  public function setCaptain(Request $request, Team $team): JsonResponse
+  public function setCaptain(Request $request, Team $team): Response|JsonResponse
   {
     $this->authorize('setCaptain', $team);
 
@@ -196,9 +202,7 @@ class TeamController extends Controller
     try {
       $this->teamService->setCaptain($team, $request->get('player_id'));
 
-      return response()->json([
-        'message' => 'Team captain set successfully'
-      ]);
+      return response()->noContent();
     } catch (\InvalidArgumentException $e) {
       return response()->json(['error' => $e->getMessage()], 400);
     }

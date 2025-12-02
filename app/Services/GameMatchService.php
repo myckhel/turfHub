@@ -42,6 +42,7 @@ class GameMatchService
       'second_team' => 'secondTeam',
       'winning_team' => 'winningTeam',
       'match_session' => 'matchSession',
+      'turf' => 'turf',
       'match_events' => 'matchEvents',
       'betting_markets' => 'bettingMarkets',
       'active_betting_markets' => 'activeBettingMarkets',
@@ -93,6 +94,21 @@ class GameMatchService
     // Filter by match session
     if ($request->filled('match_session_id')) {
       $query->where('match_session_id', $request->match_session_id);
+    }
+
+    // Filter by turf (for standalone matches)
+    if ($request->filled('turf_id')) {
+      $query->where('turf_id', $request->turf_id);
+    }
+
+    // Filter by stage
+    if ($request->filled('stage_id')) {
+      $query->where('stage_id', $request->stage_id);
+    }
+
+    // Filter by group
+    if ($request->filled('group_id')) {
+      $query->where('group_id', $request->group_id);
     }
 
     // Filter by team (first or second team)

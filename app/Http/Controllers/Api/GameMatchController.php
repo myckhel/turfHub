@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\MatchCompleted;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreGameMatchRequest;
+use App\Http\Requests\Tournament\SubmitMatchResultRequest;
 use App\Http\Requests\UpdateGameMatchRequest;
 use App\Http\Resources\GameMatchResource;
 use App\Models\GameMatch;
 use App\Services\GameMatchService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
@@ -82,5 +85,102 @@ class GameMatchController extends Controller
     $this->gameMatchService->deleteGameMatch($gameMatch);
 
     return response()->noContent();
+  }
+
+  /**
+   * Submit match result for tournament fixtures.
+   */
+  public function submitResult(SubmitMatchResultRequest $request, GameMatch $gameMatch): GameMatchResource|JsonResponse
+  {
+    $this->authorize('update', $gameMatch);
+
+    if (!$gameMatch->stage_id) {
+      return response()->json([
+        'message' => 'This endpoint is only for tournament fixtures'
+      ], 400);
+    }
+
+    $validated = $request->validated();
+
+    // Update fixture with result
+    $gameMatch->update([
+      'first_team_score' => $validated['home_score'],
+      'second_team_score' => $validated['away_score'],
+      'status' => 'completed',
+      'metadata' => array_merge($gameMatch->metadata ?? [], $validated['metadata'] ?? []),
+    ]);
+
+    // Create match events if provided
+    if (isset($validated['match_events'])) {
+      foreach ($validated['match_events'] as $eventData) {
+        $gameMatch->matchEvents()->create($eventData);
+      }
+    }
+
+    return new GameMatchResource($gameMatch->fresh(['homeTeam', 'awayTeam', 'stage', 'group']));
+  }
+
+  /**
+   * Update match result for tournament fixtures.
+   */
+  public function updateResult(SubmitMatchResultRequest $request, GameMatch $gameMatch): GameMatchResource|JsonResponse
+  {
+    $this->authorize('update', $gameMatch);
+
+    if (!$gameMatch->stage_id) {
+      return response()->json([
+        'message' => 'This endpoint is only for tournament fixtures'
+      ], 400);
+    }
+
+    $validated = $request->validated();
+
+    // Update fixture with new result
+    $gameMatch->update([
+      'first_team_score' => $validated['home_score'],
+      'second_team_score' => $validated['away_score'],
+      'metadata' => array_merge($gameMatch->metadata ?? [], $validated['metadata'] ?? []),
+    ]);
+
+    // Trigger re-ranking
+    event(new MatchCompleted(
+      $gameMatch,
+      $gameMatch->winner_team_id,
+      $gameMatch->first_team_score,
+      $gameMatch->second_team_score
+    ));
+
+    return new GameMatchResource($gameMatch->fresh(['homeTeam', 'awayTeam', 'stage', 'group']));
+  }
+
+  /**
+   * Reschedule a tournament fixture.
+   */
+  public function reschedule(Request $request, GameMatch $gameMatch): GameMatchResource|JsonResponse
+  {
+    $this->authorize('update', $gameMatch);
+
+    if (!$gameMatch->stage_id) {
+      return response()->json([
+        'message' => 'This endpoint is only for tournament fixtures'
+      ], 400);
+    }
+
+    $validated = $request->validate([
+      'starts_at' => 'required|date|after:now',
+      'reason' => 'nullable|string|max:500',
+    ]);
+
+    $gameMatch->update([
+      'starts_at' => $validated['starts_at'],
+      'status' => 'scheduled',
+      'metadata' => array_merge($gameMatch->metadata ?? [], [
+        'rescheduled' => true,
+        'reschedule_reason' => $validated['reason'] ?? null,
+        'original_start' => $gameMatch->getOriginal('starts_at'),
+      ]),
+    ]);
+
+    return new GameMatchResource($gameMatch->fresh());
   }
 }

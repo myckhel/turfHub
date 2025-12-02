@@ -1,4 +1,5 @@
 import type {
+  CreateGameMatchRequest,
   CreateMatchEventRequest,
   GameMatch,
   GameMatchFilters,
@@ -9,7 +10,7 @@ import type {
   UpdateGameMatchRequest,
   UpdateMatchEventRequest,
 } from '../types/gameMatch.types';
-import api, { type ApiResponse } from './index';
+import api from './index';
 
 /**
  * Game Match API module
@@ -31,19 +32,29 @@ export const gameMatchApi = {
     return api.get(`/game-matches/${id}`, { params });
   },
 
+  // Create a new game match
+  create: async (data: CreateGameMatchRequest): Promise<GameMatch> => {
+    return api.post('/game-matches', data);
+  },
+
   // Update a game match
-  update: async (id: number, data: UpdateGameMatchRequest): Promise<ApiResponse<GameMatch>> => {
+  update: async (id: number, data: UpdateGameMatchRequest): Promise<GameMatch> => {
     return api.put(`/game-matches/${id}`, data);
   },
 
   // Delete a game match
-  delete: async (id: number): Promise<ApiResponse<void>> => {
+  delete: async (id: number): Promise<void> => {
     return api.delete(`/game-matches/${id}`);
   },
 
   // Get game matches for a specific match session
   getByMatchSession: async (matchSessionId: number, params?: Omit<GameMatchFilters, 'match_session_id'>): Promise<GameMatchListResponse> => {
     return gameMatchApi.getAll({ ...params, match_session_id: matchSessionId });
+  },
+
+  // Get game matches for a specific turf (standalone matches)
+  getByTurf: async (turfId: number, params?: Omit<GameMatchFilters, 'turf_id'>): Promise<GameMatchListResponse> => {
+    return gameMatchApi.getAll({ ...params, turf_id: turfId });
   },
 };
 
@@ -63,22 +74,22 @@ export const matchEventApi = {
     params?: {
       include?: string;
     },
-  ): Promise<ApiResponse<MatchEvent>> => {
+  ): Promise<MatchEvent> => {
     return api.get(`/match-events/${id}`, { params });
   },
 
   // Create a new match event
-  create: async (data: CreateMatchEventRequest): Promise<ApiResponse<MatchEvent>> => {
+  create: async (data: CreateMatchEventRequest): Promise<MatchEvent> => {
     return api.post('/match-events', data);
   },
 
   // Update a match event
-  update: async (id: number, data: UpdateMatchEventRequest): Promise<ApiResponse<MatchEvent>> => {
+  update: async (id: number, data: UpdateMatchEventRequest): Promise<MatchEvent> => {
     return api.put(`/match-events/${id}`, data);
   },
 
   // Delete a match event
-  delete: async (id: number): Promise<ApiResponse<void>> => {
+  delete: async (id: number): Promise<void> => {
     return api.delete(`/match-events/${id}`);
   },
 

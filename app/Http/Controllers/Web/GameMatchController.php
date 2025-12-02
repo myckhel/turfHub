@@ -14,7 +14,7 @@ class GameMatchController extends Controller
   /**
    * Display the specified game match details.
    */
-  public function show(Turf $turf, MatchSession $matchSession, GameMatch $gameMatch): Response
+  public function show(Turf|null $turf, GameMatch $gameMatch): Response
   {
     // Load necessary relationships
     $gameMatch->load([
@@ -23,12 +23,16 @@ class GameMatchController extends Controller
       'winningTeam',
       'matchEvents.player.user',
       'matchEvents.team',
-      'matchSession'
+      'matchSession',
+      'matchSession.turf',
+      'turf',
+      'stage',
+      'stage.tournament',
+      'stage.tournament.turf',
     ]);
 
     return Inertia::render('App/GameMatches/Show', [
-      'turf' => $turf,
-      'matchSession' => $matchSession,
+      'turf' => $gameMatch->turf ?? $gameMatch->matchSession?->turf ?? $gameMatch->stage?->tournament?->turf ?? $turf,
       'gameMatch' => $gameMatch,
     ]);
   }

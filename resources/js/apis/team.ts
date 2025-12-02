@@ -1,64 +1,98 @@
+import { PaginatedResponse } from '../types';
 import type { Player } from '../types/player.types';
 import type {
   AddPlayerToTeamSlotRequest,
   AvailableTeamSlotsResponse,
+  CreateTeamRequest,
   JoinTeamSlotRequest,
   ProcessTeamSlotPaymentRequest,
   TeamDetails,
   TeamSlotPaymentResponse,
   UpdateTeamSlotRequest,
 } from '../types/team.types';
-import api, { type ApiResponse } from './index';
+import api from './index';
 
 /**
  * Team API module
  * Handles all team-related API calls including slot management and payments
  */
 export const teamApi = {
+  // Create a new team
+  create: async (data: CreateTeamRequest): Promise<TeamDetails> => {
+    return api.post('/teams', data);
+  },
+
+  // Quick create team with minimal data (for inline creation during match setup)
+  createQuick: async (data: { name: string; color?: string; turf_id?: number; match_session_id?: number }): Promise<TeamDetails> => {
+    return api.post('/teams', data);
+  },
+
+  // Update team
+  update: async (
+    id: number,
+    data: {
+      name?: string;
+      tournament_id?: number;
+      match_session_id?: number;
+      captain_id?: number;
+      status?: string;
+      metadata?: Record<string, unknown>;
+    },
+  ): Promise<TeamDetails> => {
+    return api.put(`/teams/${id}`, data);
+  },
+
   // Get team details with slots and players
   getById: async (
     id: number,
     params?: {
       include?: string;
     },
-  ): Promise<ApiResponse<TeamDetails>> => {
+  ): Promise<TeamDetails> => {
     return api.get(`/teams/${id}`, { params });
   },
 
   // Get teams for a match session
-  getByMatchSession: async (matchSessionId: number): Promise<ApiResponse<TeamDetails[]>> => {
+  getByMatchSession: async (matchSessionId: number): Promise<TeamDetails[]> => {
     return api.get(`/match-sessions/${matchSessionId}/teams`, {
       params: { include: 'slots,players,captain,match_session' },
     });
   },
 
+  // Get teams for a turf (standalone teams)
+  getByTurf: async (turfId: number): Promise<PaginatedResponse<TeamDetails>> => {
+    return api.get('/teams', {
+      params: { turf_id: turfId, include: 'teamPlayers.player.user' },
+    });
+  },
+
   // Get available team slots for a match session
-  getAvailableSlots: async (matchSessionId: number): Promise<ApiResponse<AvailableTeamSlotsResponse>> => {
+  getAvailableSlots: async (matchSessionId: number): Promise<AvailableTeamSlotsResponse> => {
     return api.get(`/match-sessions/${matchSessionId}/available-slots`);
   },
 
   // Join a team slot (for players)
-  joinSlot: async (data: JoinTeamSlotRequest): Promise<ApiResponse<void>> => {
+  joinSlot: async (data: JoinTeamSlotRequest): Promise<void> => {
     return api.post(`/teams/${data.team_id}/join-slot`, data);
   },
 
   // Leave a team slot (for players)
-  leaveSlot: async (teamId: number): Promise<ApiResponse<void>> => {
+  leaveSlot: async (teamId: number): Promise<void> => {
     return api.delete(`/teams/${teamId}/leave-slot`);
   },
 
   // Add player to team slot (for admins/managers)
-  addPlayerToSlot: async (data: AddPlayerToTeamSlotRequest): Promise<ApiResponse<void>> => {
+  addPlayerToSlot: async (data: AddPlayerToTeamSlotRequest): Promise<void> => {
     return api.post(`/teams/${data.team_id}/add-player`, data);
   },
 
   // Remove player from team slot (for admins/managers)
-  removePlayerFromSlot: async (teamId: number, playerId: number): Promise<ApiResponse<void>> => {
+  removePlayerFromSlot: async (teamId: number, playerId: number): Promise<void> => {
     return api.delete(`/teams/${teamId}/remove-player/${playerId}`);
   },
 
   // Update team slot (captain status, position)
-  updateSlot: async (teamId: number, playerId: number, data: UpdateTeamSlotRequest): Promise<ApiResponse<void>> => {
+  updateSlot: async (teamId: number, playerId: number, data: UpdateTeamSlotRequest): Promise<void> => {
     return api.put(`/teams/${teamId}/update-slot/${playerId}`, data);
   },
 
@@ -68,42 +102,37 @@ export const teamApi = {
   },
 
   // Get payment status for a slot
-  getPaymentStatus: async (teamId: number, playerId: number): Promise<ApiResponse<{ status: string; payment_id?: string }>> => {
+  getPaymentStatus: async (teamId: number, playerId: number): Promise<{ status: string; payment_id?: string }> => {
     return api.get(`/teams/${teamId}/payment-status/${playerId}`);
   },
 
   // Get available players for a turf (for admin/manager selection)
-  getAvailablePlayers: async (turfId: number): Promise<ApiResponse<Player[]>> => {
+  getAvailablePlayers: async (turfId: number): Promise<Player[]> => {
     return api.get(`/turfs/${turfId}/available-players`);
   },
 
   // Get available players for a match session with filtering options
-  getAvailablePlayersForSession: async (
-    matchSessionId: number,
-    params?: { filter_unassigned?: boolean; search?: string },
-  ): Promise<ApiResponse<Player[]>> => {
+  getAvailablePlayersForSession: async (matchSessionId: number, params?: { filter_unassigned?: boolean; search?: string }): Promise<Player[]> => {
     return api.get(`/match-sessions/${matchSessionId}/available-players`, { params });
   },
 
   // Set team captain
-  setCaptain: async (teamId: number, playerId: number): Promise<ApiResponse<void>> => {
+  setCaptain: async (teamId: number, playerId: number): Promise<void> => {
     return api.post(`/teams/${teamId}/set-captain`, { player_id: playerId });
   },
 
   // Get team statistics
   getStats: async (
     teamId: number,
-  ): Promise<
-    ApiResponse<{
-      total_matches: number;
-      wins: number;
-      losses: number;
-      draws: number;
-      goals_for: number;
-      goals_against: number;
-      win_rate: number;
-    }>
-  > => {
+  ): Promise<{
+    total_matches: number;
+    wins: number;
+    losses: number;
+    draws: number;
+    goals_for: number;
+    goals_against: number;
+    win_rate: number;
+  }> => {
     return api.get(`/teams/${teamId}/stats`);
   },
 };

@@ -1,4 +1,4 @@
-import api, { type ApiResponse } from './index';
+import api from './index';
 
 // Wallet-related types
 export interface WalletBalance {
@@ -57,7 +57,7 @@ export interface TransferVerificationResponse {
 
 export const walletApi = {
   // User wallet operations
-  getBalance: async (): Promise<ApiResponse<WalletBalance>> => {
+  getBalance: async (): Promise<WalletBalance> => {
     return api.get(route('api.wallet.balance'));
   },
 
@@ -68,24 +68,24 @@ export const walletApi = {
     dateRange?: [string, string];
     status?: string;
     search?: string;
-  }): Promise<ApiResponse<WalletTransaction[]>> => {
+  }): Promise<WalletTransaction[]> => {
     return api.get(route('api.wallet.transactions'), { params });
   },
 
-  deposit: async (data: DepositRequest): Promise<ApiResponse<DepositResponse>> => {
+  deposit: async (data: DepositRequest): Promise<DepositResponse> => {
     return api.post(route('api.wallet.deposit'), data);
   },
 
-  withdraw: async (data: WithdrawRequest): Promise<ApiResponse<WithdrawResponse>> => {
+  withdraw: async (data: WithdrawRequest): Promise<WithdrawResponse> => {
     return api.post(route('api.wallet.withdraw'), data);
   },
 
-  verifyTransfer: async (data: TransferVerificationRequest): Promise<ApiResponse<TransferVerificationResponse>> => {
+  verifyTransfer: async (data: TransferVerificationRequest): Promise<TransferVerificationResponse> => {
     return api.post(route('api.wallet.verify-transfer'), data);
   },
 
   // Turf wallet operations
-  getTurfBalance: async (turfId: number): Promise<ApiResponse<WalletBalance & { turf_id: number; turf_name: string }>> => {
+  getTurfBalance: async (turfId: number): Promise<WalletBalance & { turf_id: number; turf_name: string }> => {
     return api.get(route('api.wallet.turf.balance', { turfId }));
   },
 
@@ -99,7 +99,7 @@ export const walletApi = {
       status?: string;
       search?: string;
     },
-  ): Promise<ApiResponse<{ turf_id: number; turf_name: string; transactions: WalletTransaction[] }>> => {
+  ): Promise<{ turf_id: number; turf_name: string; transactions: WalletTransaction[] }> => {
     return api.get(route('api.wallet.turf.transactions', { turfId }), { params });
   },
 };

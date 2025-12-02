@@ -147,10 +147,7 @@ class MatchSessionController extends Controller
 
     $queueStatus = $this->matchSessionService->getQueueStatus($matchSession);
 
-    return response()->json([
-      'data' => $queueStatus,
-      'message' => 'Queue status retrieved successfully'
-    ]);
+    return response()->json($queueStatus);
   }
 
   /**
@@ -170,17 +167,12 @@ class MatchSessionController extends Controller
     });
     $availableSlots = $totalSlots - $occupiedSlots;
 
-    $response = [
+    return response()->json([
       'teams' => \App\Http\Resources\TeamResource::collection($teams),
       'total_slots' => $totalSlots,
       'available_slots' => $availableSlots,
       'slot_fee' => $matchSession->turf->team_slot_fee ?? 0,
       'max_players_per_team' => $matchSession->max_players_per_team,
-    ];
-
-    return response()->json([
-      'data' => $response,
-      'message' => 'Available slots retrieved successfully'
     ]);
   }
 
@@ -224,10 +216,7 @@ class MatchSessionController extends Controller
 
     $players = $query->get();
 
-    return response()->json([
-      'data' => PlayerResource::collection($players),
-      'message' => 'Available players retrieved successfully'
-    ]);
+    return response()->json(PlayerResource::collection($players));
   }
 
   public function getGameMatches(Request $request, MatchSession $matchSession): JsonResponse
@@ -236,9 +225,6 @@ class MatchSessionController extends Controller
 
     $gameMatches = $this->matchSessionService->getGameMatches($request, $matchSession);
 
-    return response()->json([
-      'data' => GameMatchResource::collection($gameMatches),
-      'message' => 'Game matches retrieved successfully'
-    ]);
+    return response()->json(GameMatchResource::collection($gameMatches));
   }
 }

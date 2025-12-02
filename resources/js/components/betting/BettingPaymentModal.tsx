@@ -51,7 +51,7 @@ const BettingPaymentModal: React.FC<BettingPaymentModalProps> = ({
     try {
       setWalletLoading(true);
       const response = await walletApi.getBalance();
-      setWalletBalance(response.data);
+      setWalletBalance(response);
     } catch (err) {
       console.error('Failed to fetch wallet balance:', err);
     } finally {
@@ -65,18 +65,14 @@ const BettingPaymentModal: React.FC<BettingPaymentModalProps> = ({
         // Process bet with Paystack payment
         const result = await bettingApi.placeBet({
           market_option_id: marketOptionId,
-          amount: stakeAmount,
+          stake_amount: stakeAmount,
           payment_method: 'online',
           payment_reference: transaction.reference,
         });
 
-        if (result.status) {
-          onSuccess(result.data.bet);
-          form.resetFields();
-          setError(null);
-        } else {
-          setError(result.message || 'Failed to place bet');
-        }
+        onSuccess(result);
+        form.resetFields();
+        setError(null);
       } catch (err: unknown) {
         const error = err as { message?: string };
         setError(error.message || 'Failed to process bet payment');
@@ -105,16 +101,12 @@ const BettingPaymentModal: React.FC<BettingPaymentModalProps> = ({
         // Process wallet payment
         const result = await bettingApi.placeBet({
           market_option_id: marketOptionId,
-          amount: stakeAmount,
+          stake_amount: stakeAmount,
           payment_method: 'wallet',
         });
 
-        if (result.status) {
-          onSuccess(result.data.bet);
-          form.resetFields();
-        } else {
-          setError(result.message || 'Failed to place bet with wallet');
-        }
+        onSuccess(result);
+        form.resetFields();
       } else {
         // Process Paystack payment
         initiatePayment({

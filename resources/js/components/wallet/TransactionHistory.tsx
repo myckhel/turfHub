@@ -66,12 +66,12 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = memo(({ turfId, co
       let response;
       if (turfId) {
         response = await walletApi.getTurfTransactions(turfId, params);
-        setTransactions(response.data.transactions);
-        setTotal(response.data.transactions.length);
+        setTransactions(response.transactions);
+        setTotal(response.transactions.length);
       } else {
         response = await walletApi.getTransactions(params);
-        setTransactions(response.data);
-        setTotal(response.data.length);
+        setTransactions(response);
+        setTotal(response.length);
       }
     } catch (err: unknown) {
       const error = err as { message?: string };
@@ -147,7 +147,6 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = memo(({ turfId, co
       dataIndex: 'created_at',
       key: 'created_at',
       width: compact ? 100 : 120,
-      fixed: 'left' as const,
       render: (date: string) => (
         <div className="text-xs sm:text-sm">
           <div className="font-medium">{format(new Date(date), 'MMM dd')}</div>
@@ -174,11 +173,15 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = memo(({ turfId, co
       key: 'description',
       ellipsis: true,
       width: compact ? 150 : 200,
-      render: (description: string) => (
-        <Tooltip title={description}>
-          <Text className={`${compact ? 'text-xs' : 'text-sm'} block max-w-[120px] truncate sm:max-w-none`}>{description}</Text>
-        </Tooltip>
-      ),
+      render: (description: string, record: WalletTransaction) => {
+        // Use meta.description for user-friendly text if available
+        const displayText = (record.meta?.description as string) || description;
+        return (
+          <Tooltip title={displayText}>
+            <Text className={`${compact ? 'text-xs' : 'text-sm'} block truncate`}>{displayText}</Text>
+          </Tooltip>
+        );
+      },
     },
     {
       title: 'Amount',
@@ -186,7 +189,6 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = memo(({ turfId, co
       key: 'amount',
       width: compact ? 90 : 110,
       align: 'right' as const,
-      fixed: 'right' as const,
       render: (amount: string, record: WalletTransaction) => (
         <div className={`text-xs font-medium sm:text-sm ${record.type.toLowerCase() === 'deposit' ? 'text-green-600' : 'text-red-600'}`}>
           {amount}
@@ -198,7 +200,6 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = memo(({ turfId, co
       dataIndex: 'confirmed',
       key: 'confirmed',
       width: compact ? 70 : 90,
-      fixed: 'right' as const,
       render: (confirmed: boolean) => (
         <Tag color={confirmed ? 'green' : 'orange'} className="text-xs">
           <span className="hidden sm:inline">{confirmed ? 'Confirmed' : 'Pending'}</span>
@@ -350,19 +351,21 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = memo(({ turfId, co
         <Empty description="No transactions found" image={Empty.PRESENTED_IMAGE_SIMPLE} />
       ) : (
         <>
-          <div className="overflow-x-auto">
-            <Table
-              columns={columns}
-              dataSource={transactions}
-              rowKey="id"
-              pagination={false}
-              size={compact ? 'small' : 'middle'}
-              scroll={{
-                x: 'max-content',
-                scrollToFirstRowOnChange: true,
-              }}
-              className="transaction-table"
-            />
+          <div className="-mx-4 overflow-x-auto sm:mx-0">
+            <div className="inline-block min-w-full align-middle">
+              <Table
+                columns={columns}
+                dataSource={transactions}
+                rowKey="id"
+                pagination={false}
+                size={compact ? 'small' : 'middle'}
+                scroll={{
+                  x: 600,
+                  scrollToFirstRowOnChange: true,
+                }}
+                className="transaction-table"
+              />
+            </div>
           </div>
 
           {total > pageSize && (

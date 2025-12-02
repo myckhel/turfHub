@@ -29,16 +29,16 @@ class BankAccountController extends Controller
     try {
       $result = $this->paystackTransferService->getBanks();
 
+      if ($result['success']) {
+        return response()->json($result['data']);
+      }
+
       return response()->json([
-        'status' => $result['success'],
-        'message' => $result['message'],
-        'data' => $result['success'] ? $result['data'] : null
-      ], $result['success'] ? 200 : 500);
+        'error' => $result['message']
+      ], 500);
     } catch (\Exception $e) {
       return response()->json([
-        'status' => false,
-        'message' => 'Failed to retrieve banks',
-        'error' => $e->getMessage()
+        'error' => 'Failed to retrieve banks: ' . $e->getMessage()
       ], 500);
     }
   }
@@ -59,24 +59,24 @@ class BankAccountController extends Controller
         $request->bank_code
       );
 
-      return response()->json([
-        'status' => $result['success'],
-        'message' => $result['message'],
-        'data' => $result['success'] ? [
+      if ($result['success']) {
+        return response()->json([
           'account_name' => $result['account_name'],
           'account_number' => $result['account_number']
-        ] : null
-      ], $result['success'] ? 200 : 400);
+        ]);
+      }
+
+      return response()->json([
+        'error' => $result['message']
+      ], 400);
     } catch (ValidationException $e) {
       return response()->json([
-        'status' => false,
-        'message' => 'Validation failed',
+        'error' => 'Validation failed',
         'errors' => $e->errors()
       ], 422);
     } catch (\Exception $e) {
       return response()->json([
-        'status' => false,
-        'message' => 'Account verification failed',
+        'error' => 'Account verification failed',
         'error' => $e->getMessage()
       ], 500);
     }
@@ -117,8 +117,7 @@ class BankAccountController extends Controller
 
       if ($existingAccount) {
         return response()->json([
-          'status' => false,
-          'message' => 'This bank account is already added to your account'
+          'error' => 'This bank account is already added to your account'
         ], 409);
       }
 
@@ -130,8 +129,7 @@ class BankAccountController extends Controller
 
       if (!$verificationResult['success']) {
         return response()->json([
-          'status' => false,
-          'message' => 'Failed to verify bank account details',
+          'error' => 'Failed to verify bank account details',
           'error' => $verificationResult['message']
         ], 400);
       }
@@ -159,33 +157,29 @@ class BankAccountController extends Controller
         $bankAccount->delete();
 
         return response()->json([
-          'status' => false,
           'message' => 'Failed to create transfer recipient',
           'error' => $recipientResult['message']
         ], 500);
       }
 
-      return response()->json([
-        'status' => true,
-        'message' => 'Bank account added successfully',
-        'data' => [
+      return response()->json(
+        [
           'id' => $bankAccount->id,
           'bank_name' => $bankAccount->bank_name,
           'account_number' => $bankAccount->account_number,
           'account_name' => $bankAccount->account_name,
           'is_verified' => $bankAccount->is_verified,
           'verified_at' => $bankAccount->verified_at
-        ]
-      ], 201);
+        ],
+        201
+      );
     } catch (ValidationException $e) {
       return response()->json([
-        'status' => false,
         'message' => 'Validation failed',
         'errors' => $e->errors()
       ], 422);
     } catch (\Exception $e) {
       return response()->json([
-        'status' => false,
         'message' => 'Failed to add bank account',
         'error' => $e->getMessage()
       ], 500);
@@ -206,7 +200,6 @@ class BankAccountController extends Controller
 
       if (!$bankAccount) {
         return response()->json([
-          'status' => false,
           'message' => 'Bank account not found or does not belong to you'
         ], 404);
       }
@@ -214,14 +207,12 @@ class BankAccountController extends Controller
       $bankAccount->update(['is_active' => false]);
 
       return response()->json([
-        'status' => true,
         'message' => 'Bank account removed successfully'
       ]);
     } catch (\Exception $e) {
       return response()->json([
-        'status' => false,
-        'message' => 'Failed to remove bank account',
-        'error' => $e->getMessage()
+        'error' => 'Failed to remove bank account',
+        'message' => $e->getMessage()
       ], 500);
     }
   }
@@ -240,8 +231,7 @@ class BankAccountController extends Controller
       !$user->hasRoleOnTurf(User::TURF_ROLE_MANAGER, $turfId)
     ) {
       return response()->json([
-        'status' => false,
-        'message' => 'You do not have permission to view this turf\'s bank accounts'
+        'error' => 'You do not have permission to view this turf\'s bank accounts'
       ], 403);
     }
 
@@ -263,8 +253,7 @@ class BankAccountController extends Controller
         !$user->hasRoleOnTurf(User::TURF_ROLE_MANAGER, $turfId)
       ) {
         return response()->json([
-          'status' => false,
-          'message' => 'You do not have permission to manage this turf\'s bank accounts'
+          'error' => 'You do not have permission to manage this turf\'s bank accounts'
         ], 403);
       }
 
@@ -284,8 +273,7 @@ class BankAccountController extends Controller
 
       if ($existingAccount) {
         return response()->json([
-          'status' => false,
-          'message' => 'This bank account is already added to this turf'
+          'error' => 'This bank account is already added to this turf'
         ], 409);
       }
 
@@ -297,8 +285,7 @@ class BankAccountController extends Controller
 
       if (!$verificationResult['success']) {
         return response()->json([
-          'status' => false,
-          'message' => 'Failed to verify bank account details',
+          'error' => 'Failed to verify bank account details',
           'error' => $verificationResult['message']
         ], 400);
       }
@@ -327,15 +314,13 @@ class BankAccountController extends Controller
         $bankAccount->delete();
 
         return response()->json([
-          'status' => false,
-          'message' => 'Failed to create transfer recipient',
+          'error' => 'Failed to create transfer recipient',
           'error' => $recipientResult['message']
         ], 500);
       }
 
       return response()->json([
-        'status' => true,
-        'message' => 'Turf bank account added successfully',
+        'error' => 'Turf bank account added successfully',
         'data' => [
           'turf_id' => $turf->id,
           'turf_name' => $turf->name,
@@ -351,14 +336,12 @@ class BankAccountController extends Controller
       ], 201);
     } catch (ValidationException $e) {
       return response()->json([
-        'status' => false,
-        'message' => 'Validation failed',
+        'error' => 'Validation failed',
         'errors' => $e->errors()
       ], 422);
     } catch (\Exception $e) {
       return response()->json([
-        'status' => false,
-        'message' => 'Failed to add turf bank account',
+        'error' => 'Failed to add turf bank account',
         'error' => $e->getMessage()
       ], 500);
     }

@@ -67,13 +67,6 @@ apiClient.interceptors.response.use(
   },
 );
 
-// Generic API response type
-export interface ApiResponse<T = unknown> {
-  data: T;
-  message?: string;
-  status: number;
-}
-
 // Generic API error type
 export interface ApiError {
   message: string;
@@ -122,5 +115,44 @@ export type {
   Team,
   UpdateMatchSessionRequest,
 } from '../types/matchSession.types';
-export type { Player } from './player';
+export type {
+  AssignTeamsRequest,
+  CreateStagePromotionRequest,
+  CreateStageRequest,
+  CreateTournamentRequest,
+  ExecutePromotionRequest,
+  Fixture,
+  FixtureFilters,
+  FixtureListResponse,
+  FixtureSimulation,
+  FixtureSimulationResponse,
+  FixtureStatus,
+  GenerateFixturesRequest,
+  Group,
+  GroupListResponse,
+  PromotionRuleConfig,
+  PromotionRuleType,
+  PromotionSimulation,
+  PromotionSimulationResponse,
+  Ranking,
+  RankingListResponse,
+  Stage,
+  StageFilters,
+  StageListResponse,
+  StagePromotion,
+  StageResponse,
+  StageSettings,
+  StageStatus,
+  StageTeam,
+  StageType,
+  Tournament,
+  TournamentFilters,
+  TournamentListResponse,
+  TournamentResponse,
+  TournamentSettings,
+  TournamentType,
+  UpdateStagePromotionRequest,
+  UpdateStageRequest,
+  UpdateTournamentRequest,
+} from '../types/tournament.types';
 export type { JoinTurfRequest, Turf, TurfListResponse } from './turf';

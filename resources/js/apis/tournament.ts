@@ -22,7 +22,7 @@ import type {
   UpdateStageRequest,
   UpdateTournamentRequest,
 } from '../types/tournament.types';
-import api, { type ApiResponse } from './index';
+import api from './index';
 
 /**
  * Tournament API module
@@ -62,7 +62,7 @@ export const tournamentApi = {
   /**
    * Delete a tournament
    */
-  delete: async (id: number): Promise<ApiResponse<void>> => {
+  delete: async (id: number): Promise<void> => {
     return api.delete(route('api.tournaments.destroy', { tournament: id }));
   },
 
@@ -92,7 +92,7 @@ export const tournamentApi = {
   /**
    * Get teams for a tournament
    */
-  getTeams: async (tournamentId: number, params?: { include?: string; search?: string; per_page?: number }): Promise<ApiResponse> => {
+  getTeams: async (tournamentId: number, params?: { include?: string; search?: string; per_page?: number }): Promise<unknown> => {
     return api.get(route('api.teams.index'), {
       params: { tournament_id: tournamentId, ...params },
     });
@@ -123,14 +123,15 @@ export const stageApi = {
   /**
    * Delete a stage
    */
-  delete: async (id: number): Promise<ApiResponse<void>> => {
+  delete: async (id: number): Promise<void> => {
     return api.delete(route('api.stages.destroy', { stage: id }));
   },
 
   /**
    * Assign teams to a stage
    */
-  assignTeams: async (id: number, data: AssignTeamsRequest): Promise<ApiResponse<void>> => {
+  // Assign teams to a stage
+  assignTeams: async (id: number, data: AssignTeamsRequest): Promise<void> => {
     return api.post(route('api.stages.assign-teams', { stage: id }), data);
   },
 
@@ -158,7 +159,8 @@ export const stageApi = {
   /**
    * Execute promotion to next stage
    */
-  executePromotion: async (id: number, data?: ExecutePromotionRequest): Promise<ApiResponse<void>> => {
+  // Execute promotion (promote teams to next stage)
+  executePromotion: async (id: number, data?: ExecutePromotionRequest): Promise<void> => {
     return api.post(route('api.stages.execute-promotion', { stage: id }), data);
   },
 
@@ -199,28 +201,29 @@ export const promotionApi = {
   /**
    * Get promotion rule for a stage
    */
-  get: async (stageId: number): Promise<ApiResponse<StagePromotion>> => {
+  get: async (stageId: number): Promise<StagePromotion> => {
     return api.get(route('api.stages.promotion.show', { stage: stageId }));
   },
 
   /**
    * Create promotion rule for a stage
    */
-  create: async (stageId: number, data: CreateStagePromotionRequest): Promise<ApiResponse<StagePromotion>> => {
-    return api.post(route('api.stages.promotion.store', { stage: stageId }), data);
+  // Create stage promotion configuration
+  create: async (stageId: number, data: CreateStagePromotionRequest): Promise<StagePromotion> => {
+    return api.post(route('api.stage-promotions.store', { stage: stageId }), data);
   },
 
   /**
    * Update promotion rule for a stage
    */
-  update: async (stageId: number, data: UpdateStagePromotionRequest): Promise<ApiResponse<StagePromotion>> => {
+  update: async (stageId: number, data: UpdateStagePromotionRequest): Promise<StagePromotion> => {
     return api.patch(route('api.stages.promotion.update', { stage: stageId }), data);
   },
 
   /**
    * Delete promotion rule for a stage
    */
-  delete: async (stageId: number): Promise<ApiResponse<void>> => {
+  delete: async (stageId: number): Promise<void> => {
     return api.delete(route('api.stages.promotion.destroy', { stage: stageId }));
   },
 };
@@ -253,14 +256,21 @@ export const fixtureApi = {
   /**
    * Update fixture details
    */
-  update: async (id: number, data: Partial<Fixture>): Promise<ApiResponse<Fixture>> => {
+  update: async (id: number, data: Partial<Fixture>): Promise<Fixture> => {
     return api.patch(route('api.fixtures.update', { fixture: id }), data);
   },
 
   /**
    * Reschedule a fixture
    */
-  reschedule: async (id: number, starts_at: string): Promise<ApiResponse<Fixture>> => {
+  reschedule: async (id: number, starts_at: string): Promise<Fixture> => {
     return api.patch(route('api.fixtures.reschedule', { fixture: id }), { starts_at });
+  },
+
+  /**
+   * Submit match result
+   */
+  submitResult: async (id: number, data: { home_team_score: number; away_team_score: number }): Promise<Fixture> => {
+    return api.post(route('api.fixtures.submit-result', { fixture: id }), data);
   },
 };

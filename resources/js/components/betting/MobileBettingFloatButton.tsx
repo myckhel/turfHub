@@ -31,8 +31,8 @@ const MobileBettingFloatButton: React.FC<MobileBettingFloatButtonProps> = ({ cla
 
   const formatCurrency = (amount: number) => `₦${amount.toLocaleString()}`;
 
-  const totalDraftAmount = draftBets.reduce((sum, bet) => sum + bet.amount, 0);
-  const totalPendingAmount = pendingSyncBets.reduce((sum, bet) => sum + bet.amount, 0);
+  const totalDraftAmount = draftBets.reduce((sum, bet) => sum + bet.stake_amount, 0);
+  const totalPendingAmount = pendingSyncBets.reduce((sum, bet) => sum + bet.stake_amount, 0);
 
   return (
     <>
@@ -85,7 +85,7 @@ const MobileBettingFloatButton: React.FC<MobileBettingFloatButtonProps> = ({ cla
                         <div className="text-sm font-medium">{bet.marketName}</div>
                         <div className="text-xs text-gray-500">{bet.optionName}</div>
                         <div className="text-xs">
-                          {formatCurrency(bet.amount)} @ {bet.odds}x
+                          {formatCurrency(bet.stake_amount)} @ {bet.odds}x
                         </div>
                       </div>
                     </div>
@@ -123,7 +123,7 @@ const MobileBettingFloatButton: React.FC<MobileBettingFloatButtonProps> = ({ cla
                         <div className="text-sm font-medium">{bet.marketName}</div>
                         <div className="text-xs text-gray-500">{bet.optionName}</div>
                         <div className="text-xs">
-                          {formatCurrency(bet.amount)} @ {bet.odds}x
+                          {formatCurrency(bet.stake_amount)} @ {bet.odds}x
                         </div>
                       </div>
                       <div className="text-xs text-blue-600">Syncing...</div>

@@ -18,6 +18,7 @@ export interface Player {
   is_manager: boolean;
   is_active: boolean;
   is_verified: boolean;
+  avatar?: string;
   created_at: string;
   updated_at: string;
 

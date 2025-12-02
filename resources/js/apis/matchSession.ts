@@ -1,4 +1,4 @@
-import type { GameMatchListResponse } from '../types/gameMatch.types';
+import type { GameMatch } from '../types/gameMatch.types';
 import type {
   AddPlayerToTeamRequest,
   CreateMatchSessionRequest,
@@ -9,7 +9,7 @@ import type {
   SetGameResultRequest,
   UpdateMatchSessionRequest,
 } from '../types/matchSession.types';
-import api, { type ApiResponse } from './index';
+import api from './index';
 
 /**
  * Match Session API module
@@ -27,7 +27,7 @@ export const matchSessionApi = {
     params?: {
       include?: string;
     },
-  ): Promise<ApiResponse<MatchSession>> => {
+  ): Promise<MatchSession> => {
     return api.get(`/match-sessions/${id}`, { params });
   },
 
@@ -42,32 +42,32 @@ export const matchSessionApi = {
   },
 
   // Delete a match session
-  delete: async (id: number): Promise<ApiResponse<void>> => {
+  delete: async (id: number): Promise<void> => {
     return api.delete(`/match-sessions/${id}`);
   },
 
   // Start a match session
-  start: async (id: number): Promise<ApiResponse<MatchSession>> => {
+  start: async (id: number): Promise<MatchSession> => {
     return api.post(`/match-sessions/${id}/start`);
   },
 
   // Stop a match session
-  stop: async (id: number): Promise<ApiResponse<MatchSession>> => {
+  stop: async (id: number): Promise<MatchSession> => {
     return api.post(`/match-sessions/${id}/stop`);
   },
 
   // Add player to team
-  addPlayerToTeam: async (matchSessionId: number, data: AddPlayerToTeamRequest): Promise<ApiResponse<void>> => {
+  addPlayerToTeam: async (matchSessionId: number, data: AddPlayerToTeamRequest): Promise<void> => {
     return api.post(`/match-sessions/${matchSessionId}/add-player-to-team`, data);
   },
 
   // Set game result
-  setGameResult: async (matchSessionId: number, data: SetGameResultRequest): Promise<ApiResponse<MatchSession>> => {
+  setGameResult: async (matchSessionId: number, data: SetGameResultRequest): Promise<MatchSession> => {
     return api.post(`/match-sessions/${matchSessionId}/set-game-result`, data);
   },
 
   // Get queue status
-  getQueueStatus: async (id: number): Promise<ApiResponse<QueueStatus>> => {
+  getQueueStatus: async (id: number): Promise<QueueStatus> => {
     return api.get(`/match-sessions/${id}/queue-status`);
   },
 
@@ -91,7 +91,7 @@ export const matchSessionApi = {
   },
 
   // Get current ongoing game match for a match session
-  getCurrentOngoingMatch: (matchSessionId: number): Promise<GameMatchListResponse> => {
+  getCurrentOngoingMatch: (matchSessionId: number): Promise<GameMatch[]> => {
     return api.get(`/match-sessions/${matchSessionId}/game-matches`, {
       params: {
         status: ['in_progress', 'upcoming'],

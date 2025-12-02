@@ -153,13 +153,13 @@ const AddPlayerModal: React.FC<AddPlayerModalProps> = memo(
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Avatar size="large" src={player.user.avatar}>
-                {player.user.name.charAt(0).toUpperCase()}
+              <Avatar size="large" src={player.user?.avatar}>
+                {player.user?.name?.charAt(0).toUpperCase()}
               </Avatar>
               <div>
                 <div className="flex items-center gap-2">
                   <Text strong className={isSelected ? 'text-blue-600' : ''}>
-                    {player.user.name}
+                    {player.user?.name}
                   </Text>
                   {player.is_member && <Tag color="green">Member</Tag>}
                 </div>

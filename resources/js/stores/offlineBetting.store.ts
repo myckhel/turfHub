@@ -2,12 +2,13 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { PlaceBetRequest } from '../types/betting.types';
 
-interface OfflineBet extends PlaceBetRequest {
+interface OfflineBet extends Omit<PlaceBetRequest, 'amount'> {
   id: string;
   timestamp: number;
   marketName: string;
   optionName: string;
   odds: number;
+  stake_amount: number;
 }
 
 interface OfflineBettingState {

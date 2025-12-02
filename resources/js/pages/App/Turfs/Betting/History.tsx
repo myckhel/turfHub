@@ -36,7 +36,8 @@ const BettingHistory = ({ turfId }: BettingHistoryProps) => {
   const [selectedMarketType, setSelectedMarketType] = useState<MarketType | 'all'>('all');
   const [isPending, startTransition] = useTransition();
 
-  const { bettingHistory, historyLoading, historyError, fetchBettingHistory, fetchBettingStats, updateHistoryFilters } = useBettingStore();
+  const { bettingHistory, historyLoading, historyError, bettingStats, fetchBettingHistory, fetchBettingStats, updateHistoryFilters } =
+    useBettingStore();
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -185,7 +186,7 @@ const BettingHistory = ({ turfId }: BettingHistoryProps) => {
               <Card>
                 <Statistic
                   title="Total Stake"
-                  value={summaryStats.totalStake}
+                  value={bettingStats?.total_staked}
                   prefix={<DollarOutlined />}
                   precision={2}
                   valueStyle={{ color: '#faad14' }}

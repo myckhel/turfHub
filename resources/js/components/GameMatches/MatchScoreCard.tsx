@@ -1,39 +1,44 @@
-import { ClockCircleOutlined, MinusOutlined, PlayCircleOutlined, PlusOutlined, SaveOutlined, TrophyOutlined } from '@ant-design/icons';
+import { MinusOutlined, PlayCircleOutlined, PlusOutlined, SaveOutlined, TrophyOutlined } from '@ant-design/icons';
+import { router } from '@inertiajs/react';
 import { Button, Card, Col, Row, Tag, Typography, message } from 'antd';
 import { memo, useState } from 'react';
 import { gameMatchApi } from '../../apis/gameMatch';
-import { useMatchTimer } from '../../hooks/useMatchTimer';
 import type { GameMatch } from '../../types/gameMatch.types';
 import MatchHeader from './MatchHeader';
+import MatchTimer from './MatchTimer';
 
 const { Text } = Typography;
 
 interface MatchScoreCardProps {
   gameMatch: GameMatch;
   canManageSessions: boolean;
-  onMatchUpdate: () => void;
+  onMatchUpdate?: () => void;
 }
 
-const MatchScoreCard = memo(({ gameMatch, canManageSessions, onMatchUpdate }: MatchScoreCardProps) => {
+const MatchScoreCard = memo(({ gameMatch, canManageSessions, onMatchUpdate: onMatchUpdate_ }: MatchScoreCardProps) => {
   const [firstTeamScore, setFirstTeamScore] = useState(gameMatch.first_team_score);
   const [secondTeamScore, setSecondTeamScore] = useState(gameMatch.second_team_score);
   const [loading, setLoading] = useState(false);
-
-  const { formattedTime, isRunning } = useMatchTimer({
-    matchStartTime: gameMatch.match_time,
-    status: gameMatch.status,
-  });
 
   const isLive = gameMatch.status === 'in_progress';
   const isCompleted = gameMatch.status === 'completed';
   const isUpcoming = gameMatch.status === 'upcoming';
   const hasScoreChanged = firstTeamScore !== gameMatch.first_team_score || secondTeamScore !== gameMatch.second_team_score;
+  console.log(gameMatch, hasScoreChanged, firstTeamScore, secondTeamScore);
 
   const handleScoreChange = (team: 'first' | 'second', delta: number) => {
     if (team === 'first') {
       setFirstTeamScore(Math.max(0, firstTeamScore + delta));
     } else {
       setSecondTeamScore(Math.max(0, secondTeamScore + delta));
+    }
+  };
+
+  const onMatchUpdate = () => {
+    if (onMatchUpdate_) {
+      onMatchUpdate_();
+    } else {
+      router.reload({ only: ['gameMatch'] });
     }
   };
 
@@ -106,13 +111,7 @@ const MatchScoreCard = memo(({ gameMatch, canManageSessions, onMatchUpdate }: Ma
       </div>
 
       {/* Match Timer */}
-      {(isLive || isCompleted) && (
-        <div className="mb-4 flex justify-center">
-          <Tag icon={<ClockCircleOutlined />} color={isRunning ? 'processing' : 'default'} className="px-3 py-1 text-sm font-medium">
-            {formattedTime}
-          </Tag>
-        </div>
-      )}
+      <MatchTimer gameMatch={gameMatch} />
 
       <Row gutter={[16, 24]} align="middle" justify="center">
         {/* First Team */}

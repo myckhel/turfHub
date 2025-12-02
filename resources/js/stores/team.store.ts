@@ -49,7 +49,7 @@ export const useTeamStore = create<TeamStore>()(
           const response = await teamApi.getAvailablePlayersForSession(matchSessionId, params);
 
           set({
-            availablePlayers: response.data,
+            availablePlayers: response,
             isLoadingPlayers: false,
           });
         } catch (error) {

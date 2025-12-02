@@ -14,6 +14,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
 
 class BettingController extends Controller
@@ -44,7 +45,7 @@ class BettingController extends Controller
   {
     if (!$gameMatch->betting_enabled) {
       return response()->json([
-        'message' => 'Betting is not enabled for this match.'
+        'error' => 'Betting is not enabled for this match.'
       ], 404);
     }
 
@@ -72,30 +73,17 @@ class BettingController extends Controller
 
     $request->validate($rules);
 
-    try {
-      $marketOption = MarketOption::findOrFail($request->market_option_id);
-      $result = $this->bettingService->placeBet(
-        user: $request->user(),
-        marketOption: $marketOption,
-        stakeAmount: $request->stake_amount,
-        paymentMethod: $request->payment_method,
-        paymentReference: $request->payment_reference,
-        receiptFile: $request->file('receipt')
-      );
+    $marketOption = MarketOption::findOrFail($request->market_option_id);
+    $result = $this->bettingService->placeBet(
+      user: $request->user(),
+      marketOption: $marketOption,
+      stakeAmount: $request->stake_amount,
+      paymentMethod: $request->payment_method,
+      paymentReference: $request->payment_reference,
+      receiptFile: $request->file('receipt')
+    );
 
-      return response()->json($result);
-    } catch (ValidationException $e) {
-      return response()->json([
-        'status' => false,
-        'message' => 'Validation failed',
-        'errors' => $e->errors()
-      ], 422);
-    } catch (\Exception $e) {
-      return response()->json([
-        'status' => false,
-        'message' => 'Failed to place bet: ' . $e->getMessage()
-      ], 500);
-    }
+    return response()->json($result);
   }
 
   /**
@@ -117,10 +105,7 @@ class BettingController extends Controller
   {
     $stats = $this->bettingService->getUserBettingStats($request->user());
 
-    return response()->json([
-      'status' => true,
-      'data' => $stats
-    ]);
+    return response()->json($stats);
   }
 
   /**
@@ -140,33 +125,30 @@ class BettingController extends Controller
   /**
    * Cancel a pending bet (if allowed).
    */
-  public function cancelBet(Bet $bet): JsonResponse
+  public function cancelBet(Bet $bet): Response|JsonResponse
   {
     $this->authorize('update', $bet);
 
     if ($bet->status === Bet::STATUS_CANCELLED) {
       return response()->json([
-        'status' => false,
-        'message' => 'Bet is already cancelled.'
+        'error' => 'Bet is already cancelled.'
       ], 400);
     }
 
     // Only allow cancellation if market hasn't closed yet
     if (!$bet->marketOption->bettingMarket->isOpenForBetting()) {
       return response()->json([
-        'status' => false,
-        'message' => 'Cannot cancel bet - market is closed.'
+        'error' => 'Cannot cancel bet - market is closed.'
       ], 400);
     }
 
     try {
-      $result = $this->bettingService->cancelBet($bet, 'User cancellation');
+      $this->bettingService->cancelBet($bet, 'User cancellation');
 
-      return response()->json($result);
+      return response()->noContent();
     } catch (\Exception $e) {
       return response()->json([
-        'status' => false,
-        'message' => 'Failed to cancel bet: ' . $e->getMessage()
+        'error' => 'Failed to cancel bet: ' . $e->getMessage()
       ], 500);
     }
   }
@@ -174,26 +156,24 @@ class BettingController extends Controller
   /**
    * Confirm or verify payment for a bet.
    */
-  public function confirmPayment(Request $request, Bet $bet): JsonResponse
+  public function confirmPayment(Request $request, Bet $bet): Response|JsonResponse
   {
     $this->authorize('update', $bet);
 
     if ($bet->payment_status === Bet::PAYMENT_CONFIRMED) {
       return response()->json([
-        'status' => false,
-        'message' => 'Payment is already confirmed.'
+        'error' => 'Payment is already confirmed.'
       ], 400);
     }
 
     try {
       $paymentReference = $request->input('payment_reference');
-      $result = $this->bettingService->confirmBetPayment($bet, $paymentReference);
+      $this->bettingService->confirmBetPayment($bet, $paymentReference);
 
-      return response()->json($result);
+      return response()->noContent();
     } catch (\Exception $e) {
       return response()->json([
-        'status' => false,
-        'message' => 'Failed to confirm payment: ' . $e->getMessage()
+        'error' => 'Failed to confirm payment: ' . $e->getMessage()
       ], 500);
     }
   }
@@ -201,7 +181,7 @@ class BettingController extends Controller
   /**
    * Verify Paystack payment for a bet.
    */
-  public function verifyPayment(Request $request, Bet $bet): JsonResponse
+  public function verifyPayment(Request $request, Bet $bet): Response|JsonResponse
   {
     $this->authorize('update', $bet);
 
@@ -211,19 +191,17 @@ class BettingController extends Controller
 
     if ($bet->payment_status === Bet::PAYMENT_CONFIRMED) {
       return response()->json([
-        'status' => false,
-        'message' => 'Payment is already confirmed.'
+        'error' => 'Payment is already confirmed.'
       ], 400);
     }
 
     try {
-      $result = $this->bettingService->verifyBetPayment($bet, $request->payment_reference);
+      $this->bettingService->verifyBetPayment($bet, $request->payment_reference);
 
-      return response()->json($result);
+      return response()->noContent();
     } catch (\Exception $e) {
       return response()->json([
-        'status' => false,
-        'message' => 'Failed to verify payment: ' . $e->getMessage()
+        'error' => 'Failed to verify payment: ' . $e->getMessage()
       ], 500);
     }
   }
@@ -242,7 +220,7 @@ class BettingController extends Controller
       return response()->json($analytics);
     } catch (\Exception $e) {
       return response()->json([
-        'message' => 'Failed to fetch betting analytics: ' . $e->getMessage()
+        'error' => 'Failed to fetch betting analytics: ' . $e->getMessage()
       ], 500);
     }
   }
@@ -257,7 +235,7 @@ class BettingController extends Controller
       return response()->json($stats);
     } catch (\Exception $e) {
       return response()->json([
-        'message' => 'Failed to fetch admin stats: ' . $e->getMessage()
+        'error' => 'Failed to fetch admin stats: ' . $e->getMessage()
       ], 500);
     }
   }
@@ -286,7 +264,7 @@ class BettingController extends Controller
       ]);
     } catch (\Exception $e) {
       return response()->json([
-        'message' => 'Failed to fetch markets: ' . $e->getMessage()
+        'error' => 'Failed to fetch markets: ' . $e->getMessage()
       ], 500);
     }
   }
@@ -315,7 +293,7 @@ class BettingController extends Controller
       ]);
     } catch (\Exception $e) {
       return response()->json([
-        'message' => 'Failed to fetch bets: ' . $e->getMessage()
+        'error' => 'Failed to fetch bets: ' . $e->getMessage()
       ], 500);
     }
   }
@@ -332,7 +310,7 @@ class BettingController extends Controller
       return response()->json($stats);
     } catch (\Exception $e) {
       return response()->json([
-        'message' => 'Failed to fetch period stats: ' . $e->getMessage()
+        'error' => 'Failed to fetch period stats: ' . $e->getMessage()
       ], 500);
     }
   }
@@ -362,7 +340,7 @@ class BettingController extends Controller
       ]);
     } catch (\Exception $e) {
       return response()->json([
-        'message' => 'Failed to fetch user betting activity: ' . $e->getMessage()
+        'error' => 'Failed to fetch user betting activity: ' . $e->getMessage()
       ], 500);
     }
   }
@@ -377,7 +355,7 @@ class BettingController extends Controller
       return response()->json($health);
     } catch (\Exception $e) {
       return response()->json([
-        'message' => 'Failed to fetch system health: ' . $e->getMessage()
+        'error' => 'Failed to fetch system health: ' . $e->getMessage()
       ], 500);
     }
   }
@@ -392,20 +370,15 @@ class BettingController extends Controller
       $result = $this->bettingService->adminCancelBet($bet, $reason);
 
       if ($result['success']) {
-        return response()->json([
-          'status' => true,
-          'message' => 'Bet cancelled successfully',
-          'data' => new BetResource($bet->fresh())
-        ]);
+        return response()->json(new BetResource($bet->fresh()));
       }
 
       return response()->json([
-        'status' => false,
-        'message' => $result['message']
+        'error' => $result['message']
       ], 400);
     } catch (\Exception $e) {
       return response()->json([
-        'message' => 'Failed to cancel bet: ' . $e->getMessage()
+        'error' => 'Failed to cancel bet: ' . $e->getMessage()
       ], 500);
     }
   }
@@ -423,13 +396,13 @@ class BettingController extends Controller
 
     if ($bet->payment_method !== Bet::PAYMENT_OFFLINE) {
       return response()->json([
-        'message' => 'Receipt upload is only allowed for offline payment bets.'
+        'error' => 'Receipt upload is only allowed for offline payment bets.'
       ], 400);
     }
 
     if ($bet->payment_status === Bet::PAYMENT_CONFIRMED) {
       return response()->json([
-        'message' => 'Payment is already confirmed. Cannot upload new receipt.'
+        'error' => 'Payment is already confirmed. Cannot upload new receipt.'
       ], 400);
     }
 
@@ -441,14 +414,10 @@ class BettingController extends Controller
       $media = $bet->addMedia($request->file('receipt'))
         ->toMediaCollection('payment_receipts');
 
-      return response()->json([
-        'status' => true,
-        'message' => 'Receipt uploaded successfully',
-        'data' => new BetResource($bet->fresh())
-      ]);
+      return response()->json(new BetResource($bet->fresh()));
     } catch (\Exception $e) {
       return response()->json([
-        'message' => 'Failed to upload receipt: ' . $e->getMessage()
+        'error' => 'Failed to upload receipt: ' . $e->getMessage()
       ], 500);
     }
   }
@@ -468,20 +437,15 @@ class BettingController extends Controller
       $result = $this->bettingService->confirmOfflinePayment($bet, $request->notes);
 
       if ($result['success']) {
-        return response()->json([
-          'status' => true,
-          'message' => 'Offline payment confirmed successfully',
-          'data' => new BetResource($bet->fresh())
-        ]);
+        return response()->json(new BetResource($bet->fresh()));
       }
 
       return response()->json([
-        'status' => false,
-        'message' => $result['message']
+        'error' => $result['message']
       ], 400);
     } catch (\Exception $e) {
       return response()->json([
-        'message' => 'Failed to confirm offline payment: ' . $e->getMessage()
+        'error' => 'Failed to confirm offline payment: ' . $e->getMessage()
       ], 500);
     }
   }
@@ -501,18 +465,15 @@ class BettingController extends Controller
       $result = $this->bettingService->rejectOfflinePayment($bet, $request->reason);
 
       if ($result['success']) {
-        return response()->json([
-          'message' => 'Offline payment rejected successfully',
-          'data' => new BetResource($bet->fresh())
-        ]);
+        return response()->json(new BetResource($bet->fresh()));
       }
 
       return response()->json([
-        'message' => $result['message']
+        'error' => $result['message']
       ], 400);
     } catch (\Exception $e) {
       return response()->json([
-        'message' => 'Failed to reject offline payment: ' . $e->getMessage()
+        'error' => 'Failed to reject offline payment: ' . $e->getMessage()
       ], 500);
     }
   }
@@ -530,7 +491,7 @@ class BettingController extends Controller
       return response()->json($stats);
     } catch (\Exception $e) {
       return response()->json([
-        'message' => 'Failed to fetch turf betting stats: ' . $e->getMessage()
+        'error' => 'Failed to fetch turf betting stats: ' . $e->getMessage()
       ], 500);
     }
   }
@@ -562,7 +523,7 @@ class BettingController extends Controller
       ]);
     } catch (\Exception $e) {
       return response()->json([
-        'message' => 'Failed to fetch turf markets: ' . $e->getMessage()
+        'error' => 'Failed to fetch turf markets: ' . $e->getMessage()
       ], 500);
     }
   }
@@ -594,7 +555,7 @@ class BettingController extends Controller
       ]);
     } catch (\Exception $e) {
       return response()->json([
-        'message' => 'Failed to fetch turf bets: ' . $e->getMessage()
+        'error' => 'Failed to fetch turf bets: ' . $e->getMessage()
       ], 500);
     }
   }
@@ -615,7 +576,7 @@ class BettingController extends Controller
       return response()->json($stats);
     } catch (\Exception $e) {
       return response()->json([
-        'message' => 'Failed to fetch turf period stats: ' . $e->getMessage()
+        'error' => 'Failed to fetch turf period stats: ' . $e->getMessage()
       ], 500);
     }
   }

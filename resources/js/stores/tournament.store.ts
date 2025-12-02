@@ -314,7 +314,7 @@ export const useTournamentStore = create<TournamentStore>()(
         try {
           const response = await tournamentApi.getTeams(tournamentId, params);
           set({
-            tournamentTeams: (response.data as StageTeam[]) || [],
+            tournamentTeams: (response as StageTeam[]) || [],
             isLoadingTournamentTeams: false,
           });
         } catch (error) {
@@ -391,8 +391,8 @@ export const useTournamentStore = create<TournamentStore>()(
       submitFixtureResult: async (fixtureId, homeScore, awayScore) => {
         try {
           await fixtureApi.submitResult(fixtureId, {
-            home_score: homeScore,
-            away_score: awayScore,
+            home_team_score: homeScore,
+            away_team_score: awayScore,
           });
 
           // Update fixture in list
@@ -487,7 +487,7 @@ export const useTournamentStore = create<TournamentStore>()(
             set({
               currentStage: {
                 ...currentStage,
-                promotion: response.data,
+                promotion: response,
               },
             });
           }

@@ -123,13 +123,13 @@ const GameMatchesTable: React.FC<GameMatchesTableProps> = ({
 
     if (sessionId) {
       router.visit(
-        route('web.turfs.match-sessions.game-matches.show', {
+        route('web.turfs.game-matches.show', {
           turf: turfId,
-          matchSession: sessionId,
           gameMatch: gameMatch.id,
         }),
       );
     } else {
+      router.visit(route('web.game-matches.show', { gameMatch: gameMatch.id }));
       // For standalone matches, show a message or handle differently
       message.info('Match details view coming soon for standalone matches');
     }

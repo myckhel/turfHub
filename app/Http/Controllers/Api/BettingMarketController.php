@@ -40,6 +40,8 @@ class BettingMarketController extends Controller
             'options.*.key' => 'required|string',
             'options.*.name' => 'required|string',
             'options.*.odds' => 'nullable|numeric|min:1.1',
+            'min_stake_amount' => 'nullable|numeric|min:1|max:1000000',
+            'max_stake_amount' => 'nullable|numeric|min:1|max:10000000|gte:min_stake_amount',
         ]);
 
         try {
@@ -47,7 +49,7 @@ class BettingMarketController extends Controller
                 $gameMatch,
                 $request->only([
                     'market_type', 'name', 'description', 'opens_at',
-                    'closes_at', 'metadata', 'options'
+                    'closes_at', 'metadata', 'options', 'min_stake_amount', 'max_stake_amount'
                 ])
             );
 
@@ -274,11 +276,14 @@ class BettingMarketController extends Controller
             'description' => 'sometimes|nullable|string',
             'closes_at' => 'sometimes|nullable|date',
             'metadata' => 'sometimes|nullable|array',
+            'min_stake_amount' => 'sometimes|nullable|numeric|min:1|max:1000000',
+            'max_stake_amount' => 'sometimes|nullable|numeric|min:1|max:10000000|gte:min_stake_amount',
         ]);
 
         try {
             $bettingMarket->update($request->only([
-                'is_active', 'name', 'description', 'closes_at', 'metadata', 'status'
+                'is_active', 'name', 'description', 'closes_at', 'metadata', 'status',
+                'min_stake_amount', 'max_stake_amount'
             ]));
 
             return response()->json([
@@ -301,8 +306,8 @@ class BettingMarketController extends Controller
     {
         $request->validate([
             'is_active' => 'nullable|boolean',
-            'max_stake' => 'nullable|numeric|min:0',
-            'min_stake' => 'nullable|numeric|min:0',
+            'min_stake_amount' => 'nullable|numeric|min:1|max:1000000',
+            'max_stake_amount' => 'nullable|numeric|min:1|max:10000000|gte:min_stake_amount',
             'odds_multiplier' => 'nullable|numeric|min:0.1|max:10'
         ]);
 

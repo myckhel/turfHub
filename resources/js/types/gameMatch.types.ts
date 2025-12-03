@@ -15,6 +15,8 @@ export interface GameMatch {
   starts_at: string;
   status: 'upcoming' | 'in_progress' | 'completed' | 'postponed' | 'cancelled';
   betting_enabled?: boolean;
+  min_stake_amount?: number;
+  max_stake_amount?: number;
   created_at: string;
   updated_at: string;
   group_id?: number;
@@ -100,6 +102,8 @@ export interface CreateGameMatchRequest {
   starts_at?: string;
   status?: 'upcoming' | 'in_progress' | 'completed' | 'postponed';
   betting_enabled?: boolean;
+  min_stake_amount?: number;
+  max_stake_amount?: number;
 }
 
 export interface UpdateGameMatchRequest {
@@ -114,6 +118,8 @@ export interface UpdateGameMatchRequest {
   match_time?: string;
   status?: 'upcoming' | 'in_progress' | 'completed' | 'postponed';
   betting_enabled?: boolean;
+  min_stake_amount?: number;
+  max_stake_amount?: number;
 }
 
 export interface CreateMatchEventRequest {

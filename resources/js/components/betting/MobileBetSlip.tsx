@@ -115,7 +115,13 @@ const MobileBetSlip: React.FC<MobileBetSlipProps> = ({ selectedOption, visible, 
     onClose();
   };
 
-  const quickAmounts = [50, 100, 200, 500, 1000];
+  // Get stake limits from market
+  const minStake = selectedOption.betting_market?.min_stake_amount || 10;
+  const maxStake = selectedOption.betting_market?.max_stake_amount || 50000;
+
+  // Filter quick amounts based on max stake limit
+  const allQuickAmounts = [50, 100, 200, 500, 1000, 2000, 5000];
+  const quickAmounts = allQuickAmounts.filter((amt) => amt >= minStake && amt <= maxStake);
   const touchTargetSize = getOptimalTouchTarget(44); // Ensure 44px minimum for touch
 
   return (
@@ -185,13 +191,21 @@ const MobileBetSlip: React.FC<MobileBetSlipProps> = ({ selectedOption, visible, 
           <InputNumber
             value={amount}
             onChange={(value) => setAmount(value || 0)}
-            min={10}
-            max={50000}
+            min={minStake}
+            max={maxStake}
             className="w-full"
             placeholder="Enter custom amount"
             formatter={(value) => `₦ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
             parser={(value) => Number(value!.replace(/₦\s?|(,*)/g, ''))}
           />
+          <div className="mt-1 flex items-center justify-between">
+            <Text type="secondary" className="text-xs">
+              Min: ₦{minStake.toLocaleString()}
+            </Text>
+            <Text type="secondary" className="text-xs">
+              Max: ₦{maxStake.toLocaleString()}
+            </Text>
+          </div>
         </div>
 
         {/* Payout Calculation */}

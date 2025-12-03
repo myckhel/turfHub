@@ -30,6 +30,8 @@ class BettingMarketResource extends JsonResource
             'is_settled' => $this->isSettled(),
             'total_stake' => $this->getTotalStake(),
             'total_bets' => $this->getTotalBets(),
+            'min_stake_amount' => $this->getMinStakeAmount(),
+            'max_stake_amount' => $this->getMaxStakeAmount(),
             'created_at' => $this->created_at->toISOString(),
             'updated_at' => $this->updated_at->toISOString(),
 

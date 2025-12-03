@@ -40,6 +40,8 @@ class BettingMarket extends Model
         'settled_at',
         'status',
         'metadata',
+        'min_stake_amount',
+        'max_stake_amount',
     ];
 
     /**
@@ -55,6 +57,8 @@ class BettingMarket extends Model
             'closes_at' => 'datetime',
             'settled_at' => 'datetime',
             'metadata' => 'array',
+            'min_stake_amount' => 'float',
+            'max_stake_amount' => 'float',
         ];
     }
 
@@ -170,7 +174,7 @@ class BettingMarket extends Model
     /**
      * Create default 1X2 market for a game match.
      */
-    public static function create1X2Market(GameMatch $gameMatch): self
+    public static function create1X2Market(GameMatch $gameMatch, ?float $minStake = null, ?float $maxStake = null): self
     {
         $market = self::create([
             'game_match_id' => $gameMatch->id,
@@ -181,6 +185,8 @@ class BettingMarket extends Model
             'opens_at' => now(),
             'closes_at' => $gameMatch->match_time ?? now()->addHour(),
             'status' => self::STATUS_ACTIVE,
+            'min_stake_amount' => $minStake,
+            'max_stake_amount' => $maxStake,
         ]);
 
         // Create default options for 1X2
@@ -203,5 +209,23 @@ class BettingMarket extends Model
         ]);
 
         return $market;
+    }
+
+    /**
+     * Get the minimum stake amount for this market.
+     * Falls back to config default if not set.
+     */
+    public function getMinStakeAmount(): float
+    {
+        return $this->min_stake_amount ?? config('betting.min_stake_amount', 10);
+    }
+
+    /**
+     * Get the maximum stake amount for this market.
+     * Falls back to config default if not set.
+     */
+    public function getMaxStakeAmount(): float
+    {
+        return $this->max_stake_amount ?? config('betting.max_stake_amount', 50000);
     }
 }

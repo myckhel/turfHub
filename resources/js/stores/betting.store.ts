@@ -374,7 +374,7 @@ export const useBettingStore = create<BettingStore>()(
               state.selectedOptions.push(option);
               // Set default stake if not already set
               if (!state.stakes[option.id]) {
-                state.stakes[option.id] = 100; // Default stake amount
+                state.stakes[option.id] = option?.betting_market?.min_stake_amount || 100; // Default stake amount
               }
             }
           });

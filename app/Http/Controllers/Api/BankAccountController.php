@@ -225,16 +225,6 @@ class BankAccountController extends Controller
     $user = Auth::user();
     $turf = Turf::findOrFail($turfId);
 
-    // Check if user has permission to view turf bank accounts
-    if (
-      !$user->hasRoleOnTurf(User::TURF_ROLE_ADMIN, $turfId) &&
-      !$user->hasRoleOnTurf(User::TURF_ROLE_MANAGER, $turfId)
-    ) {
-      return response()->json([
-        'error' => 'You do not have permission to view this turf\'s bank accounts'
-      ], 403);
-    }
-
     return $turf->bankAccounts()->active()->get();
   }
 

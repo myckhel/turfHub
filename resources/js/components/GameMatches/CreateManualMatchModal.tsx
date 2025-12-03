@@ -1,5 +1,5 @@
 import { PlusOutlined } from '@ant-design/icons';
-import { Button, DatePicker, Form, Modal, Select, Space, Switch, Typography, message } from 'antd';
+import { Button, DatePicker, Form, InputNumber, Modal, Select, Space, Switch, Typography, message } from 'antd';
 import dayjs from 'dayjs';
 import { memo, useCallback, useEffect, useState } from 'react';
 import { gameMatchApi } from '../../apis/gameMatch';
@@ -50,6 +50,8 @@ const CreateManualMatchModal = memo(({ open, onClose, onMatchCreated, turfId }: 
     starts_at: dayjs.Dayjs;
     status?: string;
     betting_enabled?: boolean;
+    min_stake_amount?: number;
+    max_stake_amount?: number;
   }) => {
     setLoading(true);
     try {
@@ -60,6 +62,8 @@ const CreateManualMatchModal = memo(({ open, onClose, onMatchCreated, turfId }: 
         starts_at: values.starts_at?.toISOString(),
         status: (values.status as 'upcoming' | 'in_progress' | 'completed' | 'postponed') || 'upcoming',
         betting_enabled: values.betting_enabled || false,
+        min_stake_amount: values.min_stake_amount,
+        max_stake_amount: values.max_stake_amount,
       };
 
       const response = await gameMatchApi.create(matchData);
@@ -203,6 +207,33 @@ const CreateManualMatchModal = memo(({ open, onClose, onMatchCreated, turfId }: 
             tooltip="Enable betting for this match. Default 1X2 market will be created automatically."
           >
             <Switch />
+          </Form.Item>
+
+          <Form.Item noStyle shouldUpdate={(prevValues, currentValues) => prevValues.betting_enabled !== currentValues.betting_enabled}>
+            {({ getFieldValue }) =>
+              getFieldValue('betting_enabled') ? (
+                <div className="grid grid-cols-2 gap-4">
+                  <Form.Item label="Min Stake (₦)" name="min_stake_amount" tooltip="Minimum bet amount. Leave empty to use default (₦10)">
+                    <InputNumber
+                      placeholder="Default: 10"
+                      min={1}
+                      max={1000000}
+                      className="w-full"
+                      formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                    />
+                  </Form.Item>
+                  <Form.Item label="Max Stake (₦)" name="max_stake_amount" tooltip="Maximum bet amount. Leave empty to use default (₦50,000)">
+                    <InputNumber
+                      placeholder="Default: 50,000"
+                      min={1}
+                      max={10000000}
+                      className="w-full"
+                      formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                    />
+                  </Form.Item>
+                </div>
+              ) : null
+            }
           </Form.Item>
 
           <div className="rounded bg-blue-50 p-3 dark:bg-blue-900/20">

@@ -311,13 +311,24 @@ const BetSlip = memo(
 
                       {/* Stake & Potential Win */}
                       <div className="space-y-2.5">
+                        {/* Stake Limits Display */}
+                        {option.betting_market && (
+                          <div className="mb-1 flex items-center justify-between">
+                            <Text className="text-[10px] text-gray-500 dark:text-gray-500">
+                              Min: ₦{option.betting_market.min_stake_amount?.toLocaleString()}
+                            </Text>
+                            <Text className="text-[10px] text-gray-500 dark:text-gray-500">
+                              Max: ₦{option.betting_market.max_stake_amount?.toLocaleString()}
+                            </Text>
+                          </div>
+                        )}
                         <div className="flex items-center justify-between gap-2">
                           <Text className="text-xs font-medium text-gray-600 dark:text-gray-400">Stake:</Text>
                           <InputNumber
-                            value={stakeAmounts[option.id] || 100}
+                            value={stakeAmounts[option.id] || option.betting_market?.min_stake_amount || 100}
                             onChange={(value) => handleUpdateStake(option.id, value || 0)}
-                            min={1}
-                            max={100000}
+                            min={option.betting_market?.min_stake_amount || 10}
+                            max={option.betting_market?.max_stake_amount || 50000}
                             prefix="₦"
                             size="small"
                             className="w-28"

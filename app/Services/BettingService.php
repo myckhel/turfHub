@@ -107,6 +107,8 @@ class BettingService
         'closes_at' => $marketData['closes_at'] ?? $gameMatch->match_time,
         'status' => BettingMarket::STATUS_ACTIVE,
         'metadata' => $marketData['metadata'] ?? null,
+        'min_stake_amount' => $marketData['min_stake_amount'] ?? $gameMatch->min_stake_amount,
+        'max_stake_amount' => $marketData['max_stake_amount'] ?? $gameMatch->max_stake_amount,
       ]);
 
       // Create market options
@@ -147,9 +149,21 @@ class BettingService
       ]);
     }
 
-    if ($stakeAmount < 10) {
+    // Validate stake amount against market limits
+    $market = $marketOption->bettingMarket;
+    $minStake = $market->getMinStakeAmount();
+    $maxStake = $market->getMaxStakeAmount();
+    $currencySymbol = config('betting.currency_symbol', '₦');
+
+    if ($stakeAmount < $minStake) {
       throw ValidationException::withMessages([
-        'stake' => 'Minimum stake amount is ₦10.'
+        'stake_amount' => "Minimum stake amount is {$currencySymbol}" . number_format($minStake, 2) . "."
+      ]);
+    }
+
+    if ($stakeAmount > $maxStake) {
+      throw ValidationException::withMessages([
+        'stake_amount' => "Maximum stake amount is {$currencySymbol}" . number_format($maxStake, 2) . "."
       ]);
     }
 

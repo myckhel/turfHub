@@ -276,6 +276,8 @@ class MatchSessionService
         'second_team_score' => 0,
         'match_time' => now(),
         'status' => 'upcoming',
+        'min_stake_amount' => $matchSession->turf->min_stake_amount ?? null,
+        'max_stake_amount' => $matchSession->turf->max_stake_amount ?? null,
       ]);
 
       // Update teams status to playing

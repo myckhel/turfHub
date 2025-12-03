@@ -46,6 +46,8 @@ class FixtureGenerationService
           'duration' => $matchDuration,
           'status' => 'upcoming',
           'metadata' => $fixtureData['metadata'] ?? null,
+          'min_stake_amount' => $fixtureData['min_stake_amount'] ?? null,
+          'max_stake_amount' => $fixtureData['max_stake_amount'] ?? null,
         ]);
 
         if ($autoSchedule) {
@@ -72,6 +74,8 @@ class FixtureGenerationService
       'starts_at' => $data['starts_at'] ?? null,
       'duration' => $data['duration'] ?? ($stage->settings['match_duration'] ?? 12),
       'status' => $data['status'] ?? 'upcoming',
+      'min_stake_amount' => $data['min_stake_amount'] ?? null,
+      'max_stake_amount' => $data['max_stake_amount'] ?? null,
     ]);
   }
 

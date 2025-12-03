@@ -40,6 +40,8 @@ class UpdateGameMatchRequest extends FormRequest
       'starts_at' => ['sometimes', 'nullable', 'date'],
       'status' => ['sometimes', 'required', 'string', 'max:50'],
       'betting_enabled' => ['sometimes', 'boolean'],
+      'min_stake_amount' => ['sometimes', 'nullable', 'numeric', 'min:1', 'max:1000000'],
+      'max_stake_amount' => ['sometimes', 'nullable', 'numeric', 'min:1', 'max:10000000', 'gte:min_stake_amount'],
     ];
   }
 }

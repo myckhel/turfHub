@@ -22,6 +22,8 @@ export interface BettingMarket {
   total_bets_count?: number; // For components expecting this property
   total_stake_amount?: number; // For components expecting this property
   game_match_id?: number; // For components expecting this property
+  min_stake_amount: number;
+  max_stake_amount: number;
   created_at: string;
   updated_at: string;
 
@@ -120,6 +122,8 @@ export interface CreateMarketRequest {
   description?: string;
   market_type: MarketType;
   options: CreateMarketOptionRequest[];
+  min_stake_amount?: number;
+  max_stake_amount?: number;
 }
 
 export interface CreateMarketOptionRequest {

@@ -59,9 +59,21 @@ class BettingController extends Controller
    */
   public function placeBet(Request $request): JsonResponse
   {
+    // Get market option to determine stake limits
+    $marketOption = MarketOption::with('bettingMarket')->findOrFail($request->market_option_id);
+    $market = $marketOption->bettingMarket;
+    $minStake = $market->getMinStakeAmount();
+    $maxStake = $market->getMaxStakeAmount();
+    $currencySymbol = config('betting.currency_symbol', '₦');
+
     $rules = [
       'market_option_id' => 'required|exists:market_options,id',
-      'stake_amount' => 'required|numeric|min:10',
+      'stake_amount' => [
+        'required',
+        'numeric',
+        "min:{$minStake}",
+        "max:{$maxStake}",
+      ],
       'payment_method' => 'required|in:online,offline,wallet',
       'payment_reference' => 'nullable|string|max:255',
     ];
@@ -71,9 +83,10 @@ class BettingController extends Controller
       $rules['receipt'] = 'required|file|mimes:jpeg,jpg,png,webp,pdf|max:5120'; // 5MB max
     }
 
-    $request->validate($rules);
-
-    $marketOption = MarketOption::findOrFail($request->market_option_id);
+    $request->validate($rules, [
+      'stake_amount.min' => "Minimum stake amount is {$currencySymbol}" . number_format($minStake, 2) . ".",
+      'stake_amount.max' => "Maximum stake amount is {$currencySymbol}" . number_format($maxStake, 2) . ".",
+    ]);
     $result = $this->bettingService->placeBet(
       user: $request->user(),
       marketOption: $marketOption,

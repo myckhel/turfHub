@@ -40,6 +40,8 @@ class StoreGameMatchRequest extends FormRequest
       'starts_at' => ['nullable', 'date'],
       'status' => ['required', 'string', 'max:50'],
       'betting_enabled' => ['boolean'],
+      'min_stake_amount' => ['nullable', 'numeric', 'min:1', 'max:1000000'],
+      'max_stake_amount' => ['nullable', 'numeric', 'min:1', 'max:10000000', 'gte:min_stake_amount'],
     ];
   }
 }

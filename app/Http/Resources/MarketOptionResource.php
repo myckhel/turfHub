@@ -34,6 +34,8 @@ class MarketOptionResource extends JsonResource
                     'id' => $this->bettingMarket->id,
                     'market_type' => $this->bettingMarket->market_type,
                     'name' => $this->bettingMarket->name,
+                    'min_stake_amount' => $this->bettingMarket->getMinStakeAmount(),
+                    'max_stake_amount' => $this->bettingMarket->getMaxStakeAmount(),
                 ];
             }),
         ];

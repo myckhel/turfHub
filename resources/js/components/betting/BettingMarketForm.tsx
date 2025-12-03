@@ -25,6 +25,8 @@ interface FormData {
   description?: string;
   market_type: MarketType;
   options: FormOptionData[];
+  min_stake_amount?: number;
+  max_stake_amount?: number;
 }
 
 interface FormOptionData {
@@ -46,6 +48,8 @@ const BettingMarketForm: React.FC<BettingMarketFormProps> = memo(
         form.setFieldsValue({
           name: `${gameMatch.first_team?.name || 'Team 1'} vs ${gameMatch.second_team?.name || 'Team 2'} - Match Result`,
           market_type: '1x2',
+          min_stake_amount: gameMatch.min_stake_amount,
+          max_stake_amount: gameMatch.max_stake_amount,
         });
       }
     }, [gameMatch, form]);
@@ -115,6 +119,8 @@ const BettingMarketForm: React.FC<BettingMarketFormProps> = memo(
               key: option.name.toLowerCase().replace(/\s+/g, '_'),
               odds: option.odds,
             })),
+            min_stake_amount: values.min_stake_amount,
+            max_stake_amount: values.max_stake_amount,
           };
 
           const response = await bettingApi.createMarket(finalGameMatchId, marketData);
@@ -222,6 +228,39 @@ const BettingMarketForm: React.FC<BettingMarketFormProps> = memo(
             <Col span={24}>
               <Form.Item label="Description" name="description">
                 <TextArea placeholder="Enter market description (optional)" rows={2} maxLength={255} showCount />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                label="Min Stake Amount (₦)"
+                name="min_stake_amount"
+                tooltip="Minimum amount players can stake. Leave empty to use default (₦10)"
+              >
+                <InputNumber
+                  placeholder="Default: 10"
+                  min={1}
+                  max={1000000}
+                  style={{ width: '100%' }}
+                  formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label="Max Stake Amount (₦)"
+                name="max_stake_amount"
+                tooltip="Maximum amount players can stake. Leave empty to use default (₦50,000)"
+              >
+                <InputNumber
+                  placeholder="Default: 50,000"
+                  min={1}
+                  max={10000000}
+                  style={{ width: '100%' }}
+                  formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                />
               </Form.Item>
             </Col>
           </Row>

@@ -39,6 +39,8 @@ class GameMatch extends Model
     'duration',        // Match duration in minutes
     'status',          // e.g., upcoming, in_progress, completed, postponed
     'betting_enabled', // Whether betting is enabled for this match
+    'min_stake_amount', // Minimum bet stake amount for this match
+    'max_stake_amount', // Maximum bet stake amount for this match
   ];
 
   /**
@@ -55,6 +57,8 @@ class GameMatch extends Model
       'starts_at' => 'datetime',
       'duration' => 'integer',
       'betting_enabled' => 'boolean',
+      'min_stake_amount' => 'float',
+      'max_stake_amount' => 'float',
     ];
   }
 
@@ -155,7 +159,7 @@ class GameMatch extends Model
 
     // Create default 1X2 market if it doesn't exist
     if (!$this->bettingMarkets()->where('market_type', BettingMarket::TYPE_1X2)->exists()) {
-      BettingMarket::create1X2Market($this);
+      BettingMarket::create1X2Market($this, $this->min_stake_amount, $this->max_stake_amount);
     }
   }
 

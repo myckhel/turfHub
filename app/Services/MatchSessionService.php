@@ -36,7 +36,6 @@ class MatchSessionService
    */
   public function getMatchSessionWithRelations(MatchSession $matchSession, array $includes = []): MatchSession
   {
-    dd($includes);
     if (!empty($includes)) {
       $matchSession->load($includes);
     }
@@ -294,7 +293,7 @@ class MatchSessionService
   private function buildMatchSessionQuery(Request $request): Builder
   {
     // starting from last 3 days
-    $query = MatchSession::query()->orderBy('session_date', 'asc');
+    $query = MatchSession::query()->orderBy('session_date', 'desc');
 
     // Filter by turf
     if ($request->filled('turf_id')) {

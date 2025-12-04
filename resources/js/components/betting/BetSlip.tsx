@@ -26,7 +26,7 @@ const BetSlip = memo(
     onUpdateStake,
     onRemoveOption,
     onPlaceBets,
-    paymentMethod = 'online',
+    paymentMethod = 'offline',
     onPaymentMethodChange,
     isLoading = false,
   }: BetSlipProps) => {

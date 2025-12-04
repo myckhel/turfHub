@@ -256,13 +256,13 @@ const BetSlip = memo(
                     </Text>
                   </div>
                   <Select<PaymentMethod> value={currentPaymentMethod} onChange={handlePaymentMethodChange} className="w-full" size="large">
-                    <Option value="online">
+                    <Option disabled value="online">
                       <div className="flex items-center gap-2 py-1">
                         <CreditCardOutlined className="text-blue-500" />
                         <span className="font-medium">Online Payment</span>
                       </div>
                     </Option>
-                    <Option value="wallet">
+                    <Option disabled value="wallet">
                       <div className="flex items-center gap-2 py-1">
                         <WalletOutlined className="text-green-500" />
                         <span className="font-medium">Wallet</span>

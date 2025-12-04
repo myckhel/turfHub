@@ -271,7 +271,7 @@ const BetSlip = memo(
                     <Option value="offline">
                       <div className="flex items-center gap-2 py-1">
                         <DollarOutlined className="text-orange-500" />
-                        <span className="font-medium">Cash Payment</span>
+                        <span className="font-medium">Transfer Payment</span>
                       </div>
                     </Option>
                   </Select>

@@ -222,7 +222,6 @@ class BankAccountController extends Controller
    */
   public function getTurfBankAccounts(int $turfId)
   {
-    $user = Auth::user();
     $turf = Turf::findOrFail($turfId);
 
     return $turf->bankAccounts()->active()->get();

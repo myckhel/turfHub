@@ -1,4 +1,5 @@
-import { Link } from '@inertiajs/react';
+import type { SharedData } from '@/types';
+import { Link, usePage } from '@inertiajs/react';
 import { Drawer } from 'antd';
 import { memo } from 'react';
 import { useLayoutStore } from '../../stores';
@@ -6,6 +7,7 @@ import SidebarMenu from './SidebarMenu';
 
 export const MobileSidebar = memo(() => {
   const { mobileMenuOpen, setMobileMenuOpen } = useLayoutStore();
+  const { name } = usePage<SharedData>().props;
 
   return (
     <Drawer
@@ -14,7 +16,7 @@ export const MobileSidebar = memo(() => {
           <div className="flex h-8 w-8 items-center justify-center rounded-lg shadow-lg" style={{ background: 'rgba(255, 255, 255, 0.2)' }}>
             <span className="text-sm font-bold text-white">TH</span>
           </div>
-          <span className="text-lg font-bold text-white">TurfMate</span>
+          <span className="text-lg font-bold text-white">{name}</span>
         </Link>
       }
       placement="left"

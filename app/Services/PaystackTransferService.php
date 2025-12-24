@@ -23,7 +23,7 @@ class PaystackTransferService
         'name' => $bankAccount->account_name,
         'account_number' => $bankAccount->account_number,
         'bank_code' => $bankAccount->bank_code,
-        'description' => 'TurfMate withdrawal account for ' . $bankAccount->accountable_type . ' ID: ' . $bankAccount->accountable_id,
+        'description' => config('app.name') . ' withdrawal account for ' . $bankAccount->accountable_type . ' ID: ' . $bankAccount->accountable_id,
       ]);
 
       if ($response['status']) {

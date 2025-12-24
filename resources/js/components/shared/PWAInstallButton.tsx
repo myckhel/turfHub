@@ -1,4 +1,6 @@
+import type { SharedData } from '@/types';
 import { AppleOutlined, DownloadOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import { usePage } from '@inertiajs/react';
 import { Button, Modal, Typography } from 'antd';
 import { memo, useState } from 'react';
 import { usePWA } from '../../hooks/usePWA';
@@ -22,6 +24,7 @@ const isIOS = () => {
 
 export const PWAInstallButton = memo<PWAInstallButtonProps>(({ type = 'default', size = 'middle', block = false, className = '' }) => {
   const { canInstall, installApp, isInstalled } = usePWA();
+  const { name } = usePage<SharedData>().props;
   const [showIOSModal, setShowIOSModal] = useState(false);
 
   const handleInstallClick = () => {
@@ -74,10 +77,10 @@ export const PWAInstallButton = memo<PWAInstallButtonProps>(({ type = 'default',
           </div>
 
           <Title level={4} className="mb-3 text-center">
-            Install TurfMate on iOS
+            Install {name} on iOS
           </Title>
 
-          <Paragraph className="mb-4 text-gray-600">To install TurfMate as an app on your iOS device, follow these steps:</Paragraph>
+          <Paragraph className="mb-4 text-gray-600">To install {name} as an app on your iOS device, follow these steps:</Paragraph>
 
           <div className="space-y-4 rounded-lg bg-gray-50 p-4">
             <div className="flex items-start gap-3">
@@ -111,7 +114,7 @@ export const PWAInstallButton = memo<PWAInstallButtonProps>(({ type = 'default',
             <div className="flex items-start gap-2">
               <InfoCircleOutlined className="mt-0.5 text-blue-600" />
               <Text className="text-sm text-blue-800">
-                Once installed, you'll find TurfMate on your home screen and can launch it like any other app!
+                Once installed, you'll find {name} on your home screen and can launch it like any other app!
               </Text>
             </div>
           </div>

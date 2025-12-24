@@ -1,4 +1,6 @@
+import type { SharedData } from '@/types';
 import { AppleOutlined, DownloadOutlined, InfoCircleOutlined, SyncOutlined } from '@ant-design/icons';
+import { usePage } from '@inertiajs/react';
 import { Button, notification } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { usePWA } from '../../hooks/usePWA';
@@ -13,6 +15,7 @@ const isIOS = () => {
 
 export const PWAUpdateNotification: React.FC = () => {
   const { updateAvailable, canInstall, installApp, updateApp, isInstalled } = usePWA();
+  const { name } = usePage<SharedData>().props;
   const [api, contextHolder] = notification.useNotification();
   const [hasShownIOSPrompt, setHasShownIOSPrompt] = useState(false);
 
@@ -20,7 +23,7 @@ export const PWAUpdateNotification: React.FC = () => {
     if (updateAvailable) {
       api.info({
         message: 'Update Available',
-        description: 'A new version of TurfMate is available. Update now for the latest features and improvements.',
+        description: `A new version of ${name} is available. Update now for the latest features and improvements.`,
         duration: 0,
         btn: (
           <div className="flex space-x-2">
@@ -57,12 +60,12 @@ export const PWAUpdateNotification: React.FC = () => {
             message: (
               <span>
                 <AppleOutlined className="mr-2" />
-                Install TurfMate
+                Install {name}
               </span>
             ),
             description: (
               <div>
-                <p className="mb-2">To install TurfMate on your iOS device:</p>
+                <p className="mb-2">To install {name} on your iOS device:</p>
                 <ol className="ml-4 list-decimal space-y-1 text-sm">
                   <li>
                     Tap the Share button <span className="inline-block">⎋</span>
@@ -93,8 +96,8 @@ export const PWAUpdateNotification: React.FC = () => {
       } else if (!isiOSDevice) {
         // Show standard install prompt for Android/Desktop
         api.info({
-          message: 'Install TurfMate',
-          description: 'Install TurfMate on your device for a better experience and quick access.',
+          message: `Install ${name}`,
+          description: `Install ${name} on your device for a better experience and quick access.`,
           duration: 10,
           placement: 'bottomRight',
           btn: (

@@ -1,3 +1,4 @@
+import type { SharedData } from '@/types';
 import {
   CheckCircleOutlined,
   ClockCircleOutlined,
@@ -11,7 +12,7 @@ import {
   WalletOutlined,
 } from '@ant-design/icons';
 import { useGSAP } from '@gsap/react';
-import { router } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 import { Avatar, Button, Card, Col, Row, Space, Steps, Typography } from 'antd';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -27,6 +28,7 @@ gsap.registerPlugin(ScrollTrigger);
 // Hero Section Component
 const HeroSection: React.FC = memo(() => {
   const { reducedMotion } = useTheme();
+  const { name } = usePage<SharedData>().props;
   const heroRef = useRef<HTMLDivElement>(null);
   const headlineRef = useRef<HTMLDivElement>(null);
   const subheadingRef = useRef<HTMLDivElement>(null);
@@ -43,7 +45,7 @@ const HeroSection: React.FC = memo(() => {
       .fromTo(ctaRef.current, { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: 'back.out(1.7)' }, '-=0.3');
   }, [reducedMotion]);
 
-  const handleTryTurfMate = () => {
+  const handleTryApp = () => {
     router.visit(route('register'));
   };
 
@@ -74,7 +76,7 @@ const HeroSection: React.FC = memo(() => {
 
           <div ref={subheadingRef} className="mb-12">
             <Paragraph className="hero-subtitle mx-auto max-w-3xl text-xl text-white/90 sm:text-2xl">
-              TurfMate makes organizing and playing mini football matches effortless. Join teams, manage sessions, and experience the future of turf
+              {name} makes organizing and playing mini football matches effortless. Join teams, manage sessions, and experience the future of turf
               sports.
             </Paragraph>
           </div>
@@ -86,10 +88,10 @@ const HeroSection: React.FC = memo(() => {
                 type="primary"
                 size="large"
                 icon={<PlayCircleOutlined />}
-                onClick={handleTryTurfMate}
+                onClick={handleTryApp}
                 className="h-14 border-none bg-white px-8 text-lg font-semibold text-green-600 shadow-xl transition-all duration-300 hover:scale-105 hover:bg-white/90 hover:shadow-2xl"
               >
-                Try TurfMate
+                Try {name}
               </Button>
               <Button
                 ghost
@@ -118,6 +120,7 @@ const HeroSection: React.FC = memo(() => {
 // How It Works Section
 const HowItWorksSection: React.FC = memo(() => {
   const { reducedMotion } = useTheme();
+  const { name } = usePage<SharedData>().props;
   const sectionRef = useRef<HTMLDivElement>(null);
 
   const steps = [
@@ -171,7 +174,7 @@ const HowItWorksSection: React.FC = memo(() => {
             How It Works
           </Title>
           <Paragraph className="mx-auto mb-16 max-w-2xl text-lg text-gray-600 dark:text-gray-300">
-            Get started with TurfMate in four simple steps and revolutionize your football experience
+            Get started with {name} in four simple steps and revolutionize your football experience
           </Paragraph>
         </div>
 
@@ -461,6 +464,7 @@ const PlayersSection: React.FC = memo(() => {
 // Testimonials Section
 const TestimonialsSection: React.FC = memo(() => {
   const { reducedMotion } = useTheme();
+  const { name } = usePage<SharedData>().props;
   const sectionRef = useRef<HTMLDivElement>(null);
 
   const testimonials = [
@@ -468,14 +472,14 @@ const TestimonialsSection: React.FC = memo(() => {
       name: 'Ahmed Hassan',
       role: 'Regular Player',
       avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Ahmed',
-      content: 'TurfMate changed how we play football. No more arguments about teams or payment!',
+      content: `${name} changed how we play football. No more arguments about teams or payment!`,
       rating: 5,
     },
     {
       name: 'Fatima Adebayo',
       role: 'Turf Manager',
       avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Fatima',
-      content: 'Managing sessions is now effortless. My revenue increased by 40% since using TurfMate.',
+      content: `Managing sessions is now effortless. My revenue increased by 40% since using ${name}.`,
       rating: 5,
     },
     {

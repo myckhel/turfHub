@@ -27,7 +27,7 @@ Route::get('/health', function () {
   return response()->json([
     'status' => 'ok',
     'timestamp' => now()->toISOString(),
-    'service' => 'TurfMate API',
+    'service' => config('app.name') . ' API',
     'version' => config('app.version', '1.0.0'),
     'octane' => [
       'server' => config('octane.server'),

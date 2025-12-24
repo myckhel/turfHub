@@ -1,4 +1,4 @@
-import type { PageProps } from '@/types/global.types';
+import type { SharedData } from '@/types';
 import { CloseOutlined, MenuOutlined } from '@ant-design/icons';
 import { Link, usePage } from '@inertiajs/react';
 import { Button, Layout } from 'antd';
@@ -13,6 +13,8 @@ interface GuestLayoutProps {
 }
 
 export const GuestLayout: React.FC<GuestLayoutProps> = ({ children }) => {
+  const { name } = usePage<SharedData>().props;
+
   return (
     <Layout className="min-h-screen bg-white dark:bg-gray-900">
       {/* Header */}
@@ -34,7 +36,7 @@ export const GuestLayout: React.FC<GuestLayoutProps> = ({ children }) => {
                 >
                   <span className="text-sm font-bold text-white">TH</span>
                 </div>
-                <span className="text-xl font-bold text-white">TurfMate</span>
+                <span className="text-xl font-bold text-white">{name}</span>
               </div>
               <p style={{ color: 'var(--color-medium-gray)' }}>
                 The premier platform for turf booking and sports facility management. Connect with players, manage facilities, and grow your sports
@@ -93,7 +95,7 @@ export const GuestLayout: React.FC<GuestLayoutProps> = ({ children }) => {
           </div>
 
           <div className="mt-8 border-t pt-8 text-center" style={{ borderColor: 'var(--color-light-slate)', color: 'var(--color-medium-gray)' }}>
-            <p>&copy; 2025 TurfMate. All rights reserved.</p>
+            <p>&copy; 2025 {name}. All rights reserved.</p>
           </div>
         </div>
       </Footer>
@@ -104,7 +106,7 @@ export const GuestLayout: React.FC<GuestLayoutProps> = ({ children }) => {
 const GuestHeader: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
-  const { url, props } = usePage<PageProps>();
+  const { url, props } = usePage<SharedData>();
 
   const isLoggedIn = !!props?.auth?.user;
 
@@ -156,7 +158,7 @@ const GuestHeader: React.FC = () => {
           >
             <span className="text-sm font-bold text-white">TM</span>
           </div>
-          <span className="text-xl font-bold text-white">TurfMate</span>
+          <span className="text-xl font-bold text-white">{props.name}</span>
         </Link>
 
         {/* Desktop Navigation */}

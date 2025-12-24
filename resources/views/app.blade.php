@@ -78,7 +78,7 @@
         {{-- iOS PWA support --}}
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-status-bar-style" content="default">
-        <meta name="apple-mobile-web-app-title" content="TurfMate">
+        <meta name="apple-mobile-web-app-title" content="{{ config('app.name') }}">
 
         {{-- PWA theme colors --}}
         <meta name="theme-color" content="#10b981" media="(prefers-color-scheme: light)">

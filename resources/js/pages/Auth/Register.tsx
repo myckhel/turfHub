@@ -1,4 +1,5 @@
-import { Head, Link, router } from '@inertiajs/react';
+import type { SharedData } from '@/types';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { Button, Checkbox, Form, Input, Typography } from 'antd';
 import { AuthLayout } from '../../components/layout/AuthLayout';
 import { RegisterData } from '../../types/auth.types';
@@ -11,6 +12,7 @@ interface RegisterProps {
 
 export default function Register({ errors }: RegisterProps) {
   const [form] = Form.useForm();
+  const { name } = usePage<SharedData>().props;
 
   const onFinish = (values: RegisterData) => {
     router.post(route('register'), values);
@@ -27,7 +29,7 @@ export default function Register({ errors }: RegisterProps) {
             Create your account
           </Title>
           <Text type="secondary" className="text-base">
-            Join TurfMate and start managing your turf bookings
+            Join {name} and start managing your turf bookings
           </Text>
         </div>
 

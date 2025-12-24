@@ -1,4 +1,5 @@
-import { Link } from '@inertiajs/react';
+import type { SharedData } from '@/types';
+import { Link, usePage } from '@inertiajs/react';
 import { Layout } from 'antd';
 import { memo } from 'react';
 import SidebarMenu from './SidebarMenu';
@@ -10,6 +11,8 @@ interface DesktopSidebarProps {
 }
 
 export const DesktopSidebar = memo<DesktopSidebarProps>(({ collapsed }) => {
+  const { name } = usePage<SharedData>().props;
+
   return (
     <Sider
       trigger={null}
@@ -30,7 +33,7 @@ export const DesktopSidebar = memo<DesktopSidebarProps>(({ collapsed }) => {
           <div className="flex h-8 w-8 items-center justify-center rounded-lg shadow-lg" style={{ background: 'rgba(255, 255, 255, 0.2)' }}>
             <span className="text-sm font-bold text-white">TH</span>
           </div>
-          {!collapsed && <span className="text-lg font-bold text-white">TurfMate</span>}
+          {!collapsed && <span className="text-lg font-bold text-white">{name}</span>}
         </Link>
       </div>
 

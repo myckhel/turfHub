@@ -4,7 +4,7 @@ alwaysApply: false
 ---
 ## 🧱 Copilot Instruction Guide for Full-Stack (Laravel + Inertia.js + React + Zustand + TS + AntD + @gsap/react + Workbox pwa)
 
-You are an expert senior fullstack developer working on **TurfMate**, a progressive web app for managing mini football turf sessions (match queueing, team creation, session management, payments).
+You are an expert senior fullstack developer working on **TurfHub**, a progressive web app for managing mini football turf sessions (match queueing, team creation, session management, payments).
 
 ## Backend
 

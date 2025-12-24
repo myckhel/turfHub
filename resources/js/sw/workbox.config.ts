@@ -8,8 +8,8 @@ export const pwaConfig: Partial<VitePWAOptions> = {
   injectRegister: 'auto',
   includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'logo.svg', 'favicon.svg'],
   manifest: {
-    name: 'TurfMate - Sports Facility Management',
-    short_name: 'TurfMate',
+    name: 'TurfHub - Sports Facility Management',
+    short_name: 'TurfHub',
     description: 'Book sports facilities, manage bookings, and connect with your sports community.',
     theme_color: '#10b981',
     background_color: '#ffffff',

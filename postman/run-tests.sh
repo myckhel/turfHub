@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# TurfMate API Test Runner
+# TurfHub API Test Runner
 # This script runs comprehensive API tests using Newman (Postman CLI)
 
 set -e
@@ -15,12 +15,12 @@ NC='\033[0m' # No Color
 # Configuration
 COLLECTION_DIR="./postman"
 REPORTS_DIR="./postman/reports"
-ENVIRONMENT="TurfMate-Development.postman_environment.json"
+ENVIRONMENT="TurfHub-Development.postman_environment.json"
 
 # Create reports directory if it doesn't exist
 mkdir -p "$REPORTS_DIR"
 
-echo -e "${BLUE}🚀 TurfMate API Test Suite${NC}"
+echo -e "${BLUE}🚀 TurfHub API Test Suite${NC}"
 echo -e "${BLUE}========================${NC}"
 
 # Check if Newman is installed
@@ -32,8 +32,8 @@ if ! command -v newman &> /dev/null; then
 fi
 
 # Check if collection files exist
-if [ ! -f "$COLLECTION_DIR/TurfMate-API-Collection.json" ]; then
-    echo -e "${RED}❌ Collection file not found: $COLLECTION_DIR/TurfMate-API-Collection.json${NC}"
+if [ ! -f "$COLLECTION_DIR/TurfHub-API-Collection.json" ]; then
+    echo -e "${RED}❌ Collection file not found: $COLLECTION_DIR/TurfHub-API-Collection.json${NC}"
     exit 1
 fi
 
@@ -148,24 +148,24 @@ main() {
         "basic")
             check_api_health
             validate_environment
-            run_test_suite "basic-suite" "TurfMate-API-Collection.json"
+            run_test_suite "basic-suite" "TurfHub-API-Collection.json"
             generate_summary
             ;;
         "complete")
             check_api_health
             validate_environment
-            run_test_suite "complete-suite" "TurfMate-Complete-Collection.json" "--delay-request 200"
+            run_test_suite "complete-suite" "TurfHub-Complete-Collection.json" "--delay-request 200"
             generate_summary
             ;;
         "all")
             check_api_health
             validate_environment
-            run_test_suite "basic-suite" "TurfMate-API-Collection.json"
-            run_test_suite "complete-suite" "TurfMate-Complete-Collection.json" "--delay-request 200"
+            run_test_suite "basic-suite" "TurfHub-API-Collection.json"
+            run_test_suite "complete-suite" "TurfHub-Complete-Collection.json" "--delay-request 200"
             generate_summary
             ;;
         "help")
-            echo -e "${BLUE}TurfMate API Test Runner${NC}"
+            echo -e "${BLUE}TurfHub API Test Runner${NC}"
             echo -e "Usage: $0 [command]"
             echo -e ""
             echo -e "Commands:"

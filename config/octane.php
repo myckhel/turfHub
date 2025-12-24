@@ -193,7 +193,7 @@ return [
     'routes',
     'composer.lock',
     '.env',
-    // Additional files for TurfMate
+    // Additional files for TurfHub
     'resources/js/**/*.tsx',
     'resources/js/**/*.ts',
     'resources/css/**/*.css',
@@ -210,7 +210,7 @@ return [
     |
     */
 
-  'garbage' => 64, // Increased for better performance with TurfMate
+  'garbage' => 64, // Increased for better performance with TurfHub
 
   /*
     |--------------------------------------------------------------------------

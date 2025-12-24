@@ -1,6 +1,6 @@
 # Paystack InlineJS Implementation Guide
 
-This guide covers the implementation of a reusable Paystack InlineJS payment system for TurfMate.
+This guide covers the implementation of a reusable Paystack InlineJS payment system for TurfHub.
 
 ## Overview
 

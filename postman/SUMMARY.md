@@ -1,17 +1,17 @@
-# 🎉 TurfMate API Postman Collection - Complete Package
+# 🎉 TurfHub API Postman Collection - Complete Package
 
 ## 📦 What's Been Created
 
-I've created a comprehensive, modern Postman collection for your TurfMate API with advanced testing capabilities, automation scripts, and professional documentation. Here's what you now have:
+I've created a comprehensive, modern Postman collection for your TurfHub API with advanced testing capabilities, automation scripts, and professional documentation. Here's what you now have:
 
 ### 📁 File Structure Created
 
 ```
 postman/
-├── 📄 TurfMate-API-Collection.json                    # Basic collection (25+ tests)
-├── 📄 TurfMate-Complete-Collection.json               # Advanced collection (100+ tests)
-├── 🌍 TurfMate-Development.postman_environment.json   # Development environment
-├── 🌍 TurfMate-Production.postman_environment.json    # Production environment
+├── 📄 TurfHub-API-Collection.json                    # Basic collection (25+ tests)
+├── 📄 TurfHub-Complete-Collection.json               # Advanced collection (100+ tests)
+├── 🌍 TurfHub-Development.postman_environment.json   # Development environment
+├── 🌍 TurfHub-Production.postman_environment.json    # Production environment
 ├── 🚀 run-tests.sh                                   # Automated test runner
 ├── ⚙️ newman.config.json                             # Newman CLI configuration
 ├── 📦 package.json                                   # NPM dependencies for testing
@@ -239,6 +239,6 @@ You now have a **professional-grade API testing suite** that includes:
 - 📚 **Complete documentation** with examples and troubleshooting
 - ⚙️ **CI/CD ready** with Newman CLI integration
 
-This collection follows **modern API testing best practices** and provides a solid foundation for maintaining high-quality APIs as your TurfMate application grows.
+This collection follows **modern API testing best practices** and provides a solid foundation for maintaining high-quality APIs as your TurfHub application grows.
 
 **Happy Testing! 🚀**

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# TurfMate Octane Health Check Script
+# TurfHub Octane Health Check Script
 # This script monitors the health of the Octane server and restarts it if needed
 
 set -e
@@ -69,7 +69,7 @@ restart_octane() {
 
 # Main health check logic
 main() {
-    echo "🏥 TurfMate Octane Health Check - $(date)"
+    echo "🏥 TurfHub Octane Health Check - $(date)"
 
     # Check if Octane process is running
     if ! check_octane_status; then

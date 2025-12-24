@@ -1,7 +1,7 @@
-# TurfMate API Documentation
+# TurfHub API Documentation
 
 ## Overview
-This document provides an overview of the RESTful CRUD API controllers created for the TurfMate application.
+This document provides an overview of the RESTful CRUD API controllers created for the TurfHub application.
 
 ## Authentication
 

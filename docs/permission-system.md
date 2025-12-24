@@ -1,8 +1,8 @@
-# TurfMate Permission System Documentation
+# TurfHub Permission System Documentation
 
 ## Overview
 
-The TurfMate application now uses [Spatie Laravel Permission](https://spatie.be/docs/laravel-permission/v6/introduction) with **Teams** functionality to manage turf-specific roles and permissions. This allows players to have different roles in different turfs.
+The TurfHub application now uses [Spatie Laravel Permission](https://spatie.be/docs/laravel-permission/v6/introduction) with **Teams** functionality to manage turf-specific roles and permissions. This allows players to have different roles in different turfs.
 
 ## Architecture
 

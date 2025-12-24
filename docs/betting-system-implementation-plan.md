@@ -1,7 +1,7 @@
-# TurfMate Betting System - Implementation Plan
+# TurfHub Betting System - Implementation Plan
 
 ## 🎯 Overview
-This document outlines the implementation plan for TurfMate's game match betting feature. The system will allow players to bet on match outcomes with minimal complexity, following the existing architecture patterns.
+This document outlines the implementation plan for TurfHub's game match betting feature. The system will allow players to bet on match outcomes with minimal complexity, following the existing architecture patterns.
 
 ## 🎨 UI/UX Design Principles (Based on Inspiration)
 - **Card-based Layout**: Display betting markets in clean, organized cards
@@ -257,4 +257,4 @@ interface OddsDisplayProps {
 - Payment method distribution
 - Settlement accuracy rate
 
-This plan provides a comprehensive roadmap for implementing the betting system while maintaining TurfMate's design principles and architecture patterns. The phased approach ensures manageable development cycles with early value delivery.
+This plan provides a comprehensive roadmap for implementing the betting system while maintaining TurfHub's design principles and architecture patterns. The phased approach ensures manageable development cycles with early value delivery.

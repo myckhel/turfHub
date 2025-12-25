@@ -10,7 +10,7 @@ import { PageTransition } from './components/shared/GSAPAnimations';
 import { useThemeStore } from './stores/theme.store';
 import { resolveComponent, routeConfigs } from './utils/route-resolver';
 
-const appName = import.meta.env.VITE_APP_NAME || 'TurfMate';
+const appName = import.meta.env.VITE_APP_NAME || 'TurfHub';
 
 // Preload Afro-grunge fonts for better performance
 const preloadFonts = () => {

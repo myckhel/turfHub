@@ -7,7 +7,7 @@ export const API_CONFIG = {
 
 // App Configuration
 export const APP_CONFIG = {
-  NAME: import.meta.env.VITE_APP_NAME || 'TurfMate',
+  NAME: import.meta.env.VITE_APP_NAME || 'TurfHub',
   VERSION: import.meta.env.VITE_APP_VERSION || '1.0.0',
   ENV: import.meta.env.MODE || 'development',
   DEBUG: import.meta.env.DEV || false,

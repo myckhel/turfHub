@@ -45,6 +45,7 @@ class Turf extends Model implements Wallet
     return [
       'requires_membership' => 'boolean',
       'membership_fee' => 'decimal:2',
+      'max_players_per_team' => 'integer',
       'team_slot_fee' => 'decimal:2',
       'is_active' => 'boolean',
       'settings' => 'array',
@@ -227,7 +228,7 @@ class Turf extends Model implements Wallet
     $settings = $this->getSettings();
     $paymentMethods = $settings['payment_methods'] ?? [];
 
-    return match($method) {
+    return match ($method) {
       'cash', 'offline' => $paymentMethods['cash_enabled'] ?? false,
       'wallet' => $paymentMethods['wallet_enabled'] ?? false,
       'online', 'paystack' => $paymentMethods['online_enabled'] ?? false,

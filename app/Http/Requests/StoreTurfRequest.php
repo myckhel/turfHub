@@ -29,7 +29,7 @@ class StoreTurfRequest extends FormRequest
       'requires_membership' => ['boolean'],
       'membership_fee' => ['nullable', 'numeric', 'min:0'],
       'membership_type' => ['nullable', 'string', 'max:100'],
-      'max_players_per_team' => ['required', 'integer', 'min:1', 'max:15'],
+      'max_players_per_team' => ['required', 'integer', 'min:1', 'max:100'],
       'team_slot_fee' => ['nullable', 'numeric', 'min:0'],
       'is_active' => ['boolean'],
     ];

@@ -55,6 +55,36 @@ export const useTurfStore = create<TurfSwitcherState & TurfSwitcherActions>()(
           }
         },
 
+        addTurf: (turf) =>
+          set(
+            (state) => ({
+              belongingTurfs: [turf, ...state.belongingTurfs],
+              selectedTurf: turf,
+            }),
+            false,
+            'turf/addTurf',
+          ),
+
+        updateTurf: (turf) =>
+          set(
+            (state) => ({
+              belongingTurfs: state.belongingTurfs.map((t) => (t.id === turf.id ? turf : t)),
+              selectedTurf: state.selectedTurf?.id === turf.id ? turf : state.selectedTurf,
+            }),
+            false,
+            'turf/updateTurf',
+          ),
+
+        removeTurf: (turfId) =>
+          set(
+            (state) => ({
+              belongingTurfs: state.belongingTurfs.filter((t) => t.id !== turfId),
+              selectedTurf: state.selectedTurf?.id === turfId ? null : state.selectedTurf,
+            }),
+            false,
+            'turf/removeTurf',
+          ),
+
         clearTurfData: () =>
           set(
             {

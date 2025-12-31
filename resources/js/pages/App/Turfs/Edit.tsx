@@ -4,6 +4,7 @@ import { Button, Card, Form, Input, InputNumber, message, Select, Switch, Typogr
 import React, { useEffect, useState } from 'react';
 import { turfApi } from '../../../apis/turf';
 import { useAuth } from '../../../hooks/useAuth';
+import { useTurfStore } from '../../../stores/turf.store';
 import type { Turf } from '../../../types/turf.types';
 
 const { Title, Text } = Typography;
@@ -27,6 +28,7 @@ interface TurfFormData {
 
 const TurfEdit: React.FC<TurfEditProps> = ({ turf }) => {
   const { user } = useAuth();
+  const { updateTurf, removeTurf } = useTurfStore();
   const [form] = Form.useForm<TurfFormData>();
   const [loading, setLoading] = useState(false);
   const [requiresMembership, setRequiresMembership] = useState(turf.requires_membership);
@@ -51,7 +53,7 @@ const TurfEdit: React.FC<TurfEditProps> = ({ turf }) => {
       requires_membership: turf.requires_membership,
       membership_fee: turf.membership_fee,
       membership_type: turf.membership_type || 'monthly',
-      team_slot_fee: turf.team_slot_fee,
+      team_slot_fee: parseFloat(turf.team_slot_fee + ''),
       max_players_per_team: turf.max_players_per_team,
       is_active: turf.is_active,
     });
@@ -72,7 +74,12 @@ const TurfEdit: React.FC<TurfEditProps> = ({ turf }) => {
         team_slot_fee: hasTeamSlotFee ? values.team_slot_fee : undefined,
       };
 
-      await turfApi.update(turf.id, turfData);
+      const response = await turfApi.update(turf.id, turfData);
+
+      // Update store immediately for real-time updates
+      if (response.data) {
+        updateTurf(response.data);
+      }
 
       message.success('Turf updated successfully!');
       router.visit(route('web.turfs.show', { turf: turf.id }));
@@ -96,6 +103,10 @@ const TurfEdit: React.FC<TurfEditProps> = ({ turf }) => {
 
     try {
       await turfApi.delete(turf.id);
+
+      // Remove from store immediately
+      removeTurf(turf.id);
+
       message.success('Turf deleted successfully');
       router.visit(route('web.turfs.index'));
     } catch (error) {

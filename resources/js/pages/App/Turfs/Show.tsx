@@ -61,7 +61,12 @@ const TurfDetail: React.FC<TurfDetailProps> = ({ turf }) => {
   const isMember = belongingTurfs.some((t) => t.id === turf.id);
   const isSelected = selectedTurf?.id === turf.id;
   const isOwner = turf.owner_id === user?.id;
-  const canViewTurfWallet = isOwner || turfPermissions.isOwner || canManageTurfPayments();
+
+  // Authorization checks: components requiring selected turf context
+  const isViewingSelectedTurf = selectedTurf?.id === turf.id;
+  const canViewTurfWallet = isViewingSelectedTurf && (isOwner || turfPermissions.isOwner || canManageTurfPayments());
+  const canManageBetting = isViewingSelectedTurf && isOwner;
+  const canCreateMatchSessions = isViewingSelectedTurf && (isOwner || turfPermissions.canManageSessions);
 
   const handleJoinTurf = async () => {
     if (!user) {
@@ -286,42 +291,66 @@ const TurfDetail: React.FC<TurfDetailProps> = ({ turf }) => {
 
   const renderMatchSessionsTab = () => (
     <div className="space-y-6">
-      <MatchSessionList turfId={turf.id} showCreateButton={true} maxHeight={500} />
+      <MatchSessionList turfId={turf.id} showCreateButton={canCreateMatchSessions} maxHeight={500} />
     </div>
   );
 
-  const renderWalletTab = () => (
-    <div className="space-y-6">
-      {/* Wallet Overview */}
-      <WalletOverview turfId={turf.id} showActions={canViewTurfWallet} compact={false} />
+  const renderWalletTab = () => {
+    if (!canViewTurfWallet) {
+      return (
+        <div className="py-12 text-center">
+          <Typography.Text type="secondary">
+            {!isViewingSelectedTurf
+              ? 'You need to select this turf as your current turf to view wallet information.'
+              : 'You do not have permission to view wallet information for this turf.'}
+          </Typography.Text>
+        </div>
+      );
+    }
 
-      {/* Bank Accounts for turf wallet withdrawals */}
-      {canViewTurfWallet && <BankAccountList turfId={turf.id} showActions={true} compact={false} />}
+    return (
+      <div className="space-y-6">
+        {/* Wallet Overview */}
+        <WalletOverview turfId={turf.id} showActions={canViewTurfWallet} compact={false} />
 
-      {/* Transaction History */}
-      <TransactionHistory turfId={turf.id} showFilters={true} compact={false} initialLimit={20} />
-    </div>
-  );
+        {/* Bank Accounts for turf wallet withdrawals */}
+        {canViewTurfWallet && <BankAccountList turfId={turf.id} showActions={true} compact={false} />}
 
-  const renderBettingTab = () => (
-    <div className="space-y-6">
-      {/* Betting Analytics Overview */}
-      <BettingAnalytics turfId={turf.id} />
+        {/* Transaction History */}
+        <TransactionHistory turfId={turf.id} showFilters={true} compact={false} initialLimit={20} />
+      </div>
+    );
+  };
 
-      {/* Note: Betting markets are now managed directly from individual game matches */}
-      <Card variant="outlined" className="py-8 text-center">
-        <Typography.Title level={4} className="mb-2">
-          Betting Market Management
-        </Typography.Title>
-        <Typography.Text type="secondary" className="mb-4 block">
-          Betting markets are now managed directly from individual game matches.
-        </Typography.Text>
-        <Typography.Text type="secondary" className="text-sm">
-          Go to Match Sessions → View a session → Enable betting on upcoming matches → Manage markets
-        </Typography.Text>
-      </Card>
-    </div>
-  );
+  const renderBettingTab = () => {
+    if (!canManageBetting) {
+      return (
+        <div className="py-12 text-center">
+          <Typography.Text type="secondary">You need to be the owner of this turf and have it selected to view betting analytics.</Typography.Text>
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-6">
+        {/* Betting Analytics Overview */}
+        <BettingAnalytics turfId={turf.id} />
+
+        {/* Note: Betting markets are now managed directly from individual game matches */}
+        <Card variant="outlined" className="py-8 text-center">
+          <Typography.Title level={4} className="mb-2">
+            Betting Market Management
+          </Typography.Title>
+          <Typography.Text type="secondary" className="mb-4 block">
+            Betting markets are now managed directly from individual game matches.
+          </Typography.Text>
+          <Typography.Text type="secondary" className="text-sm">
+            Go to Match Sessions → View a session → Enable betting on upcoming matches → Manage markets
+          </Typography.Text>
+        </Card>
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen">
@@ -467,7 +496,7 @@ const TurfDetail: React.FC<TurfDetailProps> = ({ turf }) => {
                 ),
                 children: renderMatchSessionsTab(),
               },
-              ...(canViewTurfWallet
+              ...(isOwner || turfPermissions.isOwner || canManageTurfPayments()
                 ? [
                     {
                       key: 'wallet',
@@ -481,7 +510,7 @@ const TurfDetail: React.FC<TurfDetailProps> = ({ turf }) => {
                     },
                   ]
                 : []),
-              ...(isOwner
+              ...(canManageBetting
                 ? [
                     {
                       key: 'betting',

@@ -178,10 +178,10 @@ const TurfEdit: React.FC<TurfEditProps> = ({ turf }) => {
                 name="max_players_per_team"
                 rules={[
                   { required: true, message: 'Please enter maximum players per team' },
-                  { type: 'number', min: 1, max: 15, message: 'Must be between 1 and 15 players' },
+                  { type: 'number', min: 1, max: 100, message: 'Must be between 1 and 100 players' },
                 ]}
               >
-                <InputNumber prefix={<TeamOutlined />} placeholder="11" size="large" min={1} max={15} className="w-full" />
+                <InputNumber prefix={<TeamOutlined />} placeholder="11" size="large" min={1} max={100} className="w-full" />
               </Form.Item>
 
               <Form.Item label="Turf Status" name="is_active" valuePropName="checked">

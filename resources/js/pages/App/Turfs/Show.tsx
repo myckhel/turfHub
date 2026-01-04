@@ -3,6 +3,7 @@ import {
   CheckCircleOutlined,
   CloseCircleOutlined,
   CrownOutlined,
+  DeleteOutlined,
   DollarOutlined,
   EditOutlined,
   EnvironmentOutlined,
@@ -12,7 +13,7 @@ import {
   UserOutlined,
 } from '@ant-design/icons';
 import { router } from '@inertiajs/react';
-import { Avatar, Descriptions, Divider, message, Tabs, Tag, Typography } from 'antd';
+import { App, Avatar, Descriptions, Divider, message, Tabs, Tag, Typography } from 'antd';
 import React, { useState } from 'react';
 
 import { turfApi } from '@/apis/turf';
@@ -54,8 +55,10 @@ const TurfDetail: React.FC<TurfDetailProps> = ({ turf }) => {
   const { user } = useAuth();
   const { selectedTurf, setSelectedTurf, belongingTurfs, fetchBelongingTurfs } = useTurfStore();
   const { canManageTurfPayments, turfPermissions } = usePermissions();
+  const { modal } = App.useApp();
 
   const [loading, setLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
 
   const isMember = belongingTurfs.some((t) => t.id === turf.id);
@@ -131,6 +134,50 @@ const TurfDetail: React.FC<TurfDetailProps> = ({ turf }) => {
       setSelectedTurf(turf);
       message.success(`Selected ${turf.name} as your current turf`);
     }
+  };
+
+  const handleDeleteTurf = () => {
+    modal.confirm({
+      title: 'Delete Turf',
+      content: (
+        <div>
+          <p>
+            Are you sure you want to delete <strong>{turf.name}</strong>?
+          </p>
+          <p className="mt-2 text-red-600">
+            This action cannot be undone. All associated data including match sessions, teams, and player records will be permanently deleted.
+          </p>
+        </div>
+      ),
+      okText: 'Delete',
+      okType: 'danger',
+      cancelText: 'Cancel',
+      onOk: async () => {
+        setDeleteLoading(true);
+        try {
+          await turfApi.delete(turf.id);
+          message.success(`Successfully deleted ${turf.name}`);
+
+          // If this was the selected turf, unselect it
+          if (isSelected) {
+            setSelectedTurf(null);
+          }
+
+          // Refresh belonging turfs if user was owner
+          if (user) {
+            await fetchBelongingTurfs(user.id);
+          }
+
+          // Navigate back to turfs list
+          router.visit(route('web.turfs.index'));
+        } catch (error) {
+          console.error('Delete turf failed:', error);
+          message.error(error instanceof Error ? error.message : 'Failed to delete turf');
+        } finally {
+          setDeleteLoading(false);
+        }
+      },
+    });
   };
 
   const renderOverviewTab = () => (
@@ -410,15 +457,28 @@ const TurfDetail: React.FC<TurfDetailProps> = ({ turf }) => {
             {/* Action Buttons */}
             <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
               {isOwner ? (
-                <Button
-                  variant="primary"
-                  size="large"
-                  icon={<EditOutlined />}
-                  onClick={() => router.visit(route('web.turfs.edit', { turf: turf.id }))}
-                  className="w-full sm:w-auto"
-                >
-                  Edit Turf
-                </Button>
+                <>
+                  <Button
+                    variant="primary"
+                    size="large"
+                    icon={<EditOutlined />}
+                    onClick={() => router.visit(route('web.turfs.edit', { turf: turf.id }))}
+                    className="w-full sm:w-auto"
+                  >
+                    Edit Turf
+                  </Button>
+                  <Button
+                    danger
+                    size="large"
+                    icon={<DeleteOutlined />}
+                    loading={deleteLoading}
+                    onClick={handleDeleteTurf}
+                    className="w-full sm:w-auto"
+                  >
+                    <span className="hidden sm:inline">Delete Turf</span>
+                    <span className="sm:hidden">Delete</span>
+                  </Button>
+                </>
               ) : (
                 <>
                   {isMember ? (

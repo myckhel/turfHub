@@ -5,7 +5,7 @@ import React, { forwardRef, useRef } from 'react';
 import { useTheme } from '../../hooks/useTheme';
 
 interface TurfButtonProps extends Omit<AntButtonProps, 'type' | 'size' | 'variant'> {
-  /** Button variant following TurfMate design system */
+  /** Button variant following TurfHub design system */
   variant?: 'primary' | 'secondary' | 'accent' | 'ghost' | 'danger' | 'success';
   /** Mobile-optimized sizes */
   size?: 'small' | 'medium' | 'large' | 'touch';

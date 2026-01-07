@@ -1,4 +1,4 @@
-Below is a practical, senior-level plan to design a **flexible tournament engine** for TurfMate that can model *any* tournament shape: multi-stage, group/league/knockout, qualifiers, manual/auto fixtures, custom scoring, and promotion rules. The plan is implementation-friendly (Laravel + Inertia patterns in mind) but framework-agnostic.
+Below is a practical, senior-level plan to design a **flexible tournament engine** for TurfHub that can model *any* tournament shape: multi-stage, group/league/knockout, qualifiers, manual/auto fixtures, custom scoring, and promotion rules. The plan is implementation-friendly (Laravel + Inertia patterns in mind) but framework-agnostic.
 
 # Principles (high level)
 

@@ -1,4 +1,4 @@
-import { ArrowLeftOutlined, BellOutlined, LogoutOutlined, MenuOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, BellOutlined, LogoutOutlined, MenuOutlined, UserOutlined } from '@ant-design/icons';
 import { Link } from '@inertiajs/react';
 import { Avatar, Badge, Button, Dropdown, Layout, MenuProps } from 'antd';
 import { memo } from 'react';
@@ -25,12 +25,7 @@ export const LayoutHeader = memo<LayoutHeaderProps>(({ showBackButton = false, o
     {
       key: 'profile',
       icon: <UserOutlined />,
-      label: <Link href={route('dashboard')}>Profile</Link>,
-    },
-    {
-      key: 'settings',
-      icon: <SettingOutlined />,
-      label: <Link href={route('dashboard')}>Settings</Link>,
+      label: <Link href={route('profile.edit')}>Profile</Link>,
     },
     { type: 'divider' },
     {

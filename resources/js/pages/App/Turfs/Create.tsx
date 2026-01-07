@@ -4,6 +4,7 @@ import { Button, Card, Form, Input, InputNumber, message, Select, Switch, Typogr
 import React, { useState } from 'react';
 import { turfApi } from '../../../apis/turf';
 import { useAuth } from '../../../hooks/useAuth';
+import { useTurfStore } from '../../../stores/turf.store';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -22,6 +23,7 @@ interface TurfFormData {
 
 const TurfCreate: React.FC = () => {
   const { user } = useAuth();
+  const { addTurf } = useTurfStore();
   const [form] = Form.useForm<TurfFormData>();
   const [loading, setLoading] = useState(false);
   const [requiresMembership, setRequiresMembership] = useState(false);
@@ -44,6 +46,9 @@ const TurfCreate: React.FC = () => {
       };
 
       const response = await turfApi.create(turfData);
+
+      // Add to store immediately for real-time updates
+      addTurf(response);
 
       message.success('Turf created successfully!');
       router.visit(route('web.turfs.show', { turf: response.id }));
@@ -131,10 +136,10 @@ const TurfCreate: React.FC = () => {
                 name="max_players_per_team"
                 rules={[
                   { required: true, message: 'Please enter maximum players per team' },
-                  { type: 'number', min: 1, max: 15, message: 'Must be between 1 and 15 players' },
+                  { type: 'number', min: 1, max: 100, message: 'Must be between 1 and 100 players' },
                 ]}
               >
-                <InputNumber prefix={<TeamOutlined />} placeholder="11" size="large" min={1} max={15} className="w-full" />
+                <InputNumber prefix={<TeamOutlined />} placeholder="11" size="large" min={1} max={100} className="w-full" />
               </Form.Item>
 
               <Form.Item label="Turf Status" name="is_active" valuePropName="checked">

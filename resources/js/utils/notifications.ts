@@ -1,5 +1,5 @@
 /**
- * PWA Notification utilities for TurfMate
+ * PWA Notification utilities for TurfHub
  * Handles push notifications, permission requests, and mobile-optimized notifications
  */
 

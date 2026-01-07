@@ -72,7 +72,7 @@ class MatchSession extends Model
    */
   public function sessionPlayer(): HasOneThrough
   {
-    return $this->hasOneThrough(Player::class, Team::class)->where('player.user_id', auth()->id);
+    return $this->hasOneThrough(TeamPlayer::class, Team::class);
   }
 
   /**

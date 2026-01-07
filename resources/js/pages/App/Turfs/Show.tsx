@@ -3,6 +3,7 @@ import {
   CheckCircleOutlined,
   CloseCircleOutlined,
   CrownOutlined,
+  DeleteOutlined,
   DollarOutlined,
   EditOutlined,
   EnvironmentOutlined,
@@ -12,7 +13,7 @@ import {
   UserOutlined,
 } from '@ant-design/icons';
 import { router } from '@inertiajs/react';
-import { Avatar, Descriptions, Divider, message, Tabs, Tag, Typography } from 'antd';
+import { App, Avatar, Descriptions, Divider, message, Tabs, Tag, Typography } from 'antd';
 import React, { useState } from 'react';
 
 import { turfApi } from '@/apis/turf';
@@ -54,14 +55,21 @@ const TurfDetail: React.FC<TurfDetailProps> = ({ turf }) => {
   const { user } = useAuth();
   const { selectedTurf, setSelectedTurf, belongingTurfs, fetchBelongingTurfs } = useTurfStore();
   const { canManageTurfPayments, turfPermissions } = usePermissions();
+  const { modal } = App.useApp();
 
   const [loading, setLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
 
   const isMember = belongingTurfs.some((t) => t.id === turf.id);
   const isSelected = selectedTurf?.id === turf.id;
   const isOwner = turf.owner_id === user?.id;
-  const canViewTurfWallet = isOwner || turfPermissions.isOwner || canManageTurfPayments();
+
+  // Authorization checks: components requiring selected turf context
+  const isViewingSelectedTurf = selectedTurf?.id === turf.id;
+  const canViewTurfWallet = isViewingSelectedTurf && (isOwner || turfPermissions.isOwner || canManageTurfPayments());
+  const canManageBetting = isViewingSelectedTurf && isOwner;
+  const canCreateMatchSessions = isViewingSelectedTurf && (isOwner || turfPermissions.canManageSessions);
 
   const handleJoinTurf = async () => {
     if (!user) {
@@ -126,6 +134,50 @@ const TurfDetail: React.FC<TurfDetailProps> = ({ turf }) => {
       setSelectedTurf(turf);
       message.success(`Selected ${turf.name} as your current turf`);
     }
+  };
+
+  const handleDeleteTurf = () => {
+    modal.confirm({
+      title: 'Delete Turf',
+      content: (
+        <div>
+          <p>
+            Are you sure you want to delete <strong>{turf.name}</strong>?
+          </p>
+          <p className="mt-2 text-red-600">
+            This action cannot be undone. All associated data including match sessions, teams, and player records will be permanently deleted.
+          </p>
+        </div>
+      ),
+      okText: 'Delete',
+      okType: 'danger',
+      cancelText: 'Cancel',
+      onOk: async () => {
+        setDeleteLoading(true);
+        try {
+          await turfApi.delete(turf.id);
+          message.success(`Successfully deleted ${turf.name}`);
+
+          // If this was the selected turf, unselect it
+          if (isSelected) {
+            setSelectedTurf(null);
+          }
+
+          // Refresh belonging turfs if user was owner
+          if (user) {
+            await fetchBelongingTurfs(user.id);
+          }
+
+          // Navigate back to turfs list
+          router.visit(route('web.turfs.index'));
+        } catch (error) {
+          console.error('Delete turf failed:', error);
+          message.error(error instanceof Error ? error.message : 'Failed to delete turf');
+        } finally {
+          setDeleteLoading(false);
+        }
+      },
+    });
   };
 
   const renderOverviewTab = () => (
@@ -286,42 +338,66 @@ const TurfDetail: React.FC<TurfDetailProps> = ({ turf }) => {
 
   const renderMatchSessionsTab = () => (
     <div className="space-y-6">
-      <MatchSessionList turfId={turf.id} showCreateButton={true} maxHeight={500} />
+      <MatchSessionList turfId={turf.id} showCreateButton={canCreateMatchSessions} maxHeight={500} />
     </div>
   );
 
-  const renderWalletTab = () => (
-    <div className="space-y-6">
-      {/* Wallet Overview */}
-      <WalletOverview turfId={turf.id} showActions={canViewTurfWallet} compact={false} />
+  const renderWalletTab = () => {
+    if (!canViewTurfWallet) {
+      return (
+        <div className="py-12 text-center">
+          <Typography.Text type="secondary">
+            {!isViewingSelectedTurf
+              ? 'You need to select this turf as your current turf to view wallet information.'
+              : 'You do not have permission to view wallet information for this turf.'}
+          </Typography.Text>
+        </div>
+      );
+    }
 
-      {/* Bank Accounts for turf wallet withdrawals */}
-      {canViewTurfWallet && <BankAccountList turfId={turf.id} showActions={true} compact={false} />}
+    return (
+      <div className="space-y-6">
+        {/* Wallet Overview */}
+        <WalletOverview turfId={turf.id} showActions={canViewTurfWallet} compact={false} />
 
-      {/* Transaction History */}
-      <TransactionHistory turfId={turf.id} showFilters={true} compact={false} initialLimit={20} />
-    </div>
-  );
+        {/* Bank Accounts for turf wallet withdrawals */}
+        {canViewTurfWallet && <BankAccountList turfId={turf.id} showActions={true} compact={false} />}
 
-  const renderBettingTab = () => (
-    <div className="space-y-6">
-      {/* Betting Analytics Overview */}
-      <BettingAnalytics turfId={turf.id} />
+        {/* Transaction History */}
+        <TransactionHistory turfId={turf.id} showFilters={true} compact={false} initialLimit={20} />
+      </div>
+    );
+  };
 
-      {/* Note: Betting markets are now managed directly from individual game matches */}
-      <Card variant="outlined" className="py-8 text-center">
-        <Typography.Title level={4} className="mb-2">
-          Betting Market Management
-        </Typography.Title>
-        <Typography.Text type="secondary" className="mb-4 block">
-          Betting markets are now managed directly from individual game matches.
-        </Typography.Text>
-        <Typography.Text type="secondary" className="text-sm">
-          Go to Match Sessions → View a session → Enable betting on upcoming matches → Manage markets
-        </Typography.Text>
-      </Card>
-    </div>
-  );
+  const renderBettingTab = () => {
+    if (!canManageBetting) {
+      return (
+        <div className="py-12 text-center">
+          <Typography.Text type="secondary">You need to be the owner of this turf and have it selected to view betting analytics.</Typography.Text>
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-6">
+        {/* Betting Analytics Overview */}
+        <BettingAnalytics turfId={turf.id} />
+
+        {/* Note: Betting markets are now managed directly from individual game matches */}
+        <Card variant="outlined" className="py-8 text-center">
+          <Typography.Title level={4} className="mb-2">
+            Betting Market Management
+          </Typography.Title>
+          <Typography.Text type="secondary" className="mb-4 block">
+            Betting markets are now managed directly from individual game matches.
+          </Typography.Text>
+          <Typography.Text type="secondary" className="text-sm">
+            Go to Match Sessions → View a session → Enable betting on upcoming matches → Manage markets
+          </Typography.Text>
+        </Card>
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen">
@@ -381,15 +457,28 @@ const TurfDetail: React.FC<TurfDetailProps> = ({ turf }) => {
             {/* Action Buttons */}
             <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
               {isOwner ? (
-                <Button
-                  variant="primary"
-                  size="large"
-                  icon={<EditOutlined />}
-                  onClick={() => router.visit(route('web.turfs.edit', { turf: turf.id }))}
-                  className="w-full sm:w-auto"
-                >
-                  Edit Turf
-                </Button>
+                <>
+                  <Button
+                    variant="primary"
+                    size="large"
+                    icon={<EditOutlined />}
+                    onClick={() => router.visit(route('web.turfs.edit', { turf: turf.id }))}
+                    className="w-full sm:w-auto"
+                  >
+                    Edit Turf
+                  </Button>
+                  <Button
+                    danger
+                    size="large"
+                    icon={<DeleteOutlined />}
+                    loading={deleteLoading}
+                    onClick={handleDeleteTurf}
+                    className="w-full sm:w-auto"
+                  >
+                    <span className="hidden sm:inline">Delete Turf</span>
+                    <span className="sm:hidden">Delete</span>
+                  </Button>
+                </>
               ) : (
                 <>
                   {isMember ? (
@@ -467,7 +556,7 @@ const TurfDetail: React.FC<TurfDetailProps> = ({ turf }) => {
                 ),
                 children: renderMatchSessionsTab(),
               },
-              ...(canViewTurfWallet
+              ...(isOwner || turfPermissions.isOwner || canManageTurfPayments()
                 ? [
                     {
                       key: 'wallet',
@@ -481,7 +570,7 @@ const TurfDetail: React.FC<TurfDetailProps> = ({ turf }) => {
                     },
                   ]
                 : []),
-              ...(isOwner
+              ...(canManageBetting
                 ? [
                     {
                       key: 'betting',

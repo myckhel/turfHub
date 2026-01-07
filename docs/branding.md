@@ -7,9 +7,9 @@
 
 Short, punchy, relatable, and reflective of your local + sporty + smart vibe:
 
-| Name         | Meaning                                                       |
-| ------------ | ------------------------------------------------------------- |
-| **TurfMate** | Like a teammate, but turf-based. Friendly, mobile-first vibe. |
+| Name        | Meaning                                                       |
+| ----------- | ------------------------------------------------------------- |
+| **TurfHub** | Like a teammate, but turf-based. Friendly, mobile-first vibe. |
 
 > 🔥 **Top Picks**:
 

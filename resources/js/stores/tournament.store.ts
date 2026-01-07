@@ -312,9 +312,9 @@ export const useTournamentStore = create<TournamentStore>()(
       fetchTournamentTeams: async (tournamentId, params) => {
         set({ isLoadingTournamentTeams: true });
         try {
-          const response = await tournamentApi.getTeams(tournamentId, params);
+          const { data } = await tournamentApi.getTeams(tournamentId, params);
           set({
-            tournamentTeams: (response as StageTeam[]) || [],
+            tournamentTeams: (data as StageTeam[]) || [],
             isLoadingTournamentTeams: false,
           });
         } catch (error) {

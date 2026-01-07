@@ -1,6 +1,6 @@
-# TurfMate Theme System 🎨
+# TurfHub Theme System 🎨
 
-A comprehensive, mobile-first theme system for **TurfMate** - the progressive web app for mini football turf sessions.
+A comprehensive, mobile-first theme system for **TurfHub** - the progressive web app for mini football turf sessions.
 
 ## 🚀 Quick Start
 
@@ -10,7 +10,7 @@ import { AppLayout, MobileLayout, useTheme, TurfButton } from './resources/js';
 function App() {
   return (
     <AppLayout>
-      <MobileLayout activeTab="home" title="TurfMate">
+      <MobileLayout activeTab="home" title="TurfHub">
         <TurfButton variant="primary">Queue. Play. Win. Repeat.</TurfButton>
       </MobileLayout>
     </AppLayout>

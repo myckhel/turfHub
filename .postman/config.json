@@ -4,11 +4,11 @@
   },
   "entities": {
     "collections": [
-      "../postman/collections/TurfMate API Collection.postman_collection.json"
+      "../postman/collections/TurfHub API Collection.postman_collection.json"
     ],
     "environments": [
-      "../postman/environments/TurfMate Development.postman_environment.json",
-      "../postman/environments/TurfMate Production.postman_environment.json"
+      "../postman/environments/TurfHub Development.postman_environment.json",
+      "../postman/environments/TurfHub Production.postman_environment.json"
     ],
     "specs": [],
     "flows": [],

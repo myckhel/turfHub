@@ -62,6 +62,9 @@ export interface TurfSwitcherActions {
   setError: (error: string | null) => void;
   fetchBelongingTurfs: (userId: number) => Promise<void>;
   autoSelectFirstTurf: () => void;
+  addTurf: (turf: Turf) => void;
+  updateTurf: (turf: Turf) => void;
+  removeTurf: (turfId: number) => void;
   clearTurfData: () => void;
 }
 

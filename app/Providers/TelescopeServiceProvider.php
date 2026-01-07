@@ -29,7 +29,7 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
         $entry->hasMonitoredTag();
     });
 
-    // Add custom tags for TurfMate specific entries
+    // Add custom tags for TurfHub specific entries
     Telescope::tag(function (IncomingEntry $entry) {
       $tags = [];
 

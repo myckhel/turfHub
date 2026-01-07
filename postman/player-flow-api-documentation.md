@@ -74,7 +74,7 @@ Each endpoint includes:
 ### 📚 Documentation Updates
 
 #### Files Updated:
-1. **`TurfMate-API-Collection.json`** - Main collection with new endpoints
+1. **`TurfHub-API-Collection.json`** - Main collection with new endpoints
 2. **`SUMMARY.md`** - Updated with player flow section
 3. **`README.md`** - Enhanced API coverage documentation
 

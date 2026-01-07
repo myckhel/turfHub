@@ -2,7 +2,7 @@
 
 ## Overview
 
-The TurfMate tournament system enables turf owners and administrators to create and manage complex multi-stage tournaments or simple single-session competitions. This guide covers everything you need to know to set up and run successful tournaments.
+The TurfHub tournament system enables turf owners and administrators to create and manage complex multi-stage tournaments or simple single-session competitions. This guide covers everything you need to know to set up and run successful tournaments.
 
 ## Table of Contents
 

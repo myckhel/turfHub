@@ -35,12 +35,21 @@ class BettingPaymentService
     DB::beginTransaction();
 
     try {
-      return match ($paymentMethod) {
+      $result = match ($paymentMethod) {
         Bet::PAYMENT_WALLET => $this->processWalletPayment($bet),
         Bet::PAYMENT_OFFLINE => $this->processOfflinePayment($bet),
         Bet::PAYMENT_ONLINE => $this->processOnlinePayment($bet, $paymentReference),
         default => throw new \Exception("Invalid payment method: {$paymentMethod}")
       };
+
+      // Commit the transaction only if the result indicates success
+      if ($result['status']) {
+        DB::commit();
+      } else {
+        DB::rollBack();
+      }
+
+      return $result;
     } catch (\Exception $e) {
       DB::rollBack();
       Log::error('Betting payment processing failed', [
@@ -110,7 +119,6 @@ class BettingPaymentService
       );
 
       if (!$transferResult['success']) {
-        DB::rollBack();
         return [
           'status' => false,
           'message' => $transferResult['message'],
@@ -125,8 +133,6 @@ class BettingPaymentService
         'status' => Bet::STATUS_ACTIVE,
         'payment_reference' => $transferResult['payment']->reference,
       ]);
-
-      DB::commit();
 
       return [
         'status' => true,
@@ -155,8 +161,6 @@ class BettingPaymentService
       'payment_status' => Bet::PAYMENT_PENDING,
       'status' => Bet::STATUS_PENDING,
     ]);
-
-    DB::commit();
 
     return [
       'status' => true,
@@ -207,8 +211,6 @@ class BettingPaymentService
       'payment_status' => Bet::PAYMENT_PENDING,
     ]);
 
-    DB::commit();
-
     return [
       'status' => true,
       'message' => 'Payment initialized successfully.',
@@ -253,8 +255,6 @@ class BettingPaymentService
       'status' => Bet::STATUS_ACTIVE,
       'payment_metadata' => $paymentData,
     ]);
-
-    DB::commit();
 
     return [
       'status' => true,

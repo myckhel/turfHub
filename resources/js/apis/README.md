@@ -1,6 +1,6 @@
-# TurfMate API Client
+# TurfHub API Client
 
-This directory contains the API client configuration and endpoints for the TurfMate application.
+This directory contains the API client configuration and endpoints for the TurfHub application.
 
 ## Structure
 

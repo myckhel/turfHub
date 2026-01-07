@@ -25,7 +25,7 @@ interface SidebarMenuProps {
 }
 
 export const SidebarMenu = memo<SidebarMenuProps>(({ onClick, mode = 'inline', theme = 'dark', className = '', style }) => {
-  const { isTurfPlayer, isTurfManager, isTurfAdmin, isTurfOwner, canAccessSuperAdmin } = usePermissions();
+  const { isTurfManager, isTurfAdmin, isTurfOwner, canAccessSuperAdmin } = usePermissions();
   const { selectedTurf } = useTurfStore();
 
   const getMenuItems = (): MenuProps['items'] => {
@@ -86,21 +86,7 @@ export const SidebarMenu = memo<SidebarMenuProps>(({ onClick, mode = 'inline', t
       );
     }
 
-    if (isTurfPlayer()) {
-      items.push({
-        key: 'matches',
-        icon: <TrophyOutlined />,
-        label: <Link href={route('dashboard')}>My Matches</Link>,
-      });
-    }
-
     if (isTurfManager() || isTurfAdmin() || isTurfOwner()) {
-      items.push({
-        key: 'reports',
-        icon: <TrophyOutlined />,
-        label: <Link href={route('dashboard')}>Reports</Link>,
-      });
-
       // Add management items for turf managers/admins if they have a selected turf
       if (selectedTurf) {
         items.push({

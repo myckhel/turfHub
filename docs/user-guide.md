@@ -1,7 +1,7 @@
-# TurfMate User Guide
+# TurfHub User Guide
 
 ## Introduction
-TurfMate is a digital platform designed to streamline mini football match sessions for both players and turf managers. This guide covers the main features, user flows, and how to get started.
+TurfHub is a digital platform designed to streamline mini football match sessions for both players and turf managers. This guide covers the main features, user flows, and how to get started.
 
 ---
 

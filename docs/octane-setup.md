@@ -1,8 +1,8 @@
-# Laravel Octane Setup Documentation for TurfMate
+# Laravel Octane Setup Documentation for TurfHub
 
 ## Overview
 
-Laravel Octane has been professionally configured for TurfMate using **FrankenPHP** as the application server. This setup provides significant performance improvements by keeping the application in memory and serving requests at high speed.
+Laravel Octane has been professionally configured for TurfHub using **FrankenPHP** as the application server. This setup provides significant performance improvements by keeping the application in memory and serving requests at high speed.
 
 ## 🚀 Performance Benefits
 
@@ -144,7 +144,7 @@ The health check endpoint (`/api/health`) provides:
 {
   "status": "ok",
   "timestamp": "2025-06-28T10:30:00.000Z",
-  "service": "TurfMate API",
+  "service": "TurfHub API",
   "version": "1.0.0",
   "octane": {
     "server": "frankenphp",
@@ -161,7 +161,7 @@ The health check endpoint (`/api/health`) provides:
 }
 ```
 
-## 🔧 Octane Best Practices for TurfMate
+## 🔧 Octane Best Practices for TurfHub
 
 ### Memory Management
 - **Avoid static variables** that accumulate data
@@ -262,9 +262,9 @@ php artisan tinker
 
 - [Laravel Octane Documentation](https://laravel.com/docs/octane)
 - [FrankenPHP Documentation](https://frankenphp.dev/)
-- [TurfMate Performance Guide](./performance-optimization.md)
+- [TurfHub Performance Guide](./performance-optimization.md)
 - [Production Deployment Guide](./production-deployment.md)
 
 ---
 
-**Note**: This setup is optimized for TurfMate's specific requirements including real-time match session management, PWA functionality, and high-performance API endpoints for mobile and web clients.
+**Note**: This setup is optimized for TurfHub's specific requirements including real-time match session management, PWA functionality, and high-performance API endpoints for mobile and web clients.

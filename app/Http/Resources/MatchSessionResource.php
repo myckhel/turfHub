@@ -30,7 +30,9 @@ class MatchSessionResource extends JsonResource
       'updated_at' => $this->updated_at,
 
       // Relationships (loaded when needed)
-      'is_session_player' => !!$this->whenLoaded('sessionPlayer'),
+      'is_session_player' => !!$this->sessionPlayer()->leftJoin('players', 'team_players.player_id', '=', 'players.id')
+        ->where('players.user_id', auth()->user()->id)
+        ->exists(),
       'turf' => new TurfResource($this->whenLoaded('turf')),
       'teams' => TeamResource::collection($this->whenLoaded('teams')),
       'game_matches' => GameMatchResource::collection($this->whenLoaded('gameMatches')),

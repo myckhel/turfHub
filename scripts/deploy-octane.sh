@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# TurfMate Octane Deployment Script
-# This script handles the deployment of TurfMate with Laravel Octane
+# TurfHub Octane Deployment Script
+# This script handles the deployment of TurfHub with Laravel Octane
 
 set -e
 
-echo "🚀 Starting TurfMate Octane Deployment..."
+echo "🚀 Starting TurfHub Octane Deployment..."
 
 # Configuration
 APP_DIR="/var/www/turfmate"
@@ -101,7 +101,7 @@ php artisan cache:clear
 print_status "Restarting queue workers..."
 php artisan queue:restart
 
-print_status "🎉 TurfMate deployment completed successfully!"
+print_status "🎉 TurfHub deployment completed successfully!"
 print_status "Server is running on http://127.0.0.1:$PORT"
 
 # Optional: Send deployment notification

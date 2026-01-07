@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 
-// TurfMate Brand Colors
+// TurfHub Brand Colors
 export const BRAND_COLORS = {
   // Primary Brand Colors
   turfGreen: '#1B5E20',

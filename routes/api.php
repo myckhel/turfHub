@@ -59,13 +59,16 @@ Route::prefix('auth')->name('api.')->group(function () {
 Route::middleware('auth:sanctum')->name('api.')->group(function () {
   // Auth routes
   Route::prefix('auth')->group(function () {
-    Route::get('/user', [AuthController::class, 'user']);
+    Route::get('/user', [AuthController::class, 'user'])->name('auth.user');
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/logout-all', [AuthController::class, 'logoutAll']);
     Route::post('/email/verification-notification', [AuthController::class, 'sendEmailVerification'])
       ->middleware('throttle:6,1');
     Route::post('/confirm-password', [AuthController::class, 'confirmPassword']);
   });
+
+  // User stats route
+  Route::get('user/stats', [UserController::class, 'stats'])->name('user.stats');
 
   // Legacy route for compatibility
   Route::get('/user', function (Request $request) {

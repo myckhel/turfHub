@@ -125,4 +125,45 @@ class UserService
 
     return $query->get();
   }
+
+  /**
+   * Get user statistics for profile display.
+   */
+  public function getUserStats(User $user): array
+  {
+    // Calculate total turfs the user is part of
+    $totalTurfs = $user->belongingTurfs()->count();
+
+    // Get player IDs for this user
+    $playerIds = $user->players()->pluck('id');
+
+    // Calculate total goals scored by the user using a single query
+    $totalGoals = \App\Models\MatchEvent::whereIn('player_id', $playerIds)
+      ->where('type', 'goal')
+      ->count();
+
+    // Calculate match statistics using a single optimized query
+    $matchStats = \App\Models\TeamPlayer::whereIn('player_id', $playerIds)
+      ->join('teams', 'team_players.team_id', '=', 'teams.id')
+      ->selectRaw('
+        COUNT(DISTINCT CASE WHEN gm1.id IS NOT NULL OR gm2.id IS NOT NULL THEN teams.id END) as total_matches,
+        SUM(teams.wins) as total_wins
+      ')
+      ->leftJoin('game_matches as gm1', 'teams.id', '=', 'gm1.first_team_id')
+      ->leftJoin('game_matches as gm2', 'teams.id', '=', 'gm2.second_team_id')
+      ->first();
+
+    $totalMatches = $matchStats->total_matches ?? 0;
+    $totalWins = $matchStats->total_wins ?? 0;
+
+    // Calculate win rate
+    $winRate = $totalMatches > 0 ? round(($totalWins / $totalMatches) * 100, 1) : 0;
+
+    return [
+      'total_matches' => (int) $totalMatches,
+      'total_turfs' => $totalTurfs,
+      'total_goals' => $totalGoals,
+      'win_rate' => $winRate,
+    ];
+  }
 }

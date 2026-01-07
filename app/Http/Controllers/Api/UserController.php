@@ -90,4 +90,15 @@ class UserController extends Controller
 
     return \App\Http\Resources\TurfResource::collection($turfs);
   }
+
+  /**
+   * Get statistics for the authenticated user's profile.
+   */
+  public function stats(Request $request): \Illuminate\Http\JsonResponse
+  {
+    $user = $request->user();
+    $stats = $this->userService->getUserStats($user);
+
+    return response()->json($stats);
+  }
 }

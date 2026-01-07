@@ -142,12 +142,12 @@ export const MobileHeader: React.FC<MobileHeaderProps> = ({
     {
       key: 'profile',
       label: 'View Profile',
-      onClick: () => router.visit(route('profile.show')),
+      onClick: () => router.visit(route('profile.edit')),
     },
     {
       key: 'settings',
       label: 'Settings',
-      onClick: () => router.visit(route('settings.index')),
+      onClick: () => router.visit(route('profile.edit')),
     },
     {
       type: 'divider' as const,

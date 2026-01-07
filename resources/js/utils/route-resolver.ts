@@ -27,6 +27,11 @@ export const routeConfigs: Record<string, RouteConfig> = {
     layout: 'dashboard',
   },
 
+  'app.profile': {
+    roles: ['player', 'manager', 'admin'],
+    layout: 'dashboard',
+  },
+
   // Turf routes
   'app.turfs.index': {
     roles: ['player', 'manager', 'admin'],

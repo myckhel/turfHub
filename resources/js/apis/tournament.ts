@@ -1,3 +1,4 @@
+import { TeamListResponse } from '../types/team.types';
 import type {
   AssignTeamsRequest,
   CreateStagePromotionRequest,
@@ -92,7 +93,7 @@ export const tournamentApi = {
   /**
    * Get teams for a tournament
    */
-  getTeams: async (tournamentId: number, params?: { include?: string; search?: string; per_page?: number }): Promise<unknown> => {
+  getTeams: async (tournamentId: number, params?: { include?: string; search?: string; per_page?: number }): Promise<TeamListResponse> => {
     return api.get(route('api.teams.index'), {
       params: { tournament_id: tournamentId, ...params },
     });

@@ -1,3 +1,5 @@
+import { PaginatedResponse } from './global.types';
+
 export interface TeamPlayer {
   id: number;
   player_id: number;
@@ -129,3 +131,5 @@ export interface AvailableTeamSlotsResponse {
   slot_fee: number;
   max_players_per_team: number;
 }
+
+export type TeamListResponse = PaginatedResponse<TeamDetails>;

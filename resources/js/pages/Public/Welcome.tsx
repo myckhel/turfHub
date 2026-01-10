@@ -1,3 +1,4 @@
+import { turfApi } from '@/apis/turf';
 import type { SharedData } from '@/types';
 import {
   CheckCircleOutlined,
@@ -13,10 +14,11 @@ import {
 } from '@ant-design/icons';
 import { useGSAP } from '@gsap/react';
 import { router, usePage } from '@inertiajs/react';
-import { Avatar, Button, Card, Col, Row, Space, Steps, Typography } from 'antd';
+import { Avatar, Button, Card, Col, Row, Skeleton, Space, Steps, Tag, Typography } from 'antd';
+import { format, isToday } from 'date-fns';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import React, { memo, useRef } from 'react';
+import React, { memo, startTransition, useEffect, useMemo, useRef, useState } from 'react';
 import { createSessionImage, matchEventImage, matchQueueImage, teamAssignmentImage, turfDashImage } from '../../assets/images/landing';
 import { useTheme } from '../../hooks/useTheme';
 
@@ -112,6 +114,166 @@ const HeroSection: React.FC = memo(() => {
         <div className="h-8 w-5 rounded-full border-2 border-white/30">
           <div className="mx-auto mt-2 h-2 w-1 animate-pulse rounded-full bg-white/60" />
         </div>
+      </div>
+    </div>
+  );
+});
+
+// Top Performing Turfs Section
+const TopTurfsSection: React.FC = memo(() => {
+  const { reducedMotion } = useTheme();
+  const { name } = usePage<SharedData>().props;
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  type TopTurf = {
+    id: number;
+    name: string;
+    location?: string;
+    requires_membership: boolean;
+    team_slot_fee?: number;
+    max_players_per_team: number;
+    players?: Array<{ id: number; status: string }>; // may be undefined if not included
+    active_match_sessions?: Array<{ id: number; session_date: string; time_slot: string; status: string }>;
+  };
+
+  const [turfs, setTurfs] = useState<TopTurf[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useGSAP(() => {
+    if (reducedMotion) return;
+
+    gsap.fromTo(
+      sectionRef.current,
+      { y: 50, opacity: 0 },
+      {
+        y: 0,
+        opacity: 1,
+        duration: 1,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top 80%',
+        },
+      },
+    );
+  }, [reducedMotion]);
+
+  useEffect(() => {
+    setLoading(true);
+    setError(null);
+    // Fetch active turfs and include sessions; players may not be included server-side
+    turfApi
+      .getAll({ is_active: true, per_page: 6, include: 'matchSessions,players' })
+      .then((res) => {
+        const list = res?.data ?? [];
+        startTransition(() => setTurfs(list as TopTurf[]));
+      })
+      .catch((e) => setError(e?.message ?? 'Unable to load top turfs'))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const items = useMemo(() => {
+    return turfs.map((t) => {
+      const sessionsToday = (t.active_match_sessions || []).filter((s) => {
+        const d = new Date(s.session_date);
+        return isToday(d);
+      }).length;
+
+      const playersCount = (t.players || []).length;
+      const activityScore = Math.min(5, Math.max(1, sessionsToday + Math.floor(playersCount / 10)));
+
+      return {
+        ...t,
+        sessionsToday,
+        playersCount,
+        activityScore,
+      };
+    });
+  }, [turfs]);
+
+  const handleExplore = () => {
+    // Encourage sign-up/login then deep-link after auth (optional)
+    router.visit(route('login'));
+  };
+
+  return (
+    <div ref={sectionRef} className="bg-white py-20 dark:bg-gray-800">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-16 text-center">
+          <Title level={2} className="mb-4 text-gray-900 dark:text-white">
+            Top Performing Turfs
+          </Title>
+          <Paragraph className="mx-auto max-w-2xl text-lg text-gray-600 dark:text-gray-300">
+            Discover where the action is. {name} highlights active turfs based on sessions and community activity.
+          </Paragraph>
+        </div>
+
+        {error && (
+          <Card className="landing-card mb-8 border-none shadow-lg">
+            <Text type="danger">{error}</Text>
+          </Card>
+        )}
+
+        {loading ? (
+          <Row gutter={[24, 24]}>
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Col xs={24} sm={12} lg={8} key={i}>
+                <Card className="landing-card h-full border-none shadow-lg" bodyStyle={{ padding: '24px' }}>
+                  <Skeleton active avatar paragraph={{ rows: 3 }} />
+                </Card>
+              </Col>
+            ))}
+          </Row>
+        ) : (
+          <Row gutter={[24, 24]}>
+            {items.map((t) => (
+              <Col xs={24} sm={12} lg={8} key={t.id}>
+                <Card
+                  className="landing-card h-full border-none shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+                  bodyStyle={{ padding: '24px' }}
+                >
+                  <div className="mb-3 flex items-center justify-between">
+                    <Title level={4} className="mb-0">
+                      {t.name}
+                    </Title>
+                    <div className="flex items-center space-x-1">
+                      {Array.from({ length: t.activityScore }).map((_, i) => (
+                        <StarFilled key={i} className="text-yellow-500" />
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="mb-3">{t.location && <Text className="text-gray-500">{t.location}</Text>}</div>
+
+                  <div className="mb-4 flex flex-wrap gap-2">
+                    <Tag color="green">
+                      <TeamOutlined /> <span className="ml-1">Players: {t.playersCount}</span>
+                    </Tag>
+                    <Tag color="blue">
+                      <ClockCircleOutlined /> <span className="ml-1">Sessions Today: {t.sessionsToday}</span>
+                    </Tag>
+                    <Tag color={t.requires_membership ? 'red' : 'default'}>
+                      <UsergroupAddOutlined /> <span className="ml-1">{t.requires_membership ? 'Membership Required' : 'Open Access'}</span>
+                    </Tag>
+                    {typeof t.team_slot_fee === 'number' && (
+                      <Tag color="purple">
+                        <WalletOutlined /> <span className="ml-1">Slot Fee: ₦{t.team_slot_fee}</span>
+                      </Tag>
+                    )}
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <Text className="text-gray-500">Updated {format(new Date(), 'PP')}</Text>
+                    <Button type="primary" size="middle" onClick={handleExplore}>
+                      Check this Turf
+                    </Button>
+                  </div>
+                </Card>
+              </Col>
+            ))}
+          </Row>
+        )}
       </div>
     </div>
   );
@@ -643,6 +805,7 @@ const Welcome: React.FC = () => {
       <HeroSection />
       <HowItWorksSection />
       <FeaturesSection />
+      <TopTurfsSection />
       <TurfManagersSection />
       <PlayersSection />
       <TestimonialsSection />

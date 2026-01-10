@@ -1,4 +1,4 @@
-import { Alert, Button, Modal, Typography, message } from 'antd';
+import { Alert, App, Button, Modal, Typography } from 'antd';
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { paymentApi } from '../../apis/payment';
 import { teamApi } from '../../apis/team';
@@ -23,6 +23,7 @@ interface JoinTeamPaymentModalProps {
 
 const JoinTeamPaymentModal: React.FC<JoinTeamPaymentModalProps> = memo(
   ({ open, onCancel, onSuccess, team, slotFee, title, description, position = 1 }) => {
+    const { message } = App.useApp();
     const [loading, setLoading] = useState(false);
     const [walletBalance, setWalletBalance] = useState<WalletBalance | null>(null);
     const [error, setError] = useState<string | null>(null);

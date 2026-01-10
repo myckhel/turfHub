@@ -376,12 +376,34 @@ const BettingManagement: React.FC = () => {
 
         {/* Markets Table */}
         <Card title="Betting Markets" className="mb-6">
-          <Table dataSource={markets} columns={marketColumns} rowKey="id" loading={loading} pagination={{ pageSize: 10 }} scroll={{ x: 800 }} />
+          <Table
+            dataSource={markets}
+            columns={marketColumns}
+            rowKey="id"
+            loading={loading}
+            pagination={{ pageSize: 10 }}
+            scroll={{ x: 800 }}
+            rowClassName="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            onRow={(record) => ({
+              onClick: () => handleSettleMarket(record),
+            })}
+          />
         </Card>
 
         {/* Bets Table */}
         <Card title="Recent Bets">
-          <Table dataSource={bettingHistory} columns={betColumns} rowKey="id" loading={loading} pagination={{ pageSize: 15 }} scroll={{ x: 1000 }} />
+          <Table
+            dataSource={bettingHistory}
+            columns={betColumns}
+            rowKey="id"
+            loading={loading}
+            pagination={{ pageSize: 15 }}
+            scroll={{ x: 1000 }}
+            rowClassName="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            onRow={(record) => ({
+              onClick: () => handleViewBetDetails(record),
+            })}
+          />
         </Card>
 
         {/* Settle Market Modal */}

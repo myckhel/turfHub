@@ -294,8 +294,10 @@ class MatchSessionService
    */
   private function buildMatchSessionQuery(Request $request): Builder
   {
-    // starting from last 3 days
-    $query = MatchSession::query()->orderBy('session_date', 'desc');
+    // Prioritize active sessions first, then by latest date
+    $query = MatchSession::query()
+      ->orderBy('is_active', 'desc')
+      ->orderBy('session_date', 'desc');
 
     // Filter by turf
     if ($request->filled('turf_id')) {

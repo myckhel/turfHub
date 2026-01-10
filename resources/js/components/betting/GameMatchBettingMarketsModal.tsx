@@ -226,6 +226,10 @@ const GameMatchBettingMarketsModal = memo(({ open, onClose, gameMatch }: GameMat
           pagination={false}
           size="small"
           scroll={{ x: 800 }}
+          rowClassName="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+          onRow={(record) => ({
+            onClick: () => handleViewMarket(record),
+          })}
           locale={{
             emptyText: (
               <div className="py-8 text-center">

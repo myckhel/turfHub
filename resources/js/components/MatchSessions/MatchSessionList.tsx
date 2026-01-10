@@ -439,6 +439,10 @@ const MatchSessionList: React.FC<MatchSessionListProps> = ({ turfId, showCreateB
               size="middle"
               scroll={{ y: maxHeight }}
               loading={loading}
+              rowClassName="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              onRow={(record) => ({
+                onClick: () => handleViewSession(record.id),
+              })}
             />
           </div>
 

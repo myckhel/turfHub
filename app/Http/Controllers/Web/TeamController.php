@@ -69,7 +69,7 @@ class TeamController extends Controller
 
     return Inertia::render('App/Teams/Show', [
       'turf' => $turf->load(['owner']),
-      'matchSession' => $matchSession,
+      'matchSession' => new MatchSessionResource($matchSession),
       'team' => new TeamResource($team),
     ]);
   }

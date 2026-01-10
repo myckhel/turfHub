@@ -1,6 +1,7 @@
 import { TeamOutlined, UserAddOutlined } from '@ant-design/icons';
 import { Alert, Button, Card, Col, Row, Space, Tag, Typography, message } from 'antd';
 import React, { memo, useCallback, useState } from 'react';
+import { MatchSession } from '../../apis';
 import { useAvailableSlots } from '../../hooks/teams';
 import type { TeamDetails } from '../../types/team.types';
 import JoinTeamPaymentModal from './JoinTeamPaymentModal';
@@ -8,19 +9,21 @@ import JoinTeamPaymentModal from './JoinTeamPaymentModal';
 const { Text } = Typography;
 
 interface MatchSessionTeamProps {
-  matchSessionId?: number;
+  matchSession?: MatchSession;
 }
 
-const MatchSessionTeam: React.FC<MatchSessionTeamProps> = memo(({ matchSessionId }) => {
+const MatchSessionTeam: React.FC<MatchSessionTeamProps> = memo(({ matchSession }) => {
   const [joinModalVisible, setJoinModalVisible] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState<TeamDetails | null>(null);
 
   // Use the new hook for fetching available slots
-  const { availableSlots, loading, error, refreshSlots, isSessionPlayer } = useAvailableSlots({
-    matchSessionId,
+  const { availableSlots, loading, error, refreshSlots } = useAvailableSlots({
+    matchSessionId: matchSession?.id,
     autoRefresh: true,
     refreshInterval: 30000,
   });
+
+  const isSessionPlayer = matchSession?.is_session_player ?? false;
 
   const handleJoinTeam = useCallback((team: TeamDetails) => {
     setSelectedTeam(team);

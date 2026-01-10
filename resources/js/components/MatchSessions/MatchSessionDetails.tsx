@@ -250,7 +250,7 @@ const MatchSessionDetails: React.FC<MatchSessionDetailsProps> = ({ turf, matchSe
         </Row>
 
         {/* Player Team Flow - For players to join teams */}
-        {!canManageSessions && <MatchSessionTeam matchSessionId={matchSessionId} />}
+        {!canManageSessions && <MatchSessionTeam matchSession={matchSession} />}
 
         {/* Standings */}
         <MatchSessionStandings

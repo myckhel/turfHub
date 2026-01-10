@@ -15,74 +15,78 @@ use Illuminate\Http\Response;
 
 class MatchEventController extends Controller
 {
-    use AuthorizesRequests;
-    protected MatchEventService $matchEventService;
+  use AuthorizesRequests;
 
-    public function __construct(MatchEventService $matchEventService)
-    {
-        $this->matchEventService = $matchEventService;
+  protected MatchEventService $matchEventService;
+
+  public function __construct(MatchEventService $matchEventService)
+  {
+    $this->matchEventService = $matchEventService;
+  }
+
+  /**
+   * Display a listing of the resource.
+   */
+  public function index(Request $request): AnonymousResourceCollection
+  {
+    $matchEvents = $this->matchEventService->getMatchEvents($request);
+
+    return MatchEventResource::collection($matchEvents);
+  }
+
+  /**
+   * Store a newly created resource in storage.
+   */
+  public function store(StoreMatchEventRequest $request): MatchEventResource
+  {
+    $this->authorize('create', MatchEvent::class);
+
+    $matchEvent = $this->matchEventService->createMatchEvent($request->validated());
+
+    // Load relationships so they are included in the API response
+    $matchEvent->load(['player.user', 'team', 'relatedPlayer.user']);
+
+    return new MatchEventResource($matchEvent);
+  }
+
+  /**
+   * Display the specified resource.
+   */
+  public function show(Request $request, MatchEvent $matchEvent): MatchEventResource
+  {
+    $this->authorize('view', $matchEvent);
+
+    $includes = [];
+    if ($request->filled('include')) {
+      $includes = explode(',', $request->include);
     }
 
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(Request $request): AnonymousResourceCollection
-    {
-        $matchEvents = $this->matchEventService->getMatchEvents($request);
+    $matchEvent = $this->matchEventService->getMatchEventWithRelations($matchEvent, $includes);
 
-        return MatchEventResource::collection($matchEvents);
-    }
+    return new MatchEventResource($matchEvent);
+  }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreMatchEventRequest $request): MatchEventResource
-    {
-        $this->authorize('create', MatchEvent::class);
+  /**
+   * Update the specified resource in storage.
+   */
+  public function update(UpdateMatchEventRequest $request, MatchEvent $matchEvent): MatchEventResource
+  {
+    $this->authorize('update', $matchEvent);
 
-        $matchEvent = $this->matchEventService->createMatchEvent($request->validated());
+    $matchEvent = $this->matchEventService->updateMatchEvent($matchEvent, $request->validated());
 
-        return new MatchEventResource($matchEvent);
-    }
+    return new MatchEventResource($matchEvent);
+  }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Request $request, MatchEvent $matchEvent): MatchEventResource
-    {
-        $this->authorize('view', $matchEvent);
+  /**
+   * Remove the specified resource from storage.
+   */
+  public function destroy(MatchEvent $matchEvent): Response
+  {
+    $this->authorize('delete', $matchEvent);
 
-        $includes = [];
-        if ($request->filled('include')) {
-            $includes = explode(',', $request->include);
-        }
+    $this->matchEventService->deleteMatchEvent($matchEvent);
 
-        $matchEvent = $this->matchEventService->getMatchEventWithRelations($matchEvent, $includes);
-
-        return new MatchEventResource($matchEvent);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateMatchEventRequest $request, MatchEvent $matchEvent): MatchEventResource
-    {
-        $this->authorize('update', $matchEvent);
-
-        $matchEvent = $this->matchEventService->updateMatchEvent($matchEvent, $request->validated());
-
-        return new MatchEventResource($matchEvent);
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(MatchEvent $matchEvent): Response
-    {
-        $this->authorize('delete', $matchEvent);
-
-        $this->matchEventService->deleteMatchEvent($matchEvent);
-
-        return response()->noContent();
-    }
+    return response()->noContent();
+  }
 }

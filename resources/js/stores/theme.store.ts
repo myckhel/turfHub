@@ -324,6 +324,11 @@ export const getAntdTheme = (colorScheme: ColorScheme, accentColor: keyof typeof
       zIndexBase: 0,
       zIndexPopupBase: 1000,
     },
+    components: {
+      Tooltip: {
+        colorTextLightSolid: isDark ? colors.white : colors.darkGray,
+      },
+    },
     algorithm: isDark ? undefined : undefined, // Will be set properly with antd theme algorithm
   };
 };

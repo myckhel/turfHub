@@ -70,7 +70,7 @@ const TeamFormModal = memo(({ open, onClose, onSuccess, tournamentId, team }: Te
             { max: 255, message: 'Team name must be less than 255 characters' },
           ]}
         >
-          <Input placeholder="Enter team name" />
+          <Input placeholder="Enter team name" autoFocus />
         </Form.Item>
       </Form>
     </Modal>

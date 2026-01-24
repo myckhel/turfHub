@@ -7,9 +7,9 @@ class RoundRobinGenerator
     /**
      * Generate round-robin fixtures using the circle method algorithm.
      *
-     * @param array $teamIds Array of team IDs
-     * @param int $rounds Number of rounds (1 = single round-robin, 2 = double)
-     * @param bool $reverseHomeAway For second round in double round-robin
+     * @param  array  $teamIds  Array of team IDs
+     * @param  int  $rounds  Number of rounds (1 = single round-robin, 2 = double)
+     * @param  bool  $reverseHomeAway  For second round in double round-robin
      * @return array Array of fixtures
      */
     public static function generate(array $teamIds, int $rounds = 1, bool $reverseHomeAway = false): array
@@ -31,16 +31,18 @@ class RoundRobinGenerator
         $teamsPerMatchday = $teamCount / 2;
 
         for ($round = 0; $round < $rounds; $round++) {
-            for ($matchday = 0; $matchday < $matchdays; $matchday++) {
-                $dayFixtures = self::generateMatchday($teamIds, $matchday, $teamsPerMatchday);
+            $roundNumber = $round + 1;
 
-                // Reverse home/away for second round if requested
-                if ($round === 1 && $reverseHomeAway) {
-                    $dayFixtures = array_map(function ($fixture) {
+            for ($matchday = 0; $matchday < $matchdays; $matchday++) {
+                $dayFixtures = self::generateMatchday($teamIds, $matchday, $teamsPerMatchday, $roundNumber);
+
+                // Reverse home/away for subsequent rounds if requested
+                if ($round > 0 && $reverseHomeAway) {
+                    $dayFixtures = array_map(function ($fixture) use ($roundNumber) {
                         return [
                             'home_team_id' => $fixture['away_team_id'],
                             'away_team_id' => $fixture['home_team_id'],
-                            'round' => 2,
+                            'round' => $roundNumber,
                             'matchday' => $fixture['matchday'],
                         ];
                     }, $dayFixtures);
@@ -61,7 +63,7 @@ class RoundRobinGenerator
     /**
      * Generate fixtures for a single matchday using circle method.
      */
-    private static function generateMatchday(array $teams, int $matchday, int $pairsCount): array
+    private static function generateMatchday(array $teams, int $matchday, int $pairsCount, int $round = 1): array
     {
         $fixtures = [];
         $teamCount = count($teams);
@@ -88,14 +90,14 @@ class RoundRobinGenerator
                 $fixtures[] = [
                     'home_team_id' => $arranged[$homeIndex],
                     'away_team_id' => $arranged[$awayIndex],
-                    'round' => 1,
+                    'round' => $round,
                     'matchday' => $matchday + 1,
                 ];
             } else {
                 $fixtures[] = [
                     'home_team_id' => $arranged[$awayIndex],
                     'away_team_id' => $arranged[$homeIndex],
-                    'round' => 1,
+                    'round' => $round,
                     'matchday' => $matchday + 1,
                 ];
             }

@@ -45,13 +45,13 @@ class StageController extends Controller
   /**
    * Store a newly created stage.
    */
-  public function store(CreateStageRequest $request, Tournament $tournament): StageResource
+  public function store(CreateStageRequest $request, Tournament $tournament): JsonResponse
   {
     Gate::authorize('update', $tournament);
 
     $stage = $this->stageService->createStage($tournament, $request->validated());
 
-    return new StageResource($stage);
+    return response()->json(new StageResource($stage), Response::HTTP_CREATED);
   }
 
   /**

@@ -5,6 +5,7 @@ namespace App\Services\TournamentStrategies;
 use App\Contracts\TournamentStrategies\StageStrategyInterface;
 use App\Models\Group;
 use App\Models\Stage;
+use App\Utils\FixtureGenerators\RoundRobinGenerator;
 use Illuminate\Support\Collection;
 
 class GroupStrategy implements StageStrategyInterface
@@ -13,39 +14,73 @@ class GroupStrategy implements StageStrategyInterface
   {
     $teams = $stage->stageTeams()->with('team')->get();
     $settings = $stage->settings ?? [];
-    $groupsCount = $settings['groups_count'] ?? 4;
-    $teamsPerGroup = $settings['teams_per_group'] ?? $groupsCount;
-
-    // Divide teams into groups
-    $groups = $this->divideIntoGroups($teams, $teamsPerGroup);
+    $rounds = $settings['rounds'] ?? 1;
+    $homeAway = $settings['home_and_away'] ?? false;
     $fixtures = [];
 
-    foreach ($groups as $groupIndex => $groupTeams) {
-      $groupName = chr(65 + $groupIndex); // A, B, C, etc.
+    // Check if teams are already assigned to groups
+    $existingGroups = $stage->groups()->with('stageTeams')->get();
 
-      // Create or get group
-      $group = Group::firstOrCreate([
-        'stage_id' => $stage->id,
-        'name' => "Group {$groupName}",
-      ]);
+    if ($existingGroups->isNotEmpty() && $teams->where('group_id', '!=', null)->isNotEmpty()) {
+      // Teams already assigned to groups - use existing groups
+      foreach ($existingGroups as $group) {
+        $groupTeams = $group->stageTeams;
 
-      // Assign teams to group
-      foreach ($groupTeams as $stageTeam) {
-        $stageTeam->update(['group_id' => $group->id]);
-      }
+        if ($groupTeams->isEmpty()) {
+          continue;
+        }
 
-      // Generate round-robin for this group
-      $teamIds = $groupTeams->pluck('team_id')->toArray();
-      $groupFixtures = $this->generateRoundRobin($teamIds);
+        // Generate round-robin for this group
+        $teamIds = $groupTeams->pluck('team_id')->toArray();
+        $groupFixtures = RoundRobinGenerator::generate($teamIds, $rounds, $homeAway);
 
-      foreach ($groupFixtures as $matchday => $matches) {
-        foreach ($matches as $match) {
+        foreach ($groupFixtures as $fixture) {
           $fixtures[] = [
             'stage_id' => $stage->id,
             'group_id' => $group->id,
-            'first_team_id' => $match[0],
-            'second_team_id' => $match[1],
-            'matchday' => $matchday + 1,
+            'first_team_id' => $fixture['home_team_id'],
+            'second_team_id' => $fixture['away_team_id'],
+            'metadata' => [
+              'round' => $fixture['round'],
+              'matchday' => $fixture['matchday'],
+            ],
+          ];
+        }
+      }
+    } else {
+      // No groups yet - divide teams into groups
+      $groupsCount = $settings['groups_count'] ?? 4;
+      $teamsPerGroup = $settings['teams_per_group'] ?? $groupsCount;
+      $groups = $this->divideIntoGroups($teams, $teamsPerGroup);
+
+      foreach ($groups as $groupIndex => $groupTeams) {
+        $groupName = chr(65 + $groupIndex); // A, B, C, etc.
+
+        // Create or get group
+        $group = Group::firstOrCreate([
+          'stage_id' => $stage->id,
+          'name' => "Group {$groupName}",
+        ]);
+
+        // Assign teams to group
+        foreach ($groupTeams as $stageTeam) {
+          $stageTeam->update(['group_id' => $group->id]);
+        }
+
+        // Generate round-robin for this group
+        $teamIds = $groupTeams->pluck('team_id')->toArray();
+        $groupFixtures = RoundRobinGenerator::generate($teamIds, $rounds, $homeAway);
+
+        foreach ($groupFixtures as $fixture) {
+          $fixtures[] = [
+            'stage_id' => $stage->id,
+            'group_id' => $group->id,
+            'first_team_id' => $fixture['home_team_id'],
+            'second_team_id' => $fixture['away_team_id'],
+            'metadata' => [
+              'round' => $fixture['round'],
+              'matchday' => $fixture['matchday'],
+            ],
           ];
         }
       }
@@ -74,10 +109,6 @@ class GroupStrategy implements StageStrategyInterface
 
   /**
    * Divide teams into groups.
-   *
-   * @param Collection $teams
-   * @param int $teamsPerGroup
-   * @return array
    */
   protected function divideIntoGroups(Collection $teams, int $teamsPerGroup): array
   {
@@ -86,10 +117,6 @@ class GroupStrategy implements StageStrategyInterface
 
   /**
    * Compute rankings for a specific group.
-   *
-   * @param Stage $stage
-   * @param Group $group
-   * @return Collection
    */
   protected function computeGroupRankings(Stage $stage, Group $group): Collection
   {
@@ -123,7 +150,7 @@ class GroupStrategy implements StageStrategyInterface
       $homeScore = $fixture->first_team_score ?? 0;
       $awayScore = $fixture->second_team_score ?? 0;
 
-      if (!isset($standings[$homeTeamId]) || !isset($standings[$awayTeamId])) {
+      if (! isset($standings[$homeTeamId]) || ! isset($standings[$awayTeamId])) {
         continue;
       }
 
@@ -163,6 +190,7 @@ class GroupStrategy implements StageStrategyInterface
       if ($a['goal_difference'] !== $b['goal_difference']) {
         return $b['goal_difference'] - $a['goal_difference'];
       }
+
       return $b['goals_for'] - $a['goals_for'];
     });
 
@@ -171,47 +199,5 @@ class GroupStrategy implements StageStrategyInterface
     }
 
     return collect($standings);
-  }
-
-  /**
-   * Generate round-robin fixtures.
-   *
-   * @param array $teamIds
-   * @return array
-   */
-  protected function generateRoundRobin(array $teamIds): array
-  {
-    $teamCount = count($teamIds);
-    $fixtures = [];
-
-    $hasBye = $teamCount % 2 !== 0;
-    if ($hasBye) {
-      $teamIds[] = null;
-      $teamCount++;
-    }
-
-    $rounds = $teamCount - 1;
-    $matchesPerRound = $teamCount / 2;
-
-    for ($round = 0; $round < $rounds; $round++) {
-      $fixtures[$round] = [];
-
-      for ($match = 0; $match < $matchesPerRound; $match++) {
-        $home = ($round + $match) % ($teamCount - 1);
-        $away = ($teamCount - 1 - $match + $round) % ($teamCount - 1);
-
-        if ($match === 0) {
-          $away = $teamCount - 1;
-        }
-
-        if ($teamIds[$home] === null || $teamIds[$away] === null) {
-          continue;
-        }
-
-        $fixtures[$round][] = [$teamIds[$home], $teamIds[$away]];
-      }
-    }
-
-    return $fixtures;
   }
 }

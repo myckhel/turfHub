@@ -24,12 +24,22 @@ class KnockoutStrategy implements StageStrategyInterface
     // Map to stage fixtures format
     $fixtures = [];
     foreach ($generatedFixtures as $fixture) {
+      $metadata = [
+        'round' => $fixture['round'],
+        'match_number' => $fixture['match_number'],
+      ];
+
+      if (isset($fixture['is_second_leg']) && $fixture['is_second_leg']) {
+        $metadata['leg'] = 2;
+      } else {
+        $metadata['leg'] = 1;
+      }
+
       $fixtures[] = [
         'stage_id' => $stage->id,
         'first_team_id' => $fixture['home_team_id'],
         'second_team_id' => $fixture['away_team_id'],
-        'round' => $fixture['round'],
-        'metadata' => $fixture['metadata'] ?? null,
+        'metadata' => $metadata,
       ];
     }
 

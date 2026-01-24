@@ -149,6 +149,85 @@ body {
   color-scheme: dark;
 }
 
+/* Input placeholder text visibility in dark mode */
+input::placeholder,
+textarea::placeholder,
+select::placeholder {
+  color: var(--color-medium-gray);
+  opacity: 1;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder,
+.dark select::placeholder {
+  color: var(--color-medium-gray);
+  opacity: 0.85;
+}
+
+/* Ant Design input placeholder styling */
+.dark .ant-input::placeholder,
+.dark .ant-input-number-input::placeholder,
+.dark .ant-select-selector::placeholder,
+.dark .ant-textarea-show-count textarea::placeholder {
+  color: var(--color-medium-gray) !important;
+  opacity: 0.85 !important;
+}
+
+/* Ant Design Select placeholder - light mode text color in dark mode */
+.dark .ant-select-selector {
+  background-color: rgba(0, 0, 0, 0.25) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.dark .ant-select-selector .ant-select-selection-placeholder {
+  color: var(--color-medium-gray) !important;
+  opacity: 0.85 !important;
+}
+
+/* Ant Design DatePicker placeholder */
+.dark .ant-picker {
+  background-color: rgba(0, 0, 0, 0.25) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.dark .ant-picker-input::placeholder {
+  color: var(--color-medium-gray) !important;
+  opacity: 0.85 !important;
+}
+
+.dark .ant-picker .ant-picker-input {
+  color: var(--color-medium-gray) !important;
+}
+
+.dark .ant-picker-suffix {
+  color: var(--color-light-slate) !important;
+}
+
+/* TimePicker placeholders */
+.dark .ant-picker-time-panel-input::placeholder {
+  color: var(--color-medium-gray) !important;
+  opacity: 0.85 !important;
+}
+
+/* RangePicker placeholders */
+.dark .ant-picker-range .ant-picker-input::placeholder {
+  color: var(--color-medium-gray) !important;
+  opacity: 0.85 !important;
+}
+
+/* Ensure placeholder text is visible on focus */
+input:focus::placeholder,
+textarea:focus::placeholder {
+  color: var(--color-light-slate);
+  opacity: 0.6;
+}
+
+.dark input:focus::placeholder,
+.dark textarea:focus::placeholder {
+  color: var(--color-light-slate);
+  opacity: 0.6;
+}
+
 /* Accessibility - Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
   *,

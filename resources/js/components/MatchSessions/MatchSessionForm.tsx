@@ -32,6 +32,21 @@ const MatchSessionForm: React.FC<MatchSessionFormProps> = ({ turfId, matchSessio
   const canManageSessions = permissions.canManageSessions();
   const [loading, setLoading] = useState(false);
 
+  // Handler to auto-populate time range when time slot is selected
+  const handleTimeSlotChange = (value: 'morning' | 'evening') => {
+    if (value === 'morning') {
+      form.setFieldsValue({
+        start_time: dayjs('06:00', 'HH:mm'),
+        end_time: dayjs('12:00', 'HH:mm'),
+      });
+    } else if (value === 'evening') {
+      form.setFieldsValue({
+        start_time: dayjs('18:00', 'HH:mm'),
+        end_time: dayjs('23:00', 'HH:mm'),
+      });
+    }
+  };
+
   useEffect(() => {
     if (matchSession && isEditing) {
       form.setFieldsValue({
@@ -102,7 +117,7 @@ const MatchSessionForm: React.FC<MatchSessionFormProps> = ({ turfId, matchSessio
   return (
     <div className="min-h-screen">
       <div className="container mx-auto flex w-full items-center justify-center px-4 py-6">
-        <Card className="mx-auto max-w-2xl">
+        <Card className="mx-auto w-full max-w-2xl" style={{ minWidth: '320px' }}>
           <Title level={2} className="mb-6 text-center">
             {isEditing ? 'Edit Match Session' : 'Create Match Session'}
           </Title>
@@ -125,19 +140,23 @@ const MatchSessionForm: React.FC<MatchSessionFormProps> = ({ turfId, matchSessio
 
             <Row gutter={16}>
               <Col span={12}>
-                <Form.Item name="session_date" label="Session Date" rules={[{ required: true, message: 'Please select session date' }]}>
+                <Form.Item
+                  name="session_date"
+                  label="Session Date"
+                  rules={[{ required: true, message: 'Please select session date' }]}
+                  initialValue={dayjs()}
+                >
                   <DatePicker
                     size="large"
                     className="w-full"
                     disabledDate={(current) => current && current < dayjs().startOf('day')}
                     format="YYYY-MM-DD"
-                    defaultValue={dayjs()}
                   />
                 </Form.Item>
               </Col>
               <Col span={12}>
                 <Form.Item name="time_slot" label="Time Slot" rules={[{ required: true, message: 'Please select time slot' }]}>
-                  <Select size="large" placeholder="Select time slot">
+                  <Select size="large" placeholder="Select time slot" onChange={handleTimeSlotChange}>
                     <Option value="morning">🌅 Morning</Option>
                     <Option value="evening">🌆 Evening</Option>
                   </Select>
@@ -183,10 +202,17 @@ const MatchSessionForm: React.FC<MatchSessionFormProps> = ({ turfId, matchSessio
                   label="Maximum Teams"
                   rules={[
                     { required: true, message: 'Please enter maximum teams' },
-                    { type: 'number', min: 4, max: 8, message: 'Teams must be between 4 and 8' },
+                    { type: 'number', min: 4, max: 200, message: 'Teams must be between 4 and 200' },
                   ]}
                 >
-                  <InputNumber defaultValue={matchSession?.max_teams || 4} size="large" className="w-full" min={4} max={8} placeholder="4-8 teams" />
+                  <InputNumber
+                    defaultValue={matchSession?.max_teams || 4}
+                    size="large"
+                    className="w-full"
+                    min={4}
+                    max={200}
+                    placeholder="4-200 teams"
+                  />
                 </Form.Item>
               </Col>
               <Col span={12}>

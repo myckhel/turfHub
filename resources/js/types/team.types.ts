@@ -1,4 +1,5 @@
 import { PaginatedResponse } from './global.types';
+import { MatchSession } from './matchSession.types';
 
 export interface TeamPlayer {
   id: number;
@@ -57,12 +58,7 @@ export interface TeamDetails {
   };
   slots?: TeamSlot[];
   teamPlayers?: TeamPlayer[];
-  match_session?: {
-    id: number;
-    name: string;
-    turf_id: number;
-    team_slot_fee?: number;
-  };
+  match_session?: MatchSession;
 }
 
 // API Request types

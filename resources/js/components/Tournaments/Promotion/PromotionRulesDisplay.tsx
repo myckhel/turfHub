@@ -95,7 +95,7 @@ const PromotionRulesDisplay = memo(({ promotion, stageType }: PromotionRulesDisp
               <Text>{promotion.next_stage?.name || 'Not specified'}</Text>
               {promotion.next_stage && (
                 <Tag color="green">
-                  <ArrowRightOutlined /> Stage {promotion.next_stage_id}
+                  <ArrowRightOutlined /> Stage {promotion.next_stage.id}
                 </Tag>
               )}
             </Space>

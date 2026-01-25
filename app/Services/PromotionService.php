@@ -17,12 +17,12 @@ class PromotionService
 
     public function simulatePromotion(Stage $stage): array
     {
-        if (!$stage->promotion) {
-            throw new \Exception("No promotion rule defined for this stage");
+        if (! $stage->promotion) {
+            throw new \Exception('No promotion rule defined for this stage');
         }
 
-        if (!$stage->next_stage_id) {
-            throw new \Exception("No next stage defined for promotion");
+        if (! $stage->promotion->next_stage_id) {
+            throw new \Exception('No next stage defined for promotion');
         }
 
         // Get current rankings
@@ -38,11 +38,11 @@ class PromotionService
         $teams = \App\Models\Team::whereIn('id', $winnerTeamIds)->get();
 
         return [
-            'promoted_teams' => $teams->map(fn($team) => [
+            'promoted_teams' => $teams->map(fn ($team) => [
                 'id' => $team->id,
                 'name' => $team->name,
             ])->toArray(),
-            'next_stage' => $stage->nextStage->name,
+            'next_stage' => $stage->promotion->nextStage->name,
             'promotion_rule' => $stage->promotion->rule_type,
         ];
     }
@@ -50,12 +50,12 @@ class PromotionService
     public function executePromotion(Stage $stage, ?array $manualOverride = null): Collection
     {
         return DB::transaction(function () use ($stage, $manualOverride) {
-            if (!$stage->promotion) {
-                throw new \Exception("No promotion rule defined for this stage");
+            if (! $stage->promotion) {
+                throw new \Exception('No promotion rule defined for this stage');
             }
 
-            if (!$stage->next_stage_id) {
-                throw new \Exception("No next stage defined for promotion");
+            if (! $stage->promotion->next_stage_id) {
+                throw new \Exception('No next stage defined for promotion');
             }
 
             $rankings = $this->rankingService->getRankingsForStage($stage);
@@ -69,7 +69,7 @@ class PromotionService
             }
 
             // Assign promoted teams to next stage
-            $nextStage = $stage->nextStage;
+            $nextStage = $stage->promotion->nextStage;
             $seeds = $manualOverride['seeds'] ?? [];
 
             foreach ($winnerTeamIds as $index => $teamId) {
@@ -105,8 +105,8 @@ class PromotionService
             $nextStageId = $result['next_stage_id'] ?? null;
             $promotedTeams = $result['promoted_teams'] ?? [];
 
-            if (!$nextStageId) {
-                throw new \Exception("Cannot rollback: next stage not found in audit");
+            if (! $nextStageId) {
+                throw new \Exception('Cannot rollback: next stage not found in audit');
             }
 
             // Remove promoted teams from next stage
@@ -154,6 +154,6 @@ class PromotionService
     public function canPromote(Stage $stage): bool
     {
         return $stage->canPromote() &&
-            $stage->fixtures()->whereNotIn('status', ['completed', 'cancelled'])->count() === 0;
+          $stage->fixtures()->whereNotIn('status', ['completed', 'cancelled'])->count() === 0;
     }
 }

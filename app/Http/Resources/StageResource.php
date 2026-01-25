@@ -24,26 +24,36 @@ class StageResource extends JsonResource
             'updated_at' => $this->updated_at->toIso8601String(),
 
             // Relationships
-            'tournament' => $this->whenLoaded('tournament', fn() => [
+            'tournament' => $this->whenLoaded('tournament', fn () => [
                 'id' => $this->tournament->id,
                 'name' => $this->tournament->name,
             ]),
 
-            'next_stage' => $this->whenLoaded('nextStage', fn() => [
-                'id' => $this->nextStage->id,
-                'name' => $this->nextStage->name,
-                'order' => $this->nextStage->order,
-            ]),
+            'next_stage' => $this->whenLoaded('promotion', function () {
+                if ($this->promotion && $this->promotion->relationLoaded('nextStage')) {
+                    return [
+                        'id' => $this->promotion->nextStage->id,
+                        'name' => $this->promotion->nextStage->name,
+                        'order' => $this->promotion->nextStage->order,
+                    ];
+                }
 
-            'promotion' => $this->whenLoaded('promotion', fn() => [
+                return null;
+            }),
+
+            'promotion' => $this->whenLoaded('promotion', fn () => [
                 'id' => $this->promotion->id,
                 'rule_type' => $this->promotion->rule_type,
                 'rule_config' => $this->promotion->rule_config,
+                'next_stage' => $this->promotion->relationLoaded('nextStage') ? [
+                    'id' => $this->promotion->nextStage->id,
+                    'name' => $this->promotion->nextStage->name,
+                ] : null,
             ]),
 
             'groups' => GroupResource::collection($this->whenLoaded('groups')),
             'teams' => $this->whenLoaded('stageTeams', function () {
-                return $this->stageTeams->map(fn($st) => [
+                return $this->stageTeams->map(fn ($st) => [
                     'id' => $st->team->id,
                     'name' => $st->team->name,
                     'seed' => $st->seed,

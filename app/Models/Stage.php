@@ -20,7 +20,6 @@ class Stage extends Model
         'order',
         'stage_type',
         'settings',
-        'next_stage_id',
         'status',
     ];
 
@@ -64,16 +63,6 @@ class Stage extends Model
         return $this->hasOne(StagePromotion::class);
     }
 
-    public function nextStage(): BelongsTo
-    {
-        return $this->belongsTo(Stage::class, 'next_stage_id');
-    }
-
-    public function previousStages(): HasMany
-    {
-        return $this->hasMany(Stage::class, 'next_stage_id');
-    }
-
     public function isCompleted(): bool
     {
         return $this->status === StageStatus::COMPLETED;
@@ -81,7 +70,7 @@ class Stage extends Model
 
     public function canPromote(): bool
     {
-        return $this->isCompleted() && $this->promotion()->exists() && $this->nextStage()->exists();
+        return $this->isCompleted() && $this->promotion()->exists();
     }
 
     public function scopeActive($query)
@@ -92,5 +81,17 @@ class Stage extends Model
     public function scopePending($query)
     {
         return $query->where('status', 'pending');
+    }
+
+    public function nextStage()
+    {
+        return $this->hasOneThrough(
+            Stage::class,
+            StagePromotion::class,
+            'stage_id', // Foreign key on StagePromotion table...
+            'id', // Foreign key on Stage table...
+            'id', // Local key on Stage table...
+            'next_stage_id' // Local key on StagePromotion table...
+        );
     }
 }

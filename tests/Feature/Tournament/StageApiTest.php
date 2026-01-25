@@ -17,7 +17,9 @@ class StageApiTest extends TestCase
   use RefreshDatabase;
 
   protected User $user;
+
   protected Turf $turf;
+
   protected Tournament $tournament;
 
   protected function setUp(): void
@@ -203,5 +205,58 @@ class StageApiTest extends TestCase
 
     $response->assertStatus(422)
       ->assertJsonValidationErrors(['stage_type']);
+  }
+
+  public function test_can_activate_stage(): void
+  {
+    $stage1 = Stage::factory()->create([
+      'tournament_id' => $this->tournament->id,
+      'status' => StageStatus::PENDING->value,
+    ]);
+    $stage2 = Stage::factory()->create([
+      'tournament_id' => $this->tournament->id,
+      'status' => StageStatus::ACTIVE->value,
+    ]);
+
+    // Ensure minimum teams are assigned for activation (league strategy requires >= 2)
+    $teamA = Team::factory()->create(['tournament_id' => $this->tournament->id]);
+    $teamB = Team::factory()->create(['tournament_id' => $this->tournament->id]);
+    $stage1->stageTeams()->create(['team_id' => $teamA->id]);
+    $stage1->stageTeams()->create(['team_id' => $teamB->id]);
+
+    $response = $this->actingAs($this->user, 'sanctum')
+      ->postJson("/api/stages/{$stage1->id}/activate");
+
+    $response->assertStatus(200)
+      ->assertJsonFragment(['status' => StageStatus::ACTIVE->value]);
+
+    $this->assertDatabaseHas('stages', [
+      'id' => $stage1->id,
+      'status' => StageStatus::ACTIVE->value,
+    ]);
+
+    $this->assertDatabaseHas('stages', [
+      'id' => $stage2->id,
+      'status' => StageStatus::PENDING->value,
+    ]);
+  }
+
+  public function test_can_complete_stage_without_fixtures(): void
+  {
+    $stage = Stage::factory()->create([
+      'tournament_id' => $this->tournament->id,
+      'status' => StageStatus::ACTIVE->value,
+    ]);
+
+    $response = $this->actingAs($this->user, 'sanctum')
+      ->postJson("/api/stages/{$stage->id}/complete");
+
+    $response->assertStatus(200)
+      ->assertJsonFragment(['status' => StageStatus::COMPLETED->value]);
+
+    $this->assertDatabaseHas('stages', [
+      'id' => $stage->id,
+      'status' => StageStatus::COMPLETED->value,
+    ]);
   }
 }

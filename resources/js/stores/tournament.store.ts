@@ -69,6 +69,8 @@ interface TournamentStore {
   updateStage: (id: number, data: UpdateStageRequest) => Promise<Stage>;
   deleteStage: (id: number) => Promise<void>;
   assignTeamsToStage: (stageId: number, data: AssignTeamsRequest) => Promise<void>;
+  activateStage: (stageId: number) => Promise<void>;
+  completeStage: (stageId: number) => Promise<void>;
 
   // Actions - Tournament Teams
   fetchTournamentTeams: (tournamentId: number, params?: { include?: string; search?: string; per_page?: number }) => Promise<void>;
@@ -293,6 +295,36 @@ export const useTournamentStore = create<TournamentStore>()(
           }
         } catch (error) {
           console.error('Failed to delete stage:', error);
+          throw error;
+        }
+      },
+
+      activateStage: async (stageId) => {
+        try {
+          const response = await stageApi.activate(stageId);
+          set({ currentStage: response });
+
+          // Update in list if exists
+          const { stages } = get();
+          const updatedStages = stages.map((s) => (s.id === stageId ? response : s));
+          set({ stages: updatedStages });
+        } catch (error) {
+          console.error('Failed to activate stage:', error);
+          throw error;
+        }
+      },
+
+      completeStage: async (stageId) => {
+        try {
+          const response = await stageApi.complete(stageId);
+          set({ currentStage: response });
+
+          // Update in list if exists
+          const { stages } = get();
+          const updatedStages = stages.map((s) => (s.id === stageId ? response : s));
+          set({ stages: updatedStages });
+        } catch (error) {
+          console.error('Failed to complete stage:', error);
           throw error;
         }
       },

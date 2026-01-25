@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Models\Stage;
 use App\Models\StageTeam;
 use App\Models\Tournament;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -22,16 +21,15 @@ class StageService
    * Creates a stage in a transaction. Automatically determines the order number
    * by incrementing the maximum order of existing stages unless explicitly provided.
    *
-   * @param Tournament $tournament The tournament to add the stage to
-   * @param array $data Stage data including:
-   *   - name (string, required): Stage name
-   *   - stage_type (string, optional): 'league', 'group', 'knockout', or 'swiss'
-   *   - settings (array, optional): Stage-specific configuration
-   *   - order (int, optional): Display/execution order
-   *   - next_stage_id (int, optional): ID of the next stage for promotion
-   *   - rule_type (string, optional): Promotion rule type
-   *   - rule_config (array, optional): Promotion rule configuration
-   *
+   * @param  Tournament  $tournament  The tournament to add the stage to
+   * @param  array  $data  Stage data including:
+   *                       - name (string, required): Stage name
+   *                       - stage_type (string, optional): 'league', 'group', 'knockout', or 'swiss'
+   *                       - settings (array, optional): Stage-specific configuration
+   *                       - order (int, optional): Display/execution order
+   *                       - next_stage_id (int, optional): ID of the next stage for promotion
+   *                       - rule_type (string, optional): Promotion rule type
+   *                       - rule_config (array, optional): Promotion rule configuration
    * @return Stage The created stage
    */
   public function createStage(Tournament $tournament, array $data): Stage
@@ -67,16 +65,15 @@ class StageService
    *
    * Updates allowed fields while preserving existing values for omitted fields.
    *
-   * @param Stage $stage The stage to update
-   * @param array $data Update data (all fields optional):
-   *   - name (string): Stage name
-   *   - order (int): Stage order
-   *   - settings (array): Stage configuration
-   *   - status (string): Stage status
-   *   - next_stage_id (int): ID of the next stage for promotion
-   *   - rule_type (string): Promotion rule type
-   *   - rule_config (array): Promotion rule configuration
-   *
+   * @param  Stage  $stage  The stage to update
+   * @param  array  $data  Update data (all fields optional):
+   *                       - name (string): Stage name
+   *                       - order (int): Stage order
+   *                       - settings (array): Stage configuration
+   *                       - status (string): Stage status
+   *                       - next_stage_id (int): ID of the next stage for promotion
+   *                       - rule_type (string): Promotion rule type
+   *                       - rule_config (array): Promotion rule configuration
    * @return Stage The updated stage
    */
   public function updateStage(Stage $stage, array $data): Stage
@@ -111,16 +108,12 @@ class StageService
    * Performs cascading deletion in a transaction, removing fixtures, rankings,
    * groups, and promotion rules. Also cleans up references from other stages.
    *
-   * @param Stage $stage The stage to delete
-   *
+   * @param  Stage  $stage  The stage to delete
    * @return bool True if deletion was successful
    */
   public function deleteStage(Stage $stage): bool
   {
     return DB::transaction(function () use ($stage) {
-      // Update any stages that reference this as next_stage
-      Stage::where('next_stage_id', $stage->id)->update(['next_stage_id' => null]);
-
       // Delete related data
       $stage->fixtures()->delete();
       $stage->stageTeams()->delete();
@@ -139,11 +132,9 @@ class StageService
    * Uses updateOrCreate for idempotency. Optionally applies seeding for
    * knockout brackets.
    *
-   * @param Stage $stage The stage to assign teams to
-   * @param array $teamIds Array of team IDs to assign
-   * @param array|null $seeds Optional array of seed values corresponding to team_ids
-   *
-   * @return void
+   * @param  Stage  $stage  The stage to assign teams to
+   * @param  array  $teamIds  Array of team IDs to assign
+   * @param  array|null  $seeds  Optional array of seed values corresponding to team_ids
    */
   public function assignTeamsToStage(Stage $stage, array $teamIds, ?array $seeds = null): void
   {
@@ -168,10 +159,8 @@ class StageService
    *
    * Deletes StageTeam records for the specified teams.
    *
-   * @param Stage $stage The stage to remove teams from
-   * @param array $teamIds Array of team IDs to remove
-   *
-   * @return void
+   * @param  Stage  $stage  The stage to remove teams from
+   * @param  array  $teamIds  Array of team IDs to remove
    */
   public function removeTeamsFromStage(Stage $stage, array $teamIds): void
   {
@@ -186,10 +175,8 @@ class StageService
    * Updates the order column for stages based on the provided array.
    * Useful for changing stage execution sequence.
    *
-   * @param Tournament $tournament The tournament containing the stages
-   * @param array $stageOrder Array of stage IDs in desired order (0-indexed)
-   *
-   * @return void
+   * @param  Tournament  $tournament  The tournament containing the stages
+   * @param  array  $stageOrder  Array of stage IDs in desired order (0-indexed)
    */
   public function reorderStages(Tournament $tournament, array $stageOrder): void
   {
@@ -208,10 +195,8 @@ class StageService
    * Sets the next_stage_id on the current stage to enable automatic promotion.
    * Validates that both stages belong to the same tournament.
    *
-   * @param Stage $currentStage The source stage
-   * @param Stage $nextStage The destination stage for promoted teams
-   *
-   * @return void
+   * @param  Stage  $currentStage  The source stage
+   * @param  Stage  $nextStage  The destination stage for promoted teams
    *
    * @throws \InvalidArgumentException If stages are not in the same tournament
    */
@@ -231,8 +216,7 @@ class StageService
    * Marks the stage as active and sets all other stages in the tournament
    * to pending status (ensures only one active stage per tournament).
    *
-   * @param Stage $stage The stage to activate
-   *
+   * @param  Stage  $stage  The stage to activate
    * @return Stage The updated stage
    */
   public function activateStage(Stage $stage): Stage
@@ -253,8 +237,7 @@ class StageService
    * Marks the stage as completed. Validates that all fixtures are
    * completed or cancelled before allowing completion.
    *
-   * @param Stage $stage The stage to complete
-   *
+   * @param  Stage  $stage  The stage to complete
    * @return Stage The updated stage
    *
    * @throws \Exception If any fixtures are not completed or cancelled
@@ -267,7 +250,7 @@ class StageService
       ->count();
 
     if ($incompleteFixtures > 0) {
-      throw new \Exception("Cannot complete stage with incomplete fixtures");
+      throw new \Exception('Cannot complete stage with incomplete fixtures');
     }
 
     $stage->update(['status' => 'completed']);
@@ -281,8 +264,7 @@ class StageService
    * Retrieves a stage with comprehensive relationships loaded including
    * tournament, groups, teams, fixtures, rankings, and promotion config.
    *
-   * @param int $stageId The stage ID
-   *
+   * @param  int  $stageId  The stage ID
    * @return Stage Stage with loaded relationships
    *
    * @throws \Illuminate\Database\Eloquent\ModelNotFoundException If stage not found

@@ -60,7 +60,6 @@ const StageForm = memo(({ existingStage, nextOrder = 1, onCancel, tournamentId }
         stage_type: stageType,
         settings: settings,
         ...(nextStageId && {
-          next_stage_id: nextStageId,
           rule_type: promotionRule.rule_type,
           rule_config: promotionRule.rule_config,
         }),

@@ -211,7 +211,6 @@ export interface CreateStageRequest {
   order: number;
   stage_type: StageType;
   settings?: StageSettings;
-  next_stage_id?: number;
   rule_type?: PromotionRuleType;
   rule_config?: PromotionRuleConfig;
 }
@@ -222,7 +221,6 @@ export interface UpdateStageRequest {
   stage_type?: StageType;
   settings?: StageSettings;
   status?: StageStatus;
-  next_stage_id?: number;
   rule_type?: PromotionRuleType;
   rule_config?: PromotionRuleConfig;
 }

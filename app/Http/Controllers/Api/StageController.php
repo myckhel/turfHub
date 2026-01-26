@@ -8,7 +8,6 @@ use App\Http\Requests\Tournament\CreateStageRequest;
 use App\Http\Requests\Tournament\GenerateFixturesRequest;
 use App\Http\Requests\Tournament\UpdateStageRequest;
 use App\Http\Resources\StageResource;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use App\Jobs\GenerateFixturesJob;
 use App\Jobs\PromoteStageJob;
 use App\Models\Stage;
@@ -18,6 +17,7 @@ use App\Services\PromotionService;
 use App\Services\StageService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Gate;
 
@@ -29,13 +29,10 @@ class StageController extends Controller
     private readonly PromotionService $promotionService
   ) {}
 
-  /**
-   * Display stages for a tournament.
-   */
   public function index(Tournament $tournament): AnonymousResourceCollection
   {
     $stages = $tournament->stages()
-      ->with(['groups', 'promotion', 'nextStage'])
+      ->with(['groups', 'promotion', 'promotion.nextStage'])
       ->orderBy('order')
       ->paginate(15);
 
@@ -65,8 +62,8 @@ class StageController extends Controller
       'groups.stageTeams',
       'stageTeams.team',
       'fixtures',
-      'promotion',
-      'nextStage'
+      'promotion.nextStage',
+      'nextStage',
     ]);
 
     return new StageResource($stage);
@@ -177,5 +174,29 @@ class StageController extends Controller
     );
 
     return response()->json(['message' => 'Promotion queued']);
+  }
+
+  /**
+   * Activate the specified stage.
+   */
+  public function activate(Stage $stage): StageResource
+  {
+    Gate::authorize('update', $stage->tournament);
+
+    $updated = $this->stageService->activateStage($stage);
+
+    return new StageResource($updated);
+  }
+
+  /**
+   * Complete the specified stage.
+   */
+  public function complete(Stage $stage): StageResource|JsonResponse
+  {
+    Gate::authorize('update', $stage->tournament);
+
+    $updated = $this->stageService->completeStage($stage);
+
+    return new StageResource($updated);
   }
 }

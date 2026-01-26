@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Enums\StageStatus;
+use App\Jobs\GenerateFixturesJob;
 use App\Models\Stage;
 use Illuminate\Support\Facades\Log;
 
@@ -40,8 +41,8 @@ class StageObserver
     {
         Log::info("Stage {$stage->id} ({$stage->name}) has been activated");
 
-        // You could trigger notifications here
-        // Or auto-generate fixtures if not already generated
+        // Auto-generate fixtures asynchronously
+        GenerateFixturesJob::dispatch($stage->id, true);
     }
 
     /**

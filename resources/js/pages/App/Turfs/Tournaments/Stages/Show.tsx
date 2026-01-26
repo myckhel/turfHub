@@ -65,7 +65,7 @@ const getStageTypeBadge = (type: Stage['stage_type']) => {
 
 // Overview Tab
 const OverviewTab = memo(({ stage }: { stage: Stage }) => {
-  const { generateFixtures, simulateFixtures, simulatePromotion, executePromotion } = useTournamentStore();
+  const { generateFixtures, simulateFixtures, simulatePromotion, executePromotion, activateStage, completeStage, fetchStage } = useTournamentStore();
   const [loading, setLoading] = useState<Record<string, boolean>>({});
 
   const handleGenerateFixtures = async () => {
@@ -147,6 +147,32 @@ const OverviewTab = memo(({ stage }: { stage: Stage }) => {
         }
       },
     });
+  };
+
+  const handleActivateStage = async () => {
+    try {
+      setLoading((prev) => ({ ...prev, activate: true }));
+      await activateStage(stage.id);
+      await fetchStage(stage.id);
+      message.success('Stage activated');
+    } catch {
+      message.error('Failed to activate stage');
+    } finally {
+      setLoading((prev) => ({ ...prev, activate: false }));
+    }
+  };
+
+  const handleCompleteStage = async () => {
+    try {
+      setLoading((prev) => ({ ...prev, complete: true }));
+      await completeStage(stage.id);
+      await fetchStage(stage.id);
+      message.success('Stage marked as completed');
+    } catch {
+      message.error('Cannot complete stage: ensure all fixtures are done');
+    } finally {
+      setLoading((prev) => ({ ...prev, complete: false }));
+    }
   };
 
   return (
@@ -232,6 +258,14 @@ const OverviewTab = memo(({ stage }: { stage: Stage }) => {
       {/* Actions */}
       <Card title="Stage Actions">
         <div className="flex flex-wrap gap-2">
+          <Button type="default" onClick={handleActivateStage} loading={loading.activate} disabled={stage.status !== 'pending'}>
+            Activate Stage
+          </Button>
+
+          <Button type="default" onClick={handleCompleteStage} loading={loading.complete} disabled={stage.status !== 'active'}>
+            Complete Stage
+          </Button>
+
           <Button
             type="primary"
             icon={<CalendarOutlined />}
@@ -578,8 +612,6 @@ const PromotionTab = memo(({ stage }: { stage: Stage }) => {
   const hasPromotion = !!stage.promotion;
   const promotedTeams = stage.promotion?.next_stage?.id ? [] : []; // This would come from API in real scenario
   const canEditPromotion = stage.status === 'pending' || (stage.total_fixtures || 0) === 0;
-
-  console.log({ editModalVisible, canEditPromotion, hasPromotion });
 
   const handleExecuteSuccess = () => {
     message.success('Promotion executed successfully!');

@@ -1,8 +1,6 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\BettingController;
-use App\Http\Controllers\Api\BettingMarketController;
 use App\Http\Controllers\Api\GameMatchController;
 use App\Http\Controllers\Api\MatchEventController;
 use App\Http\Controllers\Api\MatchSessionController;
@@ -16,7 +14,6 @@ use App\Http\Controllers\Api\TeamPlayerController;
 use App\Http\Controllers\Api\TournamentController;
 use App\Http\Controllers\Api\TurfController;
 use App\Http\Controllers\Api\UserController;
-use App\Models\MatchSession;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -106,6 +103,8 @@ Route::middleware('auth:sanctum')->name('api.')->group(function () {
     Route::get('/', [StageController::class, 'show'])->name('show');
     Route::patch('/', [StageController::class, 'update'])->name('update');
     Route::delete('/', [StageController::class, 'destroy'])->name('destroy');
+    Route::post('activate', [StageController::class, 'activate'])->name('activate');
+    Route::post('complete', [StageController::class, 'complete'])->name('complete');
     Route::post('assign-teams', [StageController::class, 'assignTeams'])->name('assign-teams');
     Route::get('simulate-fixtures', [StageController::class, 'simulateFixtures'])->name('simulate-fixtures');
     Route::post('generate-fixtures', [StageController::class, 'generateFixtures'])->name('generate-fixtures');

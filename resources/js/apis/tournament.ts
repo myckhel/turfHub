@@ -166,6 +166,20 @@ export const stageApi = {
   },
 
   /**
+   * Activate a stage (sets others to pending)
+   */
+  activate: async (id: number): Promise<StageResponse> => {
+    return api.post(route('api.stages.activate', { stage: id }));
+  },
+
+  /**
+   * Complete a stage (validates fixtures)
+   */
+  complete: async (id: number): Promise<StageResponse> => {
+    return api.post(route('api.stages.complete', { stage: id }));
+  },
+
+  /**
    * Get rankings for a stage
    */
   getRankings: async (id: number): Promise<RankingListResponse> => {

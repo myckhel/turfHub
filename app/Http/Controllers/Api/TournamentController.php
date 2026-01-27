@@ -9,12 +9,15 @@ use App\Http\Resources\TournamentResource;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use App\Models\Tournament;
 use App\Services\TournamentService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class TournamentController extends Controller
 {
+  use AuthorizesRequests;
+
   public function __construct(
     private readonly TournamentService $tournamentService
   ) {}

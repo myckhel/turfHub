@@ -15,6 +15,7 @@ use App\Models\Tournament;
 use App\Services\FixtureGenerationService;
 use App\Services\PromotionService;
 use App\Services\StageService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -22,6 +23,8 @@ use Illuminate\Http\Response;
 
 class StageController extends Controller
 {
+  use AuthorizesRequests;
+
   public function __construct(
     private readonly StageService $stageService,
     private readonly FixtureGenerationService $fixtureService,

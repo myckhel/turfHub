@@ -8,12 +8,15 @@ use App\Jobs\ComputeRankingsJob;
 use App\Models\Group;
 use App\Models\Stage;
 use App\Services\RankingService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Cache;
 
 class RankingController extends Controller
 {
+  use AuthorizesRequests;
+
   public function __construct(
     private readonly RankingService $rankingService
   ) {}

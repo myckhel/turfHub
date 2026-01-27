@@ -8,11 +8,13 @@ use App\Http\Requests\Tournament\UpdateStagePromotionRequest;
 use App\Http\Resources\StagePromotionResource;
 use App\Models\Stage;
 use App\Models\StagePromotion;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 
 class StagePromotionController extends Controller
 {
+  use AuthorizesRequests;
   /**
    * Display a list of all stage promotions for a tournament.
    */

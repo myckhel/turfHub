@@ -11,7 +11,6 @@ use App\Services\RankingService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Gate;
 
 class RankingController extends Controller
 {
@@ -24,7 +23,7 @@ class RankingController extends Controller
    */
   public function index(Stage $stage): AnonymousResourceCollection
   {
-    Gate::authorize('view', $stage->tournament);
+    $this->authorize('view', $stage->tournament);
 
     $rankings = Cache::remember("rankings-stage-{$stage->id}", 300, function () use ($stage) {
       return $stage->rankings()
@@ -41,7 +40,7 @@ class RankingController extends Controller
    */
   public function byGroup(Group $group): AnonymousResourceCollection
   {
-    Gate::authorize('view', $group->stage->tournament);
+    $this->authorize('view', $group->stage->tournament);
 
     $rankings = Cache::remember("rankings-group-{$group->id}", 300, function () use ($group) {
       return $group->rankings()
@@ -58,7 +57,7 @@ class RankingController extends Controller
    */
   public function refresh(Stage $stage): JsonResponse
   {
-    Gate::authorize('update', $stage->tournament);
+    $this->authorize('update', $stage->tournament);
 
     ComputeRankingsJob::dispatch($stage->id);
 

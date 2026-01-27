@@ -10,7 +10,6 @@ use App\Models\Stage;
 use App\Models\StagePromotion;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Gate;
 
 class StagePromotionController extends Controller
 {
@@ -46,7 +45,7 @@ class StagePromotionController extends Controller
    */
   public function store(CreateStagePromotionRequest $request, Stage $stage): StagePromotionResource
   {
-    Gate::authorize('update', $stage->tournament);
+    $this->authorize('update', $stage->tournament);
 
     // Check if promotion already exists
     if ($stage->promotion) {
@@ -72,7 +71,7 @@ class StagePromotionController extends Controller
    */
   public function update(UpdateStagePromotionRequest $request, Stage $stage): StagePromotionResource
   {
-    Gate::authorize('update', $stage->tournament);
+    $this->authorize('update', $stage->tournament);
 
     $promotion = $stage->promotion;
 
@@ -98,7 +97,7 @@ class StagePromotionController extends Controller
    */
   public function destroy(Stage $stage): Response
   {
-    Gate::authorize('update', $stage->tournament);
+    $this->authorize('update', $stage->tournament);
 
     $promotion = $stage->promotion;
 

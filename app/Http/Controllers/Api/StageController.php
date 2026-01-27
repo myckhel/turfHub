@@ -19,7 +19,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Gate;
 
 class StageController extends Controller
 {
@@ -44,7 +43,7 @@ class StageController extends Controller
    */
   public function store(CreateStageRequest $request, Tournament $tournament): JsonResponse
   {
-    Gate::authorize('update', $tournament);
+    $this->authorize('update', $tournament);
 
     $stage = $this->stageService->createStage($tournament, $request->validated());
 
@@ -74,7 +73,7 @@ class StageController extends Controller
    */
   public function update(UpdateStageRequest $request, Stage $stage): StageResource
   {
-    Gate::authorize('update', $stage->tournament);
+    $this->authorize('update', $stage->tournament);
 
     $stage = $this->stageService->updateStage($stage, $request->validated());
 
@@ -86,7 +85,7 @@ class StageController extends Controller
    */
   public function destroy(Stage $stage): Response
   {
-    Gate::authorize('delete', $stage->tournament);
+    $this->authorize('delete', $stage->tournament);
 
     $this->stageService->deleteStage($stage);
 
@@ -98,7 +97,7 @@ class StageController extends Controller
    */
   public function assignTeams(AssignTeamsRequest $request, Stage $stage): JsonResponse
   {
-    Gate::authorize('update', $stage->tournament);
+    $this->authorize('update', $stage->tournament);
 
     $validated = $request->validated();
     $this->stageService->assignTeamsToStage($stage, $validated['team_ids'], $validated);
@@ -111,7 +110,7 @@ class StageController extends Controller
    */
   public function simulateFixtures(Stage $stage): JsonResponse
   {
-    Gate::authorize('view', $stage->tournament);
+    $this->authorize('view', $stage->tournament);
 
     $fixtures = $this->fixtureService->simulateFixtures($stage);
 
@@ -126,7 +125,7 @@ class StageController extends Controller
    */
   public function generateFixtures(GenerateFixturesRequest $request, Stage $stage): JsonResponse
   {
-    Gate::authorize('update', $stage->tournament);
+    $this->authorize('update', $stage->tournament);
 
     $validated = $request->validated();
 
@@ -148,7 +147,7 @@ class StageController extends Controller
    */
   public function simulatePromotion(Stage $stage): JsonResponse
   {
-    Gate::authorize('view', $stage->tournament);
+    $this->authorize('view', $stage->tournament);
 
     $result = $this->promotionService->simulatePromotion($stage);
 
@@ -160,7 +159,7 @@ class StageController extends Controller
    */
   public function executePromotion(Request $request, Stage $stage): JsonResponse
   {
-    Gate::authorize('update', $stage->tournament);
+    $this->authorize('update', $stage->tournament);
 
     $validated = $request->validate([
       'manual_override' => 'nullable|array',
@@ -181,7 +180,7 @@ class StageController extends Controller
    */
   public function activate(Stage $stage): StageResource
   {
-    Gate::authorize('update', $stage->tournament);
+    $this->authorize('update', $stage->tournament);
 
     $updated = $this->stageService->activateStage($stage);
 
@@ -193,7 +192,7 @@ class StageController extends Controller
    */
   public function complete(Stage $stage): StageResource|JsonResponse
   {
-    Gate::authorize('update', $stage->tournament);
+    $this->authorize('update', $stage->tournament);
 
     $updated = $this->stageService->completeStage($stage);
 

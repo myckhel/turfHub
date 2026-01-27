@@ -12,7 +12,6 @@ use App\Services\TournamentService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Gate;
 
 class TournamentController extends Controller
 {
@@ -35,7 +34,7 @@ class TournamentController extends Controller
    */
   public function store(CreateTournamentRequest $request): TournamentResource
   {
-    Gate::authorize('create', Tournament::class);
+    $this->authorize('create', Tournament::class);
 
     $tournament = $this->tournamentService->createTournament($request->validated());
 
@@ -47,7 +46,7 @@ class TournamentController extends Controller
    */
   public function show(Tournament $tournament): TournamentResource
   {
-    Gate::authorize('view', $tournament);
+    $this->authorize('view', $tournament);
 
     $tournament->load(['turf', 'creator', 'stages.groups', 'teams']);
 
@@ -59,7 +58,7 @@ class TournamentController extends Controller
    */
   public function update(UpdateTournamentRequest $request, Tournament $tournament): TournamentResource
   {
-    Gate::authorize('update', $tournament);
+    $this->authorize('update', $tournament);
 
     $tournament = $this->tournamentService->updateTournament($tournament, $request->validated());
 
@@ -71,7 +70,7 @@ class TournamentController extends Controller
    */
   public function destroy(Tournament $tournament): Response
   {
-    Gate::authorize('delete', $tournament);
+    $this->authorize('delete', $tournament);
 
     $this->tournamentService->deleteTournament($tournament);
 
@@ -83,7 +82,7 @@ class TournamentController extends Controller
    */
   public function export(Tournament $tournament): JsonResponse
   {
-    Gate::authorize('view', $tournament);
+    $this->authorize('view', $tournament);
 
     $tournament->load([
       'stages.groups.rankings',

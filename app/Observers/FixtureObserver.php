@@ -28,8 +28,8 @@ class FixtureObserver
       $winnerId = $this->determineWinner($fixture);
 
       // Update winner if not already set
-      if ($fixture->winner_team_id !== $winnerId) {
-        $fixture->updateQuietly(['winner_team_id' => $winnerId]);
+      if ($fixture->winning_team_id !== $winnerId) {
+        $fixture->updateQuietly(['winning_team_id' => $winnerId]);
       }
 
       // Update status to completed if not already

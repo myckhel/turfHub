@@ -93,7 +93,7 @@ interface TournamentStore {
   // Actions - Promotion
   fetchPromotionRule: (stageId: number) => Promise<void>;
   createPromotionRule: (stageId: number, data: CreateStagePromotionRequest) => Promise<void>;
-  updatePromotionRule: (stageId: number, data: UpdateStagePromotionRequest) => Promise<void>;
+  updatePromotionRule: (stageId: number, promotionId: number, data: UpdateStagePromotionRequest) => Promise<void>;
   deletePromotionRule: (stageId: number) => Promise<void>;
   simulatePromotion: (stageId: number) => Promise<void>;
   executePromotion: (stageId: number, data?: ExecutePromotionRequest) => Promise<void>;
@@ -539,9 +539,9 @@ export const useTournamentStore = create<TournamentStore>()(
         }
       },
 
-      updatePromotionRule: async (stageId, data) => {
+      updatePromotionRule: async (stageId, promotionId, data) => {
         try {
-          await promotionApi.update(stageId, data);
+          await promotionApi.update(stageId, promotionId, data);
           await get().fetchStage(stageId);
         } catch (error) {
           console.error('Failed to update promotion rule:', error);
@@ -564,7 +564,7 @@ export const useTournamentStore = create<TournamentStore>()(
         try {
           const response = await stageApi.simulatePromotion(stageId);
           set({
-            promotionSimulation: response.data,
+            promotionSimulation: response,
             isSimulating: false,
           });
         } catch (error) {

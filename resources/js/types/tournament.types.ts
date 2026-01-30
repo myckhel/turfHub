@@ -10,7 +10,7 @@ import type { ApiResponse, PaginatedResponse } from './global.types';
 export type TournamentType = 'single_session' | 'multi_stage_tournament';
 export type StageType = 'league' | 'group' | 'knockout' | 'swiss' | 'king_of_hill' | 'custom';
 export type StageStatus = 'pending' | 'active' | 'completed' | 'cancelled';
-export type PromotionRuleType = 'top_n' | 'top_per_group' | 'points_threshold' | 'custom';
+export type PromotionRuleType = 'top_n' | 'top_per_group' | 'points_threshold' | 'knockout_winners' | 'custom';
 export type FixtureStatus = 'scheduled' | 'ongoing' | 'completed' | 'cancelled' | 'postponed' | 'upcoming';
 
 // ============================================================================
@@ -343,5 +343,5 @@ export type StageResponse = Stage;
 export type RankingListResponse = ApiResponse<Ranking[]>;
 export type FixtureListResponse = ApiResponse<Fixture[]>;
 export type FixtureSimulationResponse = ApiResponse<FixtureSimulation>;
-export type PromotionSimulationResponse = ApiResponse<PromotionSimulation>;
+export type PromotionSimulationResponse = PromotionSimulation;
 export type GroupListResponse = ApiResponse<Group[]>;

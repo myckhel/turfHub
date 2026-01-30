@@ -26,6 +26,7 @@ const PromotionRuleForm = memo(({ value, onChange, nextStageId, disabled }: Prom
       top_n: { n: 1 },
       top_per_group: { n: 1 },
       points_threshold: { threshold: 10 },
+      knockout_winners: { n: 1 },
       custom: { handler_class: '', params: {} },
     };
 
@@ -75,6 +76,12 @@ const PromotionRuleForm = memo(({ value, onChange, nextStageId, disabled }: Prom
       icon: <NumberOutlined />,
     },
     {
+      value: 'knockout_winners' as PromotionRuleType,
+      label: 'Knockout Winners',
+      description: 'Promote teams that won their knockout fixtures (based on match results)',
+      icon: <TrophyOutlined />,
+    },
+    {
       value: 'custom' as PromotionRuleType,
       label: 'Custom Rule',
       description: 'Define a custom promotion handler with specific parameters',
@@ -94,6 +101,8 @@ const PromotionRuleForm = memo(({ value, onChange, nextStageId, disabled }: Prom
         return `Top ${ruleConfig.n || 1} team(s) from each group will advance to the next stage`;
       case 'points_threshold':
         return `Teams with ${ruleConfig.threshold || 0}+ points will advance to the next stage`;
+      case 'knockout_winners':
+        return `Teams that won their knockout fixtures will advance to the next stage`;
       case 'custom':
         return `Custom promotion using handler: ${ruleConfig.handler_class || 'Not specified'}`;
       default:
@@ -174,6 +183,18 @@ const PromotionRuleForm = memo(({ value, onChange, nextStageId, disabled }: Prom
               disabled={disabled}
             />
           </Form.Item>
+        )}
+
+        {ruleType === 'knockout_winners' && (
+          <div className="rounded bg-blue-50 p-4">
+            <Text strong className="mb-2 block text-sm">
+              Fixture-Based Winner Promotion
+            </Text>
+            <Text className="text-sm text-gray-600">
+              Teams that won their knockout fixtures will be promoted to the next stage. Winners are determined by actual match results
+              (winning_team_id), not by computed rankings. No configuration needed.
+            </Text>
+          </div>
         )}
 
         {ruleType === 'custom' && (

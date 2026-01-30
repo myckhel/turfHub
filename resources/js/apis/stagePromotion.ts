@@ -16,8 +16,8 @@ export const stagePromotionApi = {
   /**
    * Update promotion rules for a stage
    */
-  update: (stageId: number, data: UpdateStagePromotionRequest): Promise<StagePromotion> =>
-    api.patch(route('api.stages.promotion.update', { stage: stageId }), data),
+  update: (stageId: number, promotionId: number, data: UpdateStagePromotionRequest): Promise<StagePromotion> =>
+    api.patch(route('api.stages.promotion.update', { stage: stageId, promotion: promotionId }), data),
 
   /**
    * Delete promotion rules for a stage

@@ -23,8 +23,6 @@ const PromotionRuleEditModal = memo(({ visible, stage, onClose, onSuccess }: Pro
     rule_config: stage.promotion?.rule_config || { n: 1 },
   });
 
-  console.log({ visible });
-
   useEffect(() => {
     if (stage.tournament_id && !currentTournament) {
       fetchTournament(stage.tournament_id);
@@ -51,7 +49,7 @@ const PromotionRuleEditModal = memo(({ visible, stage, onClose, onSuccess }: Pro
     try {
       if (stage.promotion) {
         // Update existing promotion
-        await stagePromotionApi.update(stage.id, {
+        await stagePromotionApi.update(stage.id, stage.promotion.id, {
           next_stage_id: nextStageId,
           rule_type: promotionRule.rule_type,
           rule_config: promotionRule.rule_config,

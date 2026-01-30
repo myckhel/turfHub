@@ -231,8 +231,8 @@ export const promotionApi = {
   /**
    * Update promotion rule for a stage
    */
-  update: async (stageId: number, data: UpdateStagePromotionRequest): Promise<StagePromotion> => {
-    return api.patch(route('api.stages.promotion.update', { stage: stageId }), data);
+  update: async (stageId: number, promotionId: number, data: UpdateStagePromotionRequest): Promise<StagePromotion> => {
+    return api.patch(route('api.stages.promotion.update', { stage: stageId, promotion: promotionId }), data);
   },
 
   /**

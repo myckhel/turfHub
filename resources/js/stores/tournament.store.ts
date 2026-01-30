@@ -564,7 +564,7 @@ export const useTournamentStore = create<TournamentStore>()(
         try {
           const response = await stageApi.simulatePromotion(stageId);
           set({
-            promotionSimulation: response.data,
+            promotionSimulation: response,
             isSimulating: false,
           });
         } catch (error) {

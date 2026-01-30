@@ -27,6 +27,7 @@ const PromotionRulesDisplay = memo(({ promotion, stageType }: PromotionRulesDisp
       top_n: 'Top ranked teams will be promoted based on their final standings',
       top_per_group: 'Top teams from each group will advance to the next stage',
       points_threshold: 'Teams that reach a minimum points threshold will be promoted',
+      knockout_winners: 'Winners and runners-up from the knockout stage will advance',
       custom: 'Custom promotion logic will be applied',
     };
     return descriptions[ruleType];
@@ -37,6 +38,7 @@ const PromotionRulesDisplay = memo(({ promotion, stageType }: PromotionRulesDisp
       top_n: '🏆',
       top_per_group: '👥',
       points_threshold: '🎯',
+      knockout_winners: '🏅',
       custom: '⚙️',
     };
     return icons[ruleType];
@@ -52,6 +54,9 @@ const PromotionRulesDisplay = memo(({ promotion, stageType }: PromotionRulesDisp
     }
     if (promotion.rule_type === 'points_threshold' && config.threshold) {
       return `Teams with ${config.threshold}+ points`;
+    }
+    if (promotion.rule_type === 'knockout_winners') {
+      return `Winners and runners-up from knockout stage`;
     }
     if (promotion.rule_type === 'custom' && config.handler_class) {
       return `Custom handler: ${config.handler_class}`;

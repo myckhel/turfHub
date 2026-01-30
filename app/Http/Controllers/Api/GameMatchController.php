@@ -145,7 +145,7 @@ class GameMatchController extends Controller
     // Trigger re-ranking
     event(new MatchCompleted(
       $gameMatch,
-      $gameMatch->winner_team_id,
+      $gameMatch->winning_team_id,
       $gameMatch->first_team_score,
       $gameMatch->second_team_score
     ));

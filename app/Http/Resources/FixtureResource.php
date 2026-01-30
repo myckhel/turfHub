@@ -22,7 +22,7 @@ class FixtureResource extends JsonResource
             'duration' => $this->duration,
             'status' => $this->status,
             'score' => $this->score,
-            'winner_team_id' => $this->winner_team_id,
+            'winning_team_id' => $this->winning_team_id,
             'metadata' => $this->metadata,
             'created_at' => $this->created_at->toIso8601String(),
             'updated_at' => $this->updated_at->toIso8601String(),

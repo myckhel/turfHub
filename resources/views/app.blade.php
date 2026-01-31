@@ -120,6 +120,15 @@
                 });
             }
         </script>
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-1MH73GCG1J"></script>
+        <script>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+
+          gtag('config', 'G-1MH73GCG1J');
+        </script>
     </head>
     <body class="font-sans antialiased">
         @inertia

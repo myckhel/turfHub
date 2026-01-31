@@ -1,5 +1,5 @@
-import { useGSAP } from '@gsap/react';
 import { MoonOutlined, SunOutlined } from '@ant-design/icons';
+import { useGSAP } from '@gsap/react';
 import { gsap } from 'gsap';
 import React, { useRef } from 'react';
 import { useTheme } from '../../hooks/useTheme';
@@ -13,11 +13,7 @@ interface ThemeToggleProps {
   className?: string;
 }
 
-export const ThemeToggle: React.FC<ThemeToggleProps> = ({
-  size = 'medium',
-  showLabel = false,
-  className = '',
-}) => {
+export const ThemeToggle: React.FC<ThemeToggleProps> = ({ size = 'medium', showLabel = false, className = '' }) => {
   const { isDark, setLightMode, setDarkMode, reducedMotion } = useTheme();
   const toggleRef = useRef<HTMLButtonElement>(null);
   const iconRef = useRef<HTMLDivElement>(null);
@@ -84,62 +80,24 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
       <button
         ref={toggleRef}
         onClick={handleToggle}
-        className={`
-          ${sizeConfig.buttonSize}
-          rounded-full
-          bg-slate-200/80 dark:bg-slate-700/80
-          hover:bg-slate-300/90 dark:hover:bg-slate-600/90
-          text-slate-700 dark:text-slate-300
-          flex items-center justify-center
-          transition-all duration-300 ease-out
-          focus-visible:ring-2 focus-visible:ring-turf-green focus-visible:ring-offset-2
-          active:scale-95
-          touch-manipulation
-          relative overflow-hidden
-          backdrop-blur-sm
-          border border-slate-300/50 dark:border-slate-600/50
-          shadow-sm hover:shadow-md
-        `}
+        className={` ${sizeConfig.buttonSize} relative flex touch-manipulation items-center justify-center overflow-hidden rounded-full border border-slate-300/50 bg-slate-200/80 text-slate-700 shadow-sm backdrop-blur-sm transition-all duration-300 ease-out hover:bg-slate-300/90 hover:shadow-md focus-visible:ring-2 focus-visible:ring-turf-green focus-visible:ring-offset-2 active:scale-95 dark:border-slate-600/50 dark:bg-slate-700/80 dark:text-slate-300 dark:hover:bg-slate-600/90`}
         aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
       >
         {/* Background gradient animation */}
         <div
-          className={`
-            absolute inset-0 rounded-full transition-opacity duration-300
-            ${isDark
-              ? 'bg-gradient-to-br from-blue-500/30 to-purple-600/30'
-              : 'bg-gradient-to-br from-yellow-400/30 to-orange-500/30'
-            }
-            ${isDark ? 'opacity-100' : 'opacity-100'}
-          `}
+          className={`absolute inset-0 rounded-full transition-opacity duration-300 ${
+            isDark ? 'bg-gradient-to-br from-blue-500/30 to-purple-600/30' : 'bg-gradient-to-br from-yellow-400/30 to-orange-500/30'
+          } ${isDark ? 'opacity-100' : 'opacity-100'} `}
         />
 
         {/* Icon container */}
-        <div
-          ref={iconRef}
-          className={`
-            ${sizeConfig.iconSize}
-            relative z-10
-            transition-colors duration-300
-          `}
-        >
-          {isDark ? (
-            <MoonOutlined className="text-blue-400" />
-          ) : (
-            <SunOutlined className="text-yellow-500" />
-          )}
+        <div ref={iconRef} className={` ${sizeConfig.iconSize} relative z-10 transition-colors duration-300`}>
+          {isDark ? <MoonOutlined className="text-blue-400" /> : <SunOutlined className="text-yellow-500" />}
         </div>
       </button>
 
       {showLabel && (
-        <span
-          className={`
-            ${sizeConfig.fontSize}
-            font-medium
-            text-slate-700 dark:text-slate-300
-            transition-colors duration-300
-          `}
-        >
+        <span className={` ${sizeConfig.fontSize} font-medium text-slate-700 transition-colors duration-300 dark:text-slate-300`}>
           {isDark ? 'Dark' : 'Light'}
         </span>
       )}

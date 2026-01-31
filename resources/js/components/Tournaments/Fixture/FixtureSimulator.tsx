@@ -1,6 +1,7 @@
 import { PlayCircleOutlined, ReloadOutlined } from '@ant-design/icons';
 import { Alert, Button, Card, Divider, Empty, Progress, Space, Statistic, Typography } from 'antd';
-import { memo, useState } from 'react';
+import { memo, useEffect, useMemo, useState } from 'react';
+import { stageApi } from '../../../apis/tournament';
 import type { Fixture, FixtureSimulation } from '../../../types/tournament.types';
 import FixtureCard from './FixtureCard';
 
@@ -9,15 +10,35 @@ const { Title, Text } = Typography;
 interface FixtureSimulatorProps {
   stageId: number;
   stageName: string;
-  pendingFixtures: Fixture[];
   simulation: FixtureSimulation | null;
   onSimulate: (stageId: number) => Promise<void>;
   onReset?: () => void;
   loading?: boolean;
 }
 
-const FixtureSimulator = memo(({ stageId, stageName, pendingFixtures, simulation, onSimulate, onReset, loading }: FixtureSimulatorProps) => {
+const FixtureSimulator = memo(({ stageId, stageName, simulation, onSimulate, onReset, loading }: FixtureSimulatorProps) => {
   const [isSimulating, setIsSimulating] = useState(false);
+  const [allFixtures, setAllFixtures] = useState<Fixture[]>([]);
+
+  useEffect(() => {
+    const fetchPendingFixtures = async () => {
+      try {
+        const response = await stageApi.getFixtures({
+          stage_id: stageId,
+          status: 'upcoming',
+        });
+        setAllFixtures(response.data || []);
+      } catch (error) {
+        console.error('Failed to fetch pending fixtures:', error);
+      }
+    };
+
+    fetchPendingFixtures();
+  }, [stageId, simulation]);
+
+  const pendingFixtures = useMemo(() => {
+    return allFixtures;
+  }, [allFixtures]);
 
   const handleSimulate = async () => {
     try {

@@ -144,8 +144,10 @@ export interface UpdateMatchEventRequest {
 export interface GameMatchFilters {
   match_session_id?: number;
   turf_id?: number;
+  stage_id?: number;
+  group_id?: number;
   team_id?: number;
-  status?: 'upcoming' | 'in_progress' | 'completed' | 'postponed';
+  status?: 'upcoming' | 'in_progress' | 'completed' | 'postponed' | 'cancelled';
   outcome?: 'win' | 'loss' | 'draw';
   date_from?: string;
   date_to?: string;

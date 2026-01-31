@@ -2,18 +2,12 @@ import { useEffect } from 'react';
 import { useLayoutStore } from '../stores/layout.store';
 
 export const useResponsive = () => {
-  const { 
-    isMobile, 
-    isTablet, 
-    isDesktop, 
-    currentBreakpoint, 
-    setBreakpoint 
-  } = useLayoutStore();
+  const { isMobile, isTablet, isDesktop, currentBreakpoint, setBreakpoint } = useLayoutStore();
 
   useEffect(() => {
     const handleResize = () => {
       const width = window.innerWidth;
-      
+
       if (width < 768) {
         setBreakpoint('mobile');
       } else if (width < 1024) {
@@ -28,7 +22,7 @@ export const useResponsive = () => {
 
     // Add event listener
     window.addEventListener('resize', handleResize);
-    
+
     // Cleanup
     return () => window.removeEventListener('resize', handleResize);
   }, [setBreakpoint]);

@@ -20,7 +20,12 @@ const TeamQuickCreateModal = memo(({ open, onClose, onTeamCreated, turfId, match
     try {
       const data = await teamApi.createQuick({
         name: values.name,
-        color: values.color || '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0'),
+        color:
+          values.color ||
+          '#' +
+            Math.floor(Math.random() * 16777215)
+              .toString(16)
+              .padStart(6, '0'),
         turf_id: turfId,
         match_session_id: matchSessionId,
       });

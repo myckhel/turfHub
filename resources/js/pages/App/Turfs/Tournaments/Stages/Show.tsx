@@ -12,7 +12,7 @@ import { App, Badge, Button, Card, Col, Descriptions, message, Modal, Row, Space
 import { format } from 'date-fns';
 import { memo, useCallback, useEffect, useState } from 'react';
 import FixtureGenerator from '../../../../../components/Tournaments/Fixture/FixtureGenerator';
-import FixtureSchedule from '../../../../../components/Tournaments/Fixture/FixtureSchedule';
+import FixtureScheduleContainer from '../../../../../components/Tournaments/Fixture/FixtureScheduleContainer';
 import FixtureSimulator from '../../../../../components/Tournaments/Fixture/FixtureSimulator';
 import SubmitResultModal from '../../../../../components/Tournaments/Fixture/SubmitResultModal';
 import ExecutePromotionModal from '../../../../../components/Tournaments/Promotion/ExecutePromotionModal';
@@ -423,17 +423,11 @@ TeamsTab.displayName = 'TeamsTab';
 
 // Fixtures Tab
 const FixturesTab = memo(({ stage }: { stage: Stage }) => {
-  const { fixtures, fixtureSimulation, generateFixtures, simulateFixtures, fetchFixtures, isLoadingFixtures } = useTournamentStore();
+  const { fixtureSimulation, generateFixtures, simulateFixtures, isLoadingFixtures } = useTournamentStore();
   const [activeView, setActiveView] = useState<'schedule' | 'generate' | 'simulate'>('schedule');
   const [selectedFixture, setSelectedFixture] = useState<Fixture | null>(null);
   const [scoreModalVisible, setScoreModalVisible] = useState(false);
   const { message } = App.useApp();
-
-  useEffect(() => {
-    if (stage.id) {
-      fetchFixtures({ stage_id: stage.id, include: 'first_team,second_team,match_events,betting_markets' });
-    }
-  }, [stage.id, fetchFixtures]);
 
   const handleEditScore = (fixture: Fixture) => {
     setSelectedFixture(fixture);
@@ -443,7 +437,6 @@ const FixturesTab = memo(({ stage }: { stage: Stage }) => {
   const handleGenerateFixtures = async (stageId: number, data: GenerateFixturesRequest) => {
     await generateFixtures(stageId, data);
     message.success('Fixtures generated successfully');
-    fetchFixtures({ stage_id: stage.id, include: 'first_team,second_team,match_events,betting_markets' });
     setActiveView('schedule');
   };
 
@@ -461,45 +454,27 @@ const FixturesTab = memo(({ stage }: { stage: Stage }) => {
     setSelectedFixture(null);
   }, []);
 
-  const stageFixtures = fixtures;
-  const pendingFixtures = stageFixtures.filter((f) => f.status === 'upcoming' || f.status === 'postponed');
-  const hasFixtures = stageFixtures.length > 0;
-  console.log({ fixtures });
-
   return (
     <div className="space-y-4">
       {/* Header Actions */}
       <div className="flex items-center justify-between">
         <Space>
-          <Button type={activeView === 'schedule' ? 'primary' : 'default'} onClick={() => setActiveView('schedule')} disabled={!hasFixtures}>
+          <Button type={activeView === 'schedule' ? 'primary' : 'default'} onClick={() => setActiveView('schedule')}>
             Schedule
           </Button>
           <Button type={activeView === 'generate' ? 'primary' : 'default'} onClick={() => setActiveView('generate')}>
             Generate
           </Button>
-          {hasFixtures && (
-            <Button type={activeView === 'simulate' ? 'primary' : 'default'} onClick={() => setActiveView('simulate')}>
-              Simulate
-            </Button>
-          )}
+          <Button type={activeView === 'simulate' ? 'primary' : 'default'} onClick={() => setActiveView('simulate')}>
+            Simulate
+          </Button>
         </Space>
       </div>
 
       {/* Content */}
-      {activeView === 'schedule' &&
-        (hasFixtures ? (
-          <FixtureSchedule fixtures={stageFixtures} onEditScore={handleEditScore} loading={isLoadingFixtures} />
-        ) : (
-          <Card>
-            <div className="py-8 text-center text-gray-500">
-              <CalendarOutlined className="mb-2 text-4xl" />
-              <p>No fixtures generated yet</p>
-              <Button type="primary" className="mt-4" onClick={() => setActiveView('generate')}>
-                Generate Fixtures
-              </Button>
-            </div>
-          </Card>
-        ))}
+      {activeView === 'schedule' && (
+        <FixtureScheduleContainer stageId={stage.id} include="first_team,second_team,match_events,betting_markets" onEditScore={handleEditScore} />
+      )}
 
       {activeView === 'generate' && (
         <FixtureGenerator
@@ -510,7 +485,6 @@ const FixturesTab = memo(({ stage }: { stage: Stage }) => {
           onCancel={() => setActiveView('schedule')}
           loading={isLoadingFixtures}
           disabled={!stage.teams || stage.teams.length < 2}
-          hasExistingFixtures={hasFixtures}
         />
       )}
 
@@ -518,7 +492,6 @@ const FixturesTab = memo(({ stage }: { stage: Stage }) => {
         <FixtureSimulator
           stageId={stage.id}
           stageName={stage.name}
-          pendingFixtures={pendingFixtures}
           simulation={fixtureSimulation}
           onSimulate={handleSimulateFixtures}
           onReset={handleResetSimulation}

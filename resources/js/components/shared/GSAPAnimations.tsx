@@ -7,10 +7,7 @@ interface PageTransitionProps {
   className?: string;
 }
 
-export const PageTransition: React.FC<PageTransitionProps> = ({ 
-  children, 
-  className = '' 
-}) => {
+export const PageTransition: React.FC<PageTransitionProps> = ({ children, className = '' }) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
@@ -27,7 +24,7 @@ export const PageTransition: React.FC<PageTransitionProps> = ({
           y: 0,
           duration: 0.6,
           ease: 'power2.out',
-        }
+        },
       );
 
       // Animate child elements with stagger
@@ -46,7 +43,7 @@ export const PageTransition: React.FC<PageTransitionProps> = ({
             stagger: 0.1,
             delay: 0.2,
             ease: 'power2.out',
-          }
+          },
         );
       }
     }
@@ -66,11 +63,7 @@ interface AnimatedCardProps {
   onClick?: () => void;
 }
 
-export const AnimatedCard: React.FC<AnimatedCardProps> = ({ 
-  children, 
-  className = '',
-  onClick 
-}) => {
+export const AnimatedCard: React.FC<AnimatedCardProps> = ({ children, className = '', onClick }) => {
   const cardRef = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
@@ -125,10 +118,7 @@ interface LoadingSpinnerProps {
   color?: string;
 }
 
-export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ 
-  size = 'medium',
-  color = '#10b981'
-}) => {
+export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ size = 'medium', color = '#10b981' }) => {
   const spinnerRef = useRef<HTMLDivElement>(null);
 
   const sizeClasses = {
@@ -152,7 +142,7 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
     <div className="flex items-center justify-center">
       <div
         ref={spinnerRef}
-        className={`${sizeClasses[size]} border-2 border-gray-200 border-t-current rounded-full`}
+        className={`${sizeClasses[size]} rounded-full border-2 border-gray-200 border-t-current`}
         style={{ borderTopColor: color }}
       />
     </div>
@@ -166,17 +156,13 @@ interface StaggerListProps {
   delay?: number;
 }
 
-export const StaggerList: React.FC<StaggerListProps> = ({ 
-  children, 
-  className = '',
-  delay = 0.1
-}) => {
+export const StaggerList: React.FC<StaggerListProps> = ({ children, className = '', delay = 0.1 }) => {
   const listRef = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
     if (listRef.current) {
       const items = listRef.current.children;
-      
+
       gsap.fromTo(
         items,
         {
@@ -189,7 +175,7 @@ export const StaggerList: React.FC<StaggerListProps> = ({
           duration: 0.5,
           stagger: delay,
           ease: 'power2.out',
-        }
+        },
       );
     }
   }, [delay]);

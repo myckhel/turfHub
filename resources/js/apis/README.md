@@ -20,6 +20,7 @@ apis/
 ## Configuration
 
 The API client is configured with:
+
 - **Base URL**: `/api` (configurable via `VITE_API_URL`)
 - **Timeout**: 30 seconds
 - **With Credentials**: `true` (includes cookies and auth headers)
@@ -29,11 +30,13 @@ The API client is configured with:
 ## Usage
 
 ### Basic Import
+
 ```typescript
 import { api, authApi, turfApi, playerApi } from '@/apis';
 ```
 
 ### Authentication
+
 ```typescript
 // Login
 const response = await authApi.login({ email, password });
@@ -46,6 +49,7 @@ await authApi.logout();
 ```
 
 ### Turf Management
+
 ```typescript
 // Get all turfs
 const turfs = await turfApi.getAll({ is_active: true });
@@ -58,11 +62,12 @@ const newTurf = await turfApi.create(turfData);
 ```
 
 ### Player Operations
+
 ```typescript
 // Get players with filters
-const players = await playerApi.getAll({ 
+const players = await playerApi.getAll({
   skill_level: 'intermediate',
-  is_active: true 
+  is_active: true,
 });
 
 // Update profile
@@ -88,13 +93,7 @@ try {
 Full TypeScript support with interfaces for all data types:
 
 ```typescript
-import type { 
-  User, 
-  Turf, 
-  Player, 
-  MatchSession,
-  ApiResponse 
-} from '@/apis';
+import type { User, Turf, Player, MatchSession, ApiResponse } from '@/apis';
 ```
 
 ### Environment Variables
@@ -119,14 +118,16 @@ VITE_PAYSTACK_PUBLIC_KEY=pk_test_xxxxx
 ## API Endpoints
 
 ### Authentication (`/auth`)
+
 - `POST /login` - User login
-- `POST /register` - User registration  
+- `POST /register` - User registration
 - `POST /logout` - User logout
 - `GET /user` - Get current user
 - `POST /forgot-password` - Password reset request
 - `POST /reset-password` - Password reset
 
 ### Turfs (`/turfs`)
+
 - `GET /turfs` - List turfs (with filters)
 - `GET /turfs/{id}` - Get turf details
 - `POST /turfs` - Create turf
@@ -134,24 +135,28 @@ VITE_PAYSTACK_PUBLIC_KEY=pk_test_xxxxx
 - `DELETE /turfs/{id}` - Delete turf
 
 ### Players (`/players`)
+
 - `GET /players` - List players
 - `GET /players/me` - Get current player
 - `PUT /players/me` - Update profile
 - `POST /players/me/avatar` - Upload avatar
 
 ### Teams (`/teams`)
+
 - `GET /teams` - List teams
 - `POST /teams` - Create team
 - `GET /teams/{id}/players` - Get team players
 - `POST /teams/{id}/players` - Add player to team
 
 ### Match Sessions (`/match-sessions`)
+
 - `GET /match-sessions` - List sessions
 - `POST /match-sessions` - Create session
 - `POST /match-sessions/{id}/join` - Join session
 - `POST /match-sessions/{id}/start` - Start session
 
 ### Payments (`/payments`)
+
 - `POST /payments/initialize` - Initialize payment
 - `POST /payments/verify` - Verify payment
 - `GET /payments/history` - Payment history

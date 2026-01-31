@@ -48,7 +48,7 @@ export const useFlashStore = create<FlashState & FlashActions>()(
             messages: [...state.messages, message],
           }),
           false,
-          'flash/addMessage'
+          'flash/addMessage',
         );
 
         // Auto-remove after duration
@@ -65,24 +65,19 @@ export const useFlashStore = create<FlashState & FlashActions>()(
             messages: state.messages.filter((msg) => msg.id !== id),
           }),
           false,
-          'flash/removeMessage'
+          'flash/removeMessage',
         ),
 
-      clearMessages: () =>
-        set({ messages: [] }, false, 'flash/clearMessages'),
+      clearMessages: () => set({ messages: [] }, false, 'flash/clearMessages'),
 
-      success: (message, title) =>
-        get().addMessage({ type: 'success', message, title }),
+      success: (message, title) => get().addMessage({ type: 'success', message, title }),
 
-      error: (message, title) =>
-        get().addMessage({ type: 'error', message, title, duration: 8000 }),
+      error: (message, title) => get().addMessage({ type: 'error', message, title, duration: 8000 }),
 
-      warning: (message, title) =>
-        get().addMessage({ type: 'warning', message, title }),
+      warning: (message, title) => get().addMessage({ type: 'warning', message, title }),
 
-      info: (message, title) =>
-        get().addMessage({ type: 'info', message, title }),
+      info: (message, title) => get().addMessage({ type: 'info', message, title }),
     }),
-    { name: 'FlashStore' }
-  )
+    { name: 'FlashStore' },
+  ),
 );

@@ -17,16 +17,7 @@ interface PageProps extends Record<string, unknown> {
 
 export const useFlash = () => {
   const { flash, errors } = usePage<PageProps>().props;
-  const { 
-    messages, 
-    addMessage, 
-    removeMessage, 
-    clearMessages, 
-    success, 
-    error, 
-    warning, 
-    info 
-  } = useFlashStore();
+  const { messages, addMessage, removeMessage, clearMessages, success, error, warning, info } = useFlashStore();
 
   // Handle Laravel flash messages
   useEffect(() => {
@@ -46,10 +37,7 @@ export const useFlash = () => {
       if (errorMessages.length === 1) {
         error(errorMessages[0], 'Validation Error');
       } else {
-        error(
-          `Please check the following fields: ${Object.keys(errors).join(', ')}`,
-          'Validation Errors'
-        );
+        error(`Please check the following fields: ${Object.keys(errors).join(', ')}`, 'Validation Errors');
       }
     }
   }, [errors, error]);
